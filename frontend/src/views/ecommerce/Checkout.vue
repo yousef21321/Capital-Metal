@@ -22,6 +22,10 @@ const form = ref({
   notes: '',
   guest_name: '',
   guest_phone: '',
+  guest_governorate: '',
+  guest_city: '',
+  guest_address_line: '',
+  guest_postal_code: '',
 })
 
 const couponCode = ref('')
@@ -179,6 +183,10 @@ async function placeOrder() {
     if (!auth.isAuthenticated) {
       payload.guest_name = form.value.guest_name
       payload.guest_phone = form.value.guest_phone
+      payload.guest_governorate = form.value.guest_governorate
+      payload.guest_city = form.value.guest_city
+      payload.guest_address_line = form.value.guest_address_line
+      payload.guest_postal_code = form.value.guest_postal_code
     }
 
     const { data } = await api.post('/api/checkout', payload)
@@ -276,8 +284,26 @@ onMounted(loadData)
             </h5>
           </CCardHeader>
           <CCardBody>
-            <div v-if="!auth.isAuthenticated" class="text-body-secondary mb-3">
-              <p class="mb-0 small">سيتم تأكيد العنوان لاحقاً / Address will be confirmed later.</p>
+            <!-- Guest address fields -->
+            <div v-if="!auth.isAuthenticated">
+              <CRow>
+                <CCol :sm="6" class="mb-3">
+                  <CFormLabel class="small fw-semibold">المحافظة / Governorate <span class="text-danger">*</span></CFormLabel>
+                  <CFormInput v-model="form.guest_governorate" placeholder="e.g. Cairo" />
+                </CCol>
+                <CCol :sm="6" class="mb-3">
+                  <CFormLabel class="small fw-semibold">المدينة / City <span class="text-danger">*</span></CFormLabel>
+                  <CFormInput v-model="form.guest_city" placeholder="e.g. New Cairo" />
+                </CCol>
+                <CCol :sm="8" class="mb-3">
+                  <CFormLabel class="small fw-semibold">العنوان بالتفصيل / Address Line</CFormLabel>
+                  <CFormInput v-model="form.guest_address_line" placeholder="Street, building, apartment" />
+                </CCol>
+                <CCol :sm="4" class="mb-3">
+                  <CFormLabel class="small fw-semibold">الرمز البريدي / Postal Code</CFormLabel>
+                  <CFormInput v-model="form.guest_postal_code" placeholder="Optional" />
+                </CCol>
+              </CRow>
             </div>
 
             <div v-if="auth.isAuthenticated && !addresses.length && !showAddressForm" class="text-body-secondary">
@@ -458,7 +484,7 @@ onMounted(loadData)
               color="primary"
               class="w-100"
               size="lg"
-              :disabled="submitting || (!auth.isAuthenticated && (!form.guest_name || !form.guest_phone))"
+              :disabled="submitting || (!auth.isAuthenticated && (!form.guest_name || !form.guest_phone || !form.guest_governorate || !form.guest_city))"
               @click="placeOrder"
             >
               <CSpinner v-if="submitting" size="sm" class="me-2" />

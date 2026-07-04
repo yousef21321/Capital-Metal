@@ -99,6 +99,10 @@ class OrderController extends Controller
             'coupon_code' => 'nullable|string|max:100',
             'guest_name' => 'nullable|string|max:255',
             'guest_phone' => 'nullable|string|max:50',
+            'guest_governorate' => 'nullable|string|max:100',
+            'guest_city' => 'nullable|string|max:100',
+            'guest_address_line' => 'nullable|string|max:255',
+            'guest_postal_code' => 'nullable|string|max:20',
         ]);
 
         $identifier = $this->cartIdentifier($request);
@@ -167,6 +171,10 @@ class OrderController extends Controller
             if (!$userId) {
                 $orderData['guest_name'] = $validated['guest_name'];
                 $orderData['guest_phone'] = $validated['guest_phone'] ?? null;
+                $orderData['guest_governorate'] = $validated['guest_governorate'] ?? null;
+                $orderData['guest_city'] = $validated['guest_city'] ?? null;
+                $orderData['guest_address_line'] = $validated['guest_address_line'] ?? null;
+                $orderData['guest_postal_code'] = $validated['guest_postal_code'] ?? null;
             }
 
             $order = Order::create($orderData);
