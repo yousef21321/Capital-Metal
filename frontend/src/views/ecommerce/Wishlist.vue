@@ -1,0 +1,129 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '@/api'
+import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
+
+const router = useRouter()
+const cart = useCartStore()
+const auth = useAuthStore()
+const toast = useToastStore()
+const items = ref([])
+const loading = ref(true)
+const removingId = ref(null)
+
+async function fetchWishlist() {
+  loading.value = true
+  try {
+    const { data } = await api.get('/api/wishlist')
+    items.value = data
+  } catch (e) {
+    toast.error('Failed to load wishlist.')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function toggleWishlist(productId) {
+  removingId.value = productId
+  try {
+    await api.post('/api/wishlist/toggle', { product_id: productId })
+    items.value = items.value.filter((i) => i.product_id !== productId)
+    toast.success('Removed from wishlist.')
+  } catch (e) {
+    toast.error('Failed to update wishlist.')
+  } finally {
+    removingId.value = null
+  }
+}
+
+async function addToCart(item) {
+  try {
+    await cart.addItem(item.product_id, 1)
+    toast.success(`"${item.product?.name}" added to cart.`)
+  } catch (e) {
+    toast.error('Failed to add to cart.')
+  }
+}
+
+const formatPrice = (product) => {
+  const currency = auth.userCurrency
+  if (currency === 'USD' && parseFloat(product?.price_usd) > 0) return `$${parseFloat(product.price_usd).toFixed(2)}`
+  if (parseFloat(product?.price_egp) > 0) return `${parseFloat(product.price_egp).toFixed(2)} EGP`
+  if (parseFloat(product?.price_usd) > 0) return `$${parseFloat(product.price_usd).toFixed(2)}`
+  return 'Free'
+}
+
+const productImage = (product) => {
+  const img = product?.images?.[0]
+  if (img && img.image_url) return `${api.defaults.baseURL}/storage/${img.image_url}`
+  return null
+}
+
+onMounted(fetchWishlist)
+</script>
+
+<template>
+  <div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h3 class="mb-1">My Wishlist</h3>
+        <p class="text-body-secondary mb-0">Products you've saved for later.</p>
+      </div>
+      <CButton color="secondary" variant="outline" size="sm" @click="fetchWishlist">
+        <CIcon icon="cil-reload" class="me-1" /> Refresh
+      </CButton>
+    </div>
+
+    <div v-if="loading" class="text-center py-5">
+      <CSpinner />
+    </div>
+
+    <div v-else-if="!items.length" class="text-center py-5 text-body-secondary">
+      <CIcon icon="cil-heart" size="3xl" class="mb-3" />
+      <h4>Your wishlist is empty</h4>
+      <p class="mb-3">Save products you like to find them here later.</p>
+      <CButton color="primary" router-link to="/products">Browse Products</CButton>
+    </div>
+
+    <CRow v-else>
+      <CCol v-for="item in items" :key="item.id" sm="6" lg="4" xl="3" class="mb-4">
+        <CCard class="h-100 shadow-sm">
+          <div class="product-img-wrapper text-center bg-light" style="height: 200px; overflow: hidden; cursor: pointer;" @click="router.push(`/products/${item.product_id}`)">
+            <img
+              v-if="productImage(item.product)"
+              :src="productImage(item.product)"
+              :alt="item.product?.name"
+              class="w-100 h-100"
+              style="object-fit: cover;"
+            />
+            <div v-else class="d-flex align-items-center justify-content-center h-100">
+              <CIcon :icon="item.product?.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="3xl" class="text-body-secondary" />
+            </div>
+          </div>
+          <CCardBody class="d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <CCardTitle class="mb-0" style="cursor: pointer" @click="router.push(`/products/${item.product_id}`)">{{ item.product?.name }}</CCardTitle>
+              <CButton color="danger" variant="ghost" size="sm" :disabled="removingId === item.product_id" @click="toggleWishlist(item.product_id)">
+                <CSpinner v-if="removingId === item.product_id" size="sm" />
+                <CIcon v-else icon="cil-heart" />
+              </CButton>
+            </div>
+            <CBadge :color="item.product?.product_type === 'digital' ? 'info' : 'success'" class="align-self-start mb-2">
+              {{ item.product?.product_type }}
+            </CBadge>
+            <p class="card-text text-body-secondary small flex-grow-1">{{ item.product?.description?.slice(0, 60) || 'No description' }}{{ item.product?.description?.length > 60 ? '...' : '' }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <h5 class="text-primary mb-0">{{ formatPrice(item.product) }}</h5>
+              <CButton color="primary" size="sm" @click="addToCart(item)">
+                <CIcon icon="cil-cart" class="me-1" />Add
+              </CButton>
+            </div>
+          </CCardBody>
+        </CCard>
+      </CCol>
+    </CRow>
+  </div>
+</template>

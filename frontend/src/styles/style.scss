@@ -1,0 +1,360 @@
+@use "@coreui/coreui/scss/coreui" as * with (
+  $enable-deprecation-messages: false
+);
+@use "@coreui/chartjs/scss/coreui-chartjs";
+@use "vendors/simplebar";
+
+body {
+  background-color: var(--cui-tertiary-bg);
+}
+
+.wrapper {
+  width: 100%;
+  padding-inline: var(--cui-sidebar-occupy-start, 0) var(--cui-sidebar-occupy-end, 0);
+  will-change: auto;
+  @include transition(padding .15s);
+}
+
+.header > .container-fluid,
+.sidebar-header {
+  min-height: calc(4rem + 1px);
+}
+
+.sidebar-brand-full {
+  margin-left: 3px;
+}
+
+.sidebar-header {
+  .nav-underline-border {
+    --cui-nav-underline-border-link-padding-x: 1rem;
+    --cui-nav-underline-border-gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: calc(4rem + 1px);
+  }
+}
+
+.sidebar-toggler {
+  margin-inline-start: auto;
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler {
+    margin-inline-end: auto;
+  }
+}
+
+.header > .container-fluid + .container-fluid {
+  min-height: 3rem;
+}
+
+.footer {
+  min-height: calc(3rem + 1px);
+}
+
+// Modern Sidebar Nav Item Styling
+.sidebar-nav {
+  padding: 0.5rem 0.75rem !important;
+}
+
+.sidebar-nav .nav-item {
+  margin: 0.15rem 0.25rem;
+}
+
+.sidebar-nav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  .nav-icon {
+    width: 1.3rem;
+    height: 1.3rem;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(3px);
+
+    .nav-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba(50, 31, 219, 0.25), rgba(50, 31, 219, 0.05));
+    border-left: 3px solid var(--cui-primary, #321fdb);
+
+    .nav-icon {
+      color: var(--cui-primary, #321fdb);
+      opacity: 1;
+    }
+  }
+}
+
+.sidebar-nav .nav-group {
+  .nav-group-toggle {
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(3px);
+    }
+
+    .nav-icon {
+      width: 1.3rem;
+      height: 1.3rem;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+    }
+  }
+
+  .nav-group-items {
+    padding: 0.25rem 0 0.25rem 1.25rem;
+
+    .nav-link {
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+
+      &.active {
+        background: rgba(50, 31, 219, 0.15);
+        border-left: 2px solid var(--cui-primary, #321fdb);
+      }
+
+      .nav-icon {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
+}
+
+.sidebar-nav .nav-title {
+  padding: 1rem 0.8rem 0.4rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+
+// Modern Badge Variant
+.badge.bg-primary-gradient {
+  background: linear-gradient(135deg, var(--cui-primary, #321fdb), var(--cui-info, #39f));
+  box-shadow: 0 2px 8px rgba(50, 31, 219, 0.25);
+}
+
+// Modern scrollbar for sidebar
+.simplebar-scrollbar::before {
+  background: var(--cui-primary, #321fdb) !important;
+  opacity: 0.3 !important;
+}
+
+.simplebar-track.simplebar-vertical {
+  width: 6px !important;
+}
+
+// Modern header glass effect
+.modern-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--cui-header-bg, rgba(255, 255, 255, 0.85)) !important;
+  border-bottom: 1px solid var(--cui-border-color, rgba(0, 0, 0, 0.06));
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+
+  &.shadow-sm {
+    background: var(--cui-header-bg, rgba(255, 255, 255, 0.92)) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .brand-icon {
+    color: var(--cui-primary, #321fdb);
+    filter: drop-shadow(0 0 4px rgba(50, 31, 219, 0.3));
+    transition: transform 0.3s ease;
+  }
+
+  .brand-text {
+    background: linear-gradient(135deg, var(--cui-primary, #321fdb), var(--cui-info, #39f));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-link {
+    border-radius: 10px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Modern sidebar
+.modern-sidebar {
+  --cui-sidebar-bg: var(--cui-dark, #212631);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .sidebar-header-modern {
+    background: linear-gradient(135deg, rgba(50, 31, 219, 0.12), transparent);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+
+    .brand-icon {
+      color: var(--cui-primary, #321fdb);
+      filter: drop-shadow(0 0 6px rgba(50, 31, 219, 0.4));
+    }
+
+    .brand-text {
+      background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.7));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  .sidebar-footer-modern {
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .sidebar-toggler-modern {
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler-modern {
+    margin-inline-end: auto;
+  }
+}
+
+// User avatar
+.user-avatar {
+  transition: all 0.25s ease;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--cui-border-color, transparent);
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 2px var(--cui-primary, #321fdb);
+  }
+}
+
+// Account dropdown
+.account-dropdown {
+  border-radius: 14px;
+  border: 1px solid var(--cui-border-color, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  padding: 0.4rem;
+}
+
+.account-header {
+  padding: 0.8rem 0.8rem 0.6rem !important;
+  border-radius: 10px !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.role-badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  padding: 0.2em 0.6em;
+}
+
+.dropdown-item-custom {
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  padding: 0.5rem 0.8rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: var(--cui-tertiary-bg, rgba(0, 0, 0, 0.04));
+  }
+
+  .dropdown-item-icon {
+    opacity: 0.7;
+    width: 1.3rem;
+  }
+}
+
+.logout-item:hover {
+  color: var(--cui-danger, #e55353) !important;
+
+  .dropdown-item-icon {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.08); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+// Modern theme dropdown
+.theme-dropdown {
+  border-radius: 12px;
+  border: 1px solid var(--cui-border-color, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+
+  .dropdown-item {
+    transition: all 0.15s ease;
+    padding: 0.6rem 1rem;
+
+    &:hover {
+      background: var(--cui-tertiary-bg, rgba(0, 0, 0, 0.03));
+    }
+  }
+}
+
+@include color-mode(dark) {
+  body {
+    background-color: var(--cui-dark-bg-subtle);
+  }
+
+  .footer {
+    --cui-footer-bg: var(--cui-body-bg);
+  }
+
+  .modern-header {
+    background: rgba(22, 26, 36, 0.85) !important;
+
+    &.shadow-sm {
+      background: rgba(22, 26, 36, 0.92) !important;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+  }
+
+  .sidebar-nav .nav-link {
+    &.active {
+      background: linear-gradient(135deg, rgba(50, 31, 219, 0.35), rgba(50, 31, 219, 0.08));
+    }
+  }
+
+  .sidebar-nav .nav-group .nav-group-items .nav-link {
+    &.active {
+      background: rgba(50, 31, 219, 0.25);
+    }
+  }
+}
