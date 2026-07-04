@@ -1,0 +1,524 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\SavedCard;
+use App\Models\Ticket;
+use App\Models\SubscriptionPlan;
+use App\Models\User;
+use App\Models\UserSubscription;
+use App\Services\PaymobService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class PayMobController extends Controller
+{
+    public function __construct(
+        protected PaymobService $paymob
+    ) {}
+
+    public function initiatePayment(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => 'nullable|exists:orders,id',
+            'subscription_id' => 'nullable|exists:user_subscriptions,id',
+            'ticket_id' => 'nullable|exists:tickets,id',
+        ]);
+
+        $user = $request->user();
+
+        if (!isset($validated['order_id']) && !isset($validated['subscription_id']) && !isset($validated['ticket_id'])) {
+            return response()->json(['message' => 'Provide order_id, subscription_id, or ticket_id.'], 422);
+        }
+
+        if (isset($validated['ticket_id'])) {
+            return $this->initiateTicketPayment($request->user(), $validated['ticket_id']);
+        }
+
+        if (isset($validated['order_id'])) {
+            $order = Order::with('user')->findOrFail($validated['order_id']);
+
+            if ($order->user_id !== $user->id) {
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
+
+            if ($order->payment_status === 'paid') {
+                return response()->json(['message' => 'Order is already paid.'], 422);
+            }
+
+            $amountCents = (int) (round($order->total_amount, 2) * 100);
+            $currency = $order->currency;
+            $billingData = $this->buildBillingData($user, $order);
+
+            $onRegistered = function ($paymobOrderId) use ($order) {
+                $order->update(['payment_status' => 'processing']);
+                Payment::create([
+                    'order_id' => $order->id,
+                    'amount' => $order->total_amount,
+                    'currency' => $order->currency,
+                    'payment_status' => 'pending',
+                    'paymob_order_id' => (string) $paymobOrderId,
+                    'created_at' => now(),
+                ]);
+            };
+
+            $onResult = function ($success, $txn, $paymobOrderId) use ($order) {
+                Payment::where('paymob_order_id', (string) $paymobOrderId)->update([
+                    'transaction_id' => (string) ($txn['id'] ?? ''),
+                    'payment_status' => $success ? 'paid' : 'failed',
+                ]);
+
+                $order->update(['payment_status' => $success ? 'paid' : 'failed']);
+
+                $this->notifyUser($order->user_id, $success ? 'payment.success' : 'payment.failed', $success ? 'Payment received' : 'Payment failed', [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                ]);
+            };
+
+            $savedCard = $user->defaultSavedCard;
+
+            if ($savedCard) {
+                return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
+            }
+
+            return $this->createPaymobSession($amountCents, $currency, $billingData, function ($paymobOrderId, $paymentToken) use ($order) {
+                $order->update(['payment_status' => 'processing']);
+
+                Payment::create([
+                    'order_id' => $order->id,
+                    'amount' => $order->total_amount,
+                    'currency' => $order->currency,
+                    'payment_status' => 'pending',
+                    'paymob_order_id' => (string) $paymobOrderId,
+                    'created_at' => now(),
+                ]);
+            });
+        }
+
+        if (isset($validated['subscription_id'])) {
+            $subscription = UserSubscription::with('plan', 'user')->findOrFail($validated['subscription_id']);
+
+            if ($subscription->user_id !== $user->id) {
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
+
+            if ($subscription->approval_status === 'approved') {
+                return response()->json(['message' => 'Subscription is already approved.'], 422);
+            }
+
+            $plan = $subscription->plan;
+            $amountCents = (int) (round($plan->price, 2) * 100);
+            $currency = $plan->currency ?? 'EGP';
+            $billingData = $this->buildBillingData($user);
+
+            $onRegistered = function ($paymobOrderId) use ($subscription) {
+                $subscription->update(['paymob_transaction_id' => (string) $paymobOrderId]);
+            };
+
+            $onResult = function ($success, $txn, $paymobOrderId) use ($subscription) {
+                if ($success) {
+                    $subscription->update([
+                        'approval_status' => 'approved',
+                        'approved_at' => now(),
+                    ]);
+
+                    Payment::create([
+                        'order_id' => null,
+                        'amount' => ($txn['amount_cents'] ?? 0) / 100,
+                        'currency' => $txn['currency'] ?? 'EGP',
+                        'transaction_id' => (string) ($txn['id'] ?? ''),
+                        'paymob_order_id' => (string) $paymobOrderId,
+                        'payment_status' => 'paid',
+                        'created_at' => now(),
+                    ]);
+
+                    $this->notifyUser($subscription->user_id, 'subscription.approved', 'Subscription approved & payment received', [
+                        'subscription_id' => $subscription->id,
+                        'plan_name' => $subscription->plan?->name,
+                    ]);
+
+                    $this->notifyRole('admin', 'subscription.paid', 'Subscription paid & auto-approved', [
+                        'subscription_id' => $subscription->id,
+                        'user_id' => $subscription->user_id,
+                    ]);
+                } else {
+                    $subscription->update([
+                        'approval_status' => 'rejected',
+                        'status' => 'cancelled',
+                        'rejection_reason' => 'Payment failed',
+                    ]);
+
+                    $this->notifyUser($subscription->user_id, 'subscription.rejected', 'Subscription payment failed', [
+                        'subscription_id' => $subscription->id,
+                    ]);
+                }
+            };
+
+            $savedCard = $user->defaultSavedCard;
+
+            if ($savedCard) {
+                return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
+            }
+
+            return $this->createPaymobSession($amountCents, $currency, $billingData, function ($paymobOrderId, $paymentToken) use ($subscription) {
+                $subscription->update(['paymob_transaction_id' => (string) $paymobOrderId]);
+            });
+        }
+    }
+
+    protected function initiateTicketPayment(User $user, int $ticketId)
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+
+        if ($ticket->industor_id !== $user->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if (!$ticket->is_single_purchase) {
+            return response()->json(['message' => 'This ticket does not require a separate payment.'], 422);
+        }
+
+        if ($ticket->status !== Ticket::STATUS_PENDING_PAYMENT) {
+            return response()->json(['message' => 'Ticket is not awaiting payment.'], 422);
+        }
+
+        $amountCents = (int) (round((float) $ticket->price, 2) * 100);
+        $currency = 'EGP';
+        $billingData = $this->buildBillingData($user);
+
+        $onRegistered = function ($paymobOrderId) use ($ticket) {
+            Payment::create([
+                'ticket_id' => $ticket->id,
+                'order_id' => null,
+                'amount' => $ticket->price,
+                'currency' => $currency,
+                'payment_status' => 'pending',
+                'paymob_order_id' => (string) $paymobOrderId,
+                'created_at' => now(),
+            ]);
+        };
+
+        $onResult = function ($success, $txn, $paymobOrderId) use ($ticket) {
+            Payment::where('paymob_order_id', (string) $paymobOrderId)->update([
+                'transaction_id' => (string) ($txn['id'] ?? ''),
+                'payment_status' => $success ? 'paid' : 'failed',
+            ]);
+
+            if ($success) {
+                $ticket->update(['status' => Ticket::STATUS_APPROVED_BY_TESTER]);
+                $ticket->histories()->create([
+                    'from_status' => Ticket::STATUS_PENDING_PAYMENT,
+                    'to_status' => Ticket::STATUS_APPROVED_BY_TESTER,
+                    'changed_by' => $ticket->industor_id,
+                    'note' => 'Single-ticket payment confirmed',
+                ]);
+
+                $this->notifyUser($ticket->industor_id, 'ticket.paid', 'Ticket payment confirmed', [
+                    'ticket_id' => $ticket->id,
+                ]);
+
+                $this->notifyRole('designer', 'ticket.opened', 'New ticket available', [
+                    'ticket_id' => $ticket->id,
+                    'title' => $ticket->title,
+                ]);
+            } else {
+                $this->notifyUser($ticket->industor_id, 'ticket.payment_failed', 'Ticket payment failed', [
+                    'ticket_id' => $ticket->id,
+                ]);
+            }
+        };
+
+        $savedCard = $user->defaultSavedCard;
+
+        if ($savedCard) {
+            return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
+        }
+
+        return $this->createPaymobSession($amountCents, $currency, $billingData, function ($paymobOrderId) use ($ticket) {
+            Payment::create([
+                'ticket_id' => $ticket->id,
+                'order_id' => null,
+                'amount' => $ticket->price,
+                'currency' => 'EGP',
+                'payment_status' => 'pending',
+                'paymob_order_id' => (string) $paymobOrderId,
+                'created_at' => now(),
+            ]);
+        });
+    }
+
+    protected function chargeWithSavedCard(SavedCard $card, int $amountCents, string $currency, array $billingData, callable $onRegistered, callable $onResult)
+    {
+        try {
+            $token = $this->paymob->getAuthToken();
+            $paymobOrder = $this->paymob->createOrder($token, $amountCents, $currency);
+            $paymobOrderId = $paymobOrder['id'];
+
+            $onRegistered($paymobOrderId);
+
+            $txn = $this->paymob->chargeSavedCard(
+                $token,
+                $amountCents,
+                $currency,
+                $paymobOrderId,
+                $billingData,
+                $card->paymob_token
+            );
+
+            $success = (bool) ($txn['success'] ?? false);
+            $redirect = $txn['redirect_url'] ?? null;
+            $pending = (bool) ($txn['pending'] ?? false);
+
+            $onResult($success, $txn, $paymobOrderId);
+
+            if ($redirect && ($pending || !$success)) {
+                return response()->json([
+                    'payment_url' => $redirect,
+                    'paymob_order_id' => $paymobOrderId,
+                    'requires_action' => true,
+                ]);
+            }
+
+            return response()->json([
+                'paid' => $success,
+                'payment_status' => $success ? 'paid' : 'failed',
+                'paymob_order_id' => $paymobOrderId,
+                'message' => $success
+                    ? 'Payment completed using saved card.'
+                    : 'Payment was declined. Try another card or use the manual payment page.',
+            ], $success ? 200 : 422);
+        } catch (\RuntimeException $e) {
+            Log::error('PayMob not configured', ['error' => $e->getMessage()]);
+
+            return response()->json(['message' => $e->getMessage()], 503);
+        } catch (\Exception $e) {
+            Log::error('PayMob saved-card charge failed', [
+                'error' => $e->getMessage(),
+                'amount_cents' => $amountCents,
+                'currency' => $currency,
+            ]);
+
+            return response()->json(['message' => 'Failed to charge saved card. Please try another card or use the manual payment page.'], 500);
+        }
+    }
+
+    protected function createPaymobSession(int $amountCents, string $currency, array $billingData, callable $onBeforeRedirect)
+    {
+        try {
+            $token = $this->paymob->getAuthToken();
+            $paymobOrder = $this->paymob->createOrder($token, $amountCents, $currency);
+            $paymobOrderId = $paymobOrder['id'];
+
+            $paymentKey = $this->paymob->getPaymentKey(
+                $token,
+                $amountCents,
+                $currency,
+                $paymobOrderId,
+                $billingData
+            );
+
+            $onBeforeRedirect($paymobOrderId, $paymentKey);
+
+            return response()->json([
+                'payment_url' => $this->paymob->getIframeUrl($paymentKey),
+                'paymob_order_id' => $paymobOrderId,
+                'payment_token' => $paymentKey,
+            ]);
+        } catch (\RuntimeException $e) {
+            Log::error('PayMob not configured', ['error' => $e->getMessage()]);
+
+            return response()->json(['message' => $e->getMessage()], 503);
+        } catch (\Exception $e) {
+            Log::error('PayMob payment initiation failed', [
+                'error' => $e->getMessage(),
+                'amount_cents' => $amountCents,
+                'currency' => $currency,
+            ]);
+
+            return response()->json(['message' => 'Failed to initiate payment. Please try again.'], 500);
+        }
+    }
+
+    public function callback(Request $request)
+    {
+        $data = $request->all();
+
+        Log::info('PayMob callback received', $data);
+
+        $transaction = $this->paymob->processCallback($data);
+
+        if (!$transaction) {
+            Log::warning('PayMob callback verification failed');
+            return response()->json(['message' => 'Invalid callback'], 400);
+        }
+
+        $paymobOrderId = $transaction['order'] ?? $transaction['order_id'] ?? null;
+        $success = $transaction['success'] ?? false;
+        $txnId = $transaction['id'] ?? null;
+        $amountCents = $transaction['amount_cents'] ?? 0;
+        $currency = $transaction['currency'] ?? 'EGP';
+
+        if (!$paymobOrderId) {
+            Log::warning('PayMob callback missing order ID');
+            return response()->json(['message' => 'Missing order ID'], 400);
+        }
+
+        DB::transaction(function () use ($paymobOrderId, $success, $txnId, $amountCents, $currency) {
+            $payment = Payment::where('paymob_order_id', $paymobOrderId)->first();
+
+            if ($payment) {
+                $payment->update([
+                    'transaction_id' => (string) $txnId,
+                    'payment_status' => $success ? 'paid' : 'failed',
+                ]);
+
+                if ($payment->ticket_id) {
+                    $ticket = $payment->ticket;
+
+                    if ($success && $ticket && $ticket->status === Ticket::STATUS_PENDING_PAYMENT) {
+                        $ticket->update(['status' => Ticket::STATUS_APPROVED_BY_TESTER]);
+                        $ticket->histories()->create([
+                            'from_status' => Ticket::STATUS_PENDING_PAYMENT,
+                            'to_status' => Ticket::STATUS_APPROVED_BY_TESTER,
+                            'changed_by' => $ticket->industor_id,
+                            'note' => 'Single-ticket payment confirmed (callback)',
+                        ]);
+
+                        $this->notifyUser($ticket->industor_id, 'ticket.paid', 'Ticket payment confirmed', [
+                            'ticket_id' => $ticket->id,
+                        ]);
+
+                        $this->notifyRole('designer', 'ticket.opened', 'New ticket available', [
+                            'ticket_id' => $ticket->id,
+                            'title' => $ticket->title,
+                        ]);
+                    } elseif (!$success) {
+                        $this->notifyUser($ticket?->industor_id, 'ticket.payment_failed', 'Ticket payment failed', [
+                            'ticket_id' => $ticket?->id,
+                        ]);
+                    }
+
+                    return;
+                }
+
+                if ($success) {
+                    $payment->order->update(['payment_status' => 'paid']);
+
+                    $this->notifyUser($payment->order->user_id, 'payment.success', 'Payment received', [
+                        'order_id' => $payment->order_id,
+                        'order_number' => $payment->order->order_number,
+                    ]);
+                } else {
+                    $payment->order->update(['payment_status' => 'failed']);
+
+                    $this->notifyUser($payment->order->user_id, 'payment.failed', 'Payment failed', [
+                        'order_id' => $payment->order_id,
+                        'order_number' => $payment->order->order_number,
+                    ]);
+                }
+
+                return;
+            }
+
+            $subscription = UserSubscription::where('paymob_transaction_id', $paymobOrderId)->first();
+
+            if ($subscription) {
+                if ($success) {
+                    $subscription->update([
+                        'approval_status' => 'approved',
+                        'approved_by' => null,
+                        'approved_at' => now(),
+                    ]);
+
+                    Payment::create([
+                        'order_id' => null,
+                        'amount' => $amountCents / 100,
+                        'currency' => $currency,
+                        'transaction_id' => (string) $txnId,
+                        'paymob_order_id' => (string) $paymobOrderId,
+                        'payment_status' => 'paid',
+                        'created_at' => now(),
+                    ]);
+
+                    $this->notifyUser($subscription->user_id, 'subscription.approved', 'Subscription approved & payment received', [
+                        'subscription_id' => $subscription->id,
+                        'plan_name' => $subscription->plan?->name,
+                    ]);
+
+                    $this->notifyRole('admin', 'subscription.paid', 'Subscription paid & auto-approved', [
+                        'subscription_id' => $subscription->id,
+                        'user_id' => $subscription->user_id,
+                    ]);
+                } else {
+                    $subscription->update([
+                        'approval_status' => 'rejected',
+                        'status' => 'cancelled',
+                        'rejection_reason' => 'Payment failed',
+                    ]);
+
+                    $this->notifyUser($subscription->user_id, 'subscription.rejected', 'Subscription payment failed', [
+                        'subscription_id' => $subscription->id,
+                    ]);
+                }
+            }
+        });
+
+        return response()->json(['message' => 'OK']);
+    }
+
+    public function redirect(Request $request)
+    {
+        $success = $request->query('success', false);
+        $orderId = $request->query('order');
+        $txnId = $request->query('txn_id');
+
+        $payment = null;
+        if ($orderId) {
+            $payment = Payment::where('paymob_order_id', $orderId)->with('order')->first();
+        }
+
+        return response()->json([
+            'success' => $success === 'true' || $success === true,
+            'order_id' => $payment?->order_id,
+            'order_number' => $payment?->order?->order_number,
+            'payment_status' => $payment?->payment_status,
+        ]);
+    }
+
+    protected function buildBillingData($user, $order = null): array
+    {
+        $address = $order?->address ?? $user->addresses()?->where('is_default', true)?->first();
+
+        return $this->paymob->buildBillingData([
+            'first_name' => $user->name ?? explode(' ', $user->email)[0],
+            'last_name' => '',
+            'email' => $user->email,
+            'phone_number' => $user->phone ?? '0000000000',
+            'city' => $address?->city ?? 'Cairo',
+            'country' => $address?->country ?? 'EG',
+            'state' => $address?->governorate ?? 'Cairo',
+            'street' => $address?->address_line ?? 'N/A',
+            'postal_code' => $address?->postal_code ?? 'N/A',
+        ]);
+    }
+
+    protected function notifyUser(int $userId, string $type, string $title, array $data = []): void
+    {
+        \App\Models\Notification::create([
+            'user_id' => $userId,
+            'type' => $type,
+            'title' => $title,
+            'data' => $data,
+        ]);
+    }
+
+    protected function notifyRole(string $roleName, string $type, string $title, array $data = []): void
+    {
+        User::whereHas('role', fn($q) => $q->where('name', $roleName))->get(['id'])
+            ->each(fn($u) => $this->notifyUser($u->id, $type, $title, $data));
+    }
+}

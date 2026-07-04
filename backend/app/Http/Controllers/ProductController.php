@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\Inventory;
+use App\Models\DigitalFile;
+use App\Models\LicenseAgreement;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Product::with(['images', 'inventory', 'reviews']);
+
+        if ($request->product_type) {
+            $query->where('product_type', $request->product_type);
+        }
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                  ->orWhere('slug', 'like', "%{$request->search}%")
+                  ->orWhere('description', 'like', "%{$request->search}%")
+                  ->orWhere('material', 'like', "%{$request->search}%")
+                  ->orWhere('manufacturing_method', 'like', "%{$request->search}%");
+            });
+        }
+
+        if ($request->material) {
+            $query->where('material', $request->material);
+        }
+
+        if ($request->manufacturing_method) {
+            $query->where('manufacturing_method', $request->manufacturing_method);
+        }
+
+        if ($request->tag) {
+            $query->whereJsonContains('tags', $request->tag);
+        }
+
+        return response()->json($query->paginate($request->per_page ?? 20));
+    }
+
+    public function show($id)
+    {
+        $product = Product::with([
+            'images', 'inventory', 'digitalFiles', 'licenseAgreements',
+            'reviews.user', 'analytics',
+        ])->findOrFail($id);
+
+        return response()->json($product);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:products',
+            'description' => 'nullable|string',
+            'product_type' => 'required|in:physical,digital',
+            'price_egp' => 'nullable|numeric|min:0',
+            'price_usd' => 'nullable|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
+            'status' => 'nullable|string|max:50',
+            'publish_date' => 'nullable|date',
+            'country_availability' => 'nullable|string',
+        ]);
+
+        $product = Product::create($validated);
+
+        return response()->json($product->load('images', 'inventory'), 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'slug' => 'sometimes|string|max:255|unique:products,slug,' . $id,
+            'description' => 'nullable|string',
+            'product_type' => 'sometimes|in:physical,digital',
+            'price_egp' => 'nullable|numeric|min:0',
+            'price_usd' => 'nullable|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
+            'status' => 'nullable|string|max:50',
+            'publish_date' => 'nullable|date',
+            'country_availability' => 'nullable|string',
+        ]);
+
+        $product->update($validated);
+
+        return response()->json($product->load('images', 'inventory'));
+    }
+
+    public function destroy($id)
+    {
+        Product::findOrFail($id)->delete();
+
+        return response()->json(['message' => 'Product deleted.']);
+    }
+
+    public function uploadImage(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $request->validate([
+            'image' => 'required|file|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $path = $request->file('image')->store("products/{$product->id}", 'public');
+
+        $image = $product->images()->create([
+            'image_url' => $path,
+            'sort_order' => $request->input('sort_order', 0),
+        ]);
+
+        return response()->json($image, 201);
+    }
+
+    public function destroyImage($id, $imageId)
+    {
+        $product = Product::findOrFail($id);
+        $image = $product->images()->findOrFail($imageId);
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image->image_url)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_url);
+        }
+
+        $image->delete();
+
+        return response()->json(['message' => 'Image deleted.']);
+    }
+
+    public function updateInventory(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'sku' => 'required|string|max:100|unique:inventory,sku,' . ($product->inventory?->id ?? 'NULL') . ',id',
+            'stock_quantity' => 'nullable|integer|min:0',
+            'low_stock_alert' => 'nullable|integer|min:0',
+            'warehouse_location' => 'nullable|string|max:255',
+        ]);
+
+        $inventory = $product->inventory()->updateOrCreate(
+            ['product_id' => $product->id],
+            $validated
+        );
+
+        return response()->json($inventory);
+    }
+
+    public function addDigitalFile(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'file_url' => 'required|string|max:500',
+            'version' => 'nullable|string|max:50',
+            'max_downloads' => 'nullable|integer|min:1',
+            'link_expiry_days' => 'nullable|integer|min:1',
+            'license_type' => 'required|in:personal,commercial,extended',
+        ]);
+
+        $file = $product->digitalFiles()->create($validated);
+
+        return response()->json($file, 201);
+    }
+}
