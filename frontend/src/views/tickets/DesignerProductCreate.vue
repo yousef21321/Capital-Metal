@@ -2,8 +2,10 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 const form = ref({
   name: '',
   slug: '',
@@ -183,7 +185,7 @@ async function submit() {
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Price (EGP)</CFormLabel>
+              <CFormLabel class="fw-semibold">Price ({{ auth.userCurrency }})</CFormLabel>
               <div class="d-flex gap-2">
                 <CFormInput v-model.number="form.price_egp" type="number" min="0" class="flex-grow-1" placeholder="0.00" />
                 <CButton color="primary" variant="outline" @click="applyPrice" :disabled="!form.price_egp || form.price_egp <= 0">
@@ -193,16 +195,16 @@ async function submit() {
               <div v-if="priceApplied && form.price_egp > 0" class="mt-2 p-3 rounded" style="background: #f8f9fa;">
                 <div class="d-flex justify-content-between mb-1">
                   <span class="text-body-secondary">Price:</span>
-                  <strong>{{ Number(form.price_egp).toFixed(2) }} EGP</strong>
+                  <strong>{{ formatPrice(form.price_egp) }}</strong>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
                   <span class="text-body-secondary">Commission (10%):</span>
-                  <span class="text-danger">- {{ commission.toFixed(2) }} EGP</span>
+                  <span class="text-danger">- {{ formatPrice(commission) }}</span>
                 </div>
                 <hr class="my-1" />
                 <div class="d-flex justify-content-between">
                   <span class="fw-semibold">Net Profit:</span>
-                  <strong class="text-success">{{ netProfit.toFixed(2) }} EGP</strong>
+                  <strong class="text-success">{{ formatPrice(netProfit) }}</strong>
                 </div>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { statusMeta, formatDate } from './ticketHelpers'
+import { formatPrice } from '@/utils/price'
 import Countdown from '@/components/Countdown.vue'
 import { useToastStore } from '@/stores/toast'
 
@@ -313,13 +314,13 @@ onMounted(fetchTicket)
                 </CCol>
                 <CCol v-if="ticket.industor_price !== null && ticket.industor_price !== undefined && role() !== 'designer'" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Industor Price</span>
-                  <strong>{{ parseFloat(ticket.industor_price).toFixed(2) }} EGP</strong>
+                  <strong>{{ formatPrice(ticket.industor_price) }}</strong>
                 </CCol>
                 <CCol v-if="ticket.designer_price !== null && ticket.designer_price !== undefined && role() !== 'industor'" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Designer Price
                     <CBadge v-if="ticket.urgent_price_applied" color="warning" class="ms-1">+10%</CBadge>
                   </span>
-                  <strong class="text-success">{{ parseFloat(ticket.designer_price).toFixed(2) }} EGP</strong>
+                  <strong class="text-success">{{ formatPrice(ticket.designer_price) }}</strong>
                 </CCol>
                 <CCol v-if="ticket.review_notes" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Reviewer</span>
@@ -336,8 +337,8 @@ onMounted(fetchTicket)
                   <CListGroupItem v-for="ph in ticket.price_history" :key="ph.id" class="d-flex justify-content-between small px-0">
                     <span>
                       <CBadge :color="ph.change_reason === 'urgent_increase' ? 'warning' : 'secondary'" class="me-1">{{ ph.change_reason }}</CBadge>
-                      <span v-if="ph.industor_price != null" class="me-2">Industor: {{ parseFloat(ph.industor_price).toFixed(2) }} EGP</span>
-                      <span v-if="ph.designer_price != null">Designer: {{ parseFloat(ph.designer_price).toFixed(2) }} EGP</span>
+                      <span v-if="ph.industor_price != null" class="me-2">Industor: {{ formatPrice(ph.industor_price) }}</span>
+                      <span v-if="ph.designer_price != null">Designer: {{ formatPrice(ph.designer_price) }}</span>
                     </span>
                     <span class="text-body-secondary">{{ formatDate(ph.created_at) }}</span>
                   </CListGroupItem>
@@ -347,10 +348,10 @@ onMounted(fetchTicket)
                 <strong>Review notes:</strong> {{ ticket.review_notes }}
               </div>
               <div v-if="ticket.penalty" class="alert alert-warning mt-3 mb-0 small">
-                <strong>Penalty (خصم):</strong> {{ ticket.penalty }} EGP
+                <strong>Penalty (خصم):</strong> {{ formatPrice(ticket.penalty) }}
                 <span v-if="ticket.penalty_reason"> - {{ ticket.penalty_reason }}</span>
                 <div v-if="ticket.price" class="mt-1">
-                  <strong>Net earnings:</strong> {{ ticket.designer_earnings || (parseFloat(ticket.price) - parseFloat(ticket.penalty)) }} EGP
+                  <strong>Net earnings:</strong> {{ formatPrice(ticket.designer_earnings || (parseFloat(ticket.price) - parseFloat(ticket.penalty))) }}
                 </div>
               </div>
               <div v-if="ticket.rejection_reason" class="alert alert-danger mt-3 mb-0">
@@ -376,22 +377,22 @@ onMounted(fetchTicket)
                 <CCol :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Industor Expected</span>
                   <strong>{{ formatDate(ticket.industor_expected_deadline) }}</strong>
-                  <CBadge color="primary" class="ms-1">{{ parseFloat(ticket.industor_expected_price || 0).toFixed(0) }} EGP</CBadge>
+                  <CBadge color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
                 </CCol>
                 <CCol v-if="ticket.tester_suggested_deadline" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Tester Suggested</span>
                   <strong class="text-warning">{{ formatDate(ticket.tester_suggested_deadline) }}</strong>
-                  <CBadge color="warning" class="ms-1">{{ parseFloat(ticket.tester_suggested_price || 0).toFixed(0) }} EGP</CBadge>
+                  <CBadge color="warning" class="ms-1">{{ formatPrice(ticket.tester_suggested_price, 0) }}</CBadge>
                 </CCol>
                 <CCol v-if="ticket.industor_counter_deadline" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Industor Counter</span>
                   <strong class="text-info">{{ formatDate(ticket.industor_counter_deadline) }}</strong>
-                  <CBadge color="info" class="ms-1">{{ parseFloat(ticket.industor_counter_price || 0).toFixed(0) }} EGP</CBadge>
+                  <CBadge color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
                 </CCol>
                 <CCol v-if="ticket.final_deadline" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Final Agreed</span>
                   <strong class="text-success">{{ formatDate(ticket.final_deadline) }}</strong>
-                  <CBadge color="success" class="ms-1">{{ parseFloat(ticket.final_price || 0).toFixed(0) }} EGP</CBadge>
+                  <CBadge color="success" class="ms-1">{{ formatPrice(ticket.final_price, 0) }}</CBadge>
                 </CCol>
               </CRow>
 
@@ -408,7 +409,7 @@ onMounted(fetchTicket)
                     </CBadge>
                     <div>
                       <span>{{ formatDate(n.proposed_deadline) }}</span>
-                      <CBadge color="secondary" class="ms-1">{{ parseFloat(n.proposed_price || 0).toFixed(0) }} EGP</CBadge>
+                      <CBadge color="secondary" class="ms-1">{{ formatPrice(n.proposed_price, 0) }}</CBadge>
                       <CBadge
                         :color="n.status === 'accepted' ? 'success' : (n.status === 'rejected' ? 'danger' : 'secondary')"
                         class="ms-1 text-capitalize"
@@ -544,11 +545,11 @@ onMounted(fetchTicket)
                   </h6>
                   <div v-if="ticket.status === 'waiting_tester_review'" class="small text-body-secondary mb-2">
                     Industor counter: <strong class="text-info">{{ formatDate(ticket.industor_counter_deadline) }}</strong>
-                    <CBadge color="info" class="ms-1">{{ parseFloat(ticket.industor_counter_price || 0).toFixed(0) }} EGP</CBadge>
+                    <CBadge color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
                   </div>
                   <div v-if="ticket.status === 'pending_tester_review'" class="small text-body-secondary mb-2">
                     Industor expected: <strong>{{ formatDate(ticket.industor_expected_deadline) }}</strong>
-                    <CBadge color="primary" class="ms-1">{{ parseFloat(ticket.industor_expected_price || 0).toFixed(0) }} EGP</CBadge>
+                    <CBadge color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
                   </div>
                   <CButton
                     v-if="ticket.status === 'pending_tester_review'"
@@ -564,7 +565,7 @@ onMounted(fetchTicket)
                       <CFormInput v-model="suggestDeadlineLocal" type="datetime-local" />
                     </CCol>
                     <CCol :sm="6">
-                      <CFormLabel class="small">Suggested Price (EGP)</CFormLabel>
+                      <CFormLabel class="small">Suggested Price ({{ auth.userCurrency }})</CFormLabel>
                       <CFormInput v-model.number="form.suggest_price" type="number" min="0" step="0.01" />
                     </CCol>
                   </CRow>
@@ -627,12 +628,12 @@ onMounted(fetchTicket)
                   <div class="small mb-2">
                     <div class="text-body-secondary">Your expected</div>
                     <strong>{{ formatDate(ticket.industor_expected_deadline) }}</strong>
-                    <CBadge color="primary" class="ms-1">{{ parseFloat(ticket.industor_expected_price || 0).toFixed(0) }} EGP</CBadge>
+                    <CBadge color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
                   </div>
                   <div class="small mb-3">
                     <div class="text-body-secondary">Tester suggests</div>
                     <strong class="text-warning">{{ formatDate(ticket.tester_suggested_deadline) }}</strong>
-                    <CBadge color="warning" class="ms-1">{{ parseFloat(ticket.tester_suggested_price || 0).toFixed(0) }} EGP</CBadge>
+                    <CBadge color="warning" class="ms-1">{{ formatPrice(ticket.tester_suggested_price, 0) }}</CBadge>
                   </div>
                   <CButton color="success" class="w-100 mb-3" :disabled="submitting" @click="action('accept-suggestion')">
                     <CSpinner v-if="submitting" size="sm" class="me-1" /> Accept Tester's Proposal
@@ -645,7 +646,7 @@ onMounted(fetchTicket)
                       <CFormInput v-model="form.counter_deadline" type="datetime-local" />
                     </CCol>
                     <CCol :sm="6">
-                      <CFormLabel class="small">Counter Price (EGP)</CFormLabel>
+                      <CFormLabel class="small">Counter Price ({{ auth.userCurrency }})</CFormLabel>
                       <CFormInput v-model.number="form.counter_price" type="number" min="0" step="0.01" />
                     </CCol>
                   </CRow>
@@ -670,12 +671,12 @@ onMounted(fetchTicket)
                 <div v-if="ticket.status === 'pending_payment'" class="mb-3">
                   <h6 class="small fw-semibold text-uppercase text-body-secondary">Payment Required</h6>
                   <div class="alert alert-warning small mb-2">
-                    Your ticket was approved by the tester. Price: <strong>{{ ticket.price }} EGP</strong>
+                    Your ticket was approved by the tester. Price: <strong>{{ formatPrice(ticket.price) }}</strong>
                     <span v-if="ticket.is_single_purchase" class="d-block mt-1">Single-purchase ticket — pay to make it available to designers.</span>
                   </div>
                   <CButton color="success" class="w-100" :disabled="submitting" @click="payTicket">
                     <CSpinner v-if="submitting" size="sm" class="me-1" />
-                    Pay {{ ticket.price }} EGP
+                    Pay {{ formatPrice(ticket.price) }}
                   </CButton>
                 </div>
 
@@ -716,7 +717,7 @@ onMounted(fetchTicket)
                   <CFormTextarea v-model="form.rejection_reason" rows="2" placeholder="What needs fixing..." />
                   <CRow class="mt-2 g-2">
                     <CCol :sm="6">
-                      <CFormLabel class="small">Penalty / خصم (EGP)</CFormLabel>
+                      <CFormLabel class="small">Penalty / خصم ({{ auth.userCurrency }})</CFormLabel>
                       <CFormInput v-model="form.penalty" type="number" min="0" step="0.01" placeholder="0" />
                     </CCol>
                     <CCol :sm="6">

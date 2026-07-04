@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { formatPrice } from '@/utils/price'
 
 const auth = useAuthStore()
 const toast = useToastStore()
@@ -60,7 +61,7 @@ async function subscribe(planId) {
   }
 }
 
-const money = (p) => `${parseFloat(p.price || 0).toFixed(2)} ${p.currency || 'EGP'}`
+const money = (p) => formatPrice(p.price)
 
 const approvalBadge = (status) => {
   const map = { pending: { color: 'warning', text: 'Pending Approval' }, approved: { color: 'success', text: 'Approved' }, rejected: { color: 'danger', text: 'Rejected' } }

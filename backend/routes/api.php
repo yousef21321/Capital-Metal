@@ -18,6 +18,7 @@ use App\Http\Controllers\IndustorDesignerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\PayMobController;
 use App\Http\Controllers\SavedCardController;
+use App\Http\Controllers\ExchangeRateController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -35,15 +36,20 @@ Route::get('/store/{id}', [StoreController::class, 'show']);
 // Contact form (no auth)
 Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store']);
 
+// Exchange rate (public)
+Route::get('/exchange-rate', [ExchangeRateController::class, 'show']);
+
 // PayMob webhook (no auth)
 Route::post('/paymob/callback', [PayMobController::class, 'callback']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me/currency', [AuthController::class, 'updateCurrency']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Products (admin)
     Route::middleware('role:admin')->group(function () {
+        Route::put('/exchange-rate', [ExchangeRateController::class, 'update']);
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);

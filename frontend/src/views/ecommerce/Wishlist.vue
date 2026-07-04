@@ -50,9 +50,15 @@ async function addToCart(item) {
 
 const formatPrice = (product) => {
   const currency = auth.userCurrency
-  if (currency === 'USD' && parseFloat(product?.price_usd) > 0) return `$${parseFloat(product.price_usd).toFixed(2)}`
-  if (parseFloat(product?.price_egp) > 0) return `${parseFloat(product.price_egp).toFixed(2)} EGP`
-  if (parseFloat(product?.price_usd) > 0) return `$${parseFloat(product.price_usd).toFixed(2)}`
+  if (currency === 'USD' && parseFloat(product?.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
+  if (parseFloat(product?.price_egp) > 0) {
+    if (currency === 'USD') {
+      const rate = auth.exchangeRate || 30
+      return `${(parseFloat(product.price_egp) / rate).toFixed(2)} USD`
+    }
+    return `${parseFloat(product.price_egp).toFixed(2)} EGP`
+  }
+  if (parseFloat(product?.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
   return 'Free'
 }
 

@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
     user: loadUser(),
     token: localStorage.getItem('auth-token') || null,
     loading: false,
+    exchangeRate: 30.00,
   }),
 
   getters: {
@@ -42,6 +43,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.token
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
+        this.fetchExchangeRate()
         return true
       } catch (error) {
         const message = error.response?.data?.message || 'Login failed'
@@ -64,6 +66,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.token
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
+        this.fetchExchangeRate()
         return true
       } catch (error) {
         const message = error.response?.data?.message || 'Registration failed'
@@ -71,6 +74,21 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.loading = false
       }
+    },
+
+    async fetchExchangeRate() {
+      try {
+        const { data } = await api.get('/api/exchange-rate')
+        this.exchangeRate = parseFloat(data.rate) || 30
+      } catch {
+        this.exchangeRate = 30
+      }
+    },
+
+    async updateCurrency(currency) {
+      const { data } = await api.put('/api/me/currency', { currency_preference: currency })
+      this.persistUser(data)
+      return data
     },
 
     async fetchUser() {

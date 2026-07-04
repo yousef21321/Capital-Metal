@@ -71,6 +71,19 @@ class AuthController extends Controller
         return response()->json($request->user()->load('role'));
     }
 
+    public function updateCurrency(Request $request)
+    {
+        $request->validate([
+            'currency_preference' => 'required|in:EGP,USD',
+        ]);
+
+        $user = $request->user();
+        $user->currency_preference = $request->currency_preference;
+        $user->save();
+
+        return response()->json($user->load('role'));
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

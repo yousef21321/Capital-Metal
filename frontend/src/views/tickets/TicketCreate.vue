@@ -2,8 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 const form = ref({ title: '', description: '', single_purchase: false, expected_deadline: '', expected_price: '', files: [] })
 const submitting = ref(false)
 const error = ref('')
@@ -110,7 +112,7 @@ onMounted(checkSubscription)
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Expected Price (EGP)</CFormLabel>
+              <CFormLabel class="fw-semibold">Expected Price ({{ auth.userCurrency }})</CFormLabel>
               <CFormInput v-model.number="form.expected_price" type="number" min="0" step="0.01" placeholder="e.g. 1000" />
               <div class="form-text">Propose a price. The tester will review it and may accept or counter with a different price.</div>
             </div>

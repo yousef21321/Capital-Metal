@@ -2,9 +2,12 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate } from './ticketHelpers'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
+const auth = useAuthStore()
 const tickets = ref([])
 const loading = ref(true)
 const error = ref('')
@@ -144,7 +147,7 @@ onMounted(fetchAvailable)
                 <CIcon icon="cil-money" class="me-1" /> Designer Price
               </span>
               <span class="fw-bold fs-5" :class="t.urgent_price_applied ? 'text-warning-emphasis' : 'text-success'">
-                {{ parseFloat(t.designer_price).toFixed(2) }} EGP
+                {{ formatPrice(t.designer_price) }}
               </span>
             </div>
             <div v-if="t.urgent_price_applied" class="small text-warning mb-2">

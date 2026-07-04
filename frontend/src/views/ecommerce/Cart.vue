@@ -49,14 +49,23 @@ async function clearCart() {
   }
 }
 
+const itemPrice = (item) => {
+  const currency = auth.userCurrency
+  if (currency === 'USD' && parseFloat(item.product?.price_usd) > 0) return parseFloat(item.product.price_usd)
+  if (parseFloat(item.product?.price_egp) > 0) {
+    if (currency === 'USD') {
+      const rate = auth.exchangeRate || 30
+      return parseFloat(item.product.price_egp) / rate
+    }
+    return parseFloat(item.product.price_egp)
+  }
+  return 0
+}
+
 const total = () => {
   if (!cart.value?.items) return 0
-  const currency = auth.userCurrency
   return cart.value.items.reduce((sum, item) => {
-    const price = parseFloat(
-      currency === 'USD' ? (item.product?.price_usd || 0) : (item.product?.price_egp || 0)
-    )
-    return sum + price * item.quantity
+    return sum + itemPrice(item) * item.quantity
   }, 0).toFixed(2)
 }
 
@@ -98,7 +107,7 @@ onMounted(fetchCart)
                 <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity - 1)">-</CButton>
                 <span class="fw-bold px-2">{{ item.quantity }}</span>
                 <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity + 1)">+</CButton>
-                <span class="ms-3 fw-bold text-primary fs-5">{{ auth.userCurrency === 'USD' && item.product?.price_usd ? item.product.price_usd : item.product?.price_egp }} {{ auth.userCurrency === 'USD' ? 'USD' : 'EGP' }}</span>
+                <span class="ms-3 fw-bold text-primary fs-5">{{ itemPrice(item).toFixed(2) }} {{ auth.userCurrency }}</span>
               </div>
             </div>
             <CButton color="danger" size="sm" variant="ghost" @click="removeItem(item.id)">

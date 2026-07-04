@@ -32,6 +32,8 @@ onBeforeMount(async () => {
   if (authStore.token) {
     await authStore.fetchUser()
   }
+
+  authStore.fetchExchangeRate()
 })
 </script>
 

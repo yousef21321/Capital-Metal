@@ -2,9 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate } from './ticketHelpers'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
+const auth = useAuthStore()
 const tickets = ref([])
 const loading = ref(true)
 const error = ref('')
@@ -70,18 +73,18 @@ onMounted(fetchQueue)
             <CTableDataCell class="small">
               <div v-if="t.industor_expected_deadline || t.industor_expected_price">
                 <CIcon icon="cil-clock" class="me-1" />{{ formatDate(t.industor_expected_deadline) }}
-                <CBadge color="primary" class="ms-1">{{ parseFloat(t.industor_expected_price || 0).toFixed(0) }} EGP</CBadge>
+                <CBadge color="primary" class="ms-1">{{ formatPrice(t.industor_expected_price, 0) }}</CBadge>
               </div>
               <span v-else class="text-body-secondary">-</span>
             </CTableDataCell>
             <CTableDataCell class="small">
               <div v-if="t.industor_counter_deadline || t.industor_counter_price" class="text-info">
                 <CIcon icon="cil-arrow-thick-right" class="me-1" />{{ formatDate(t.industor_counter_deadline) }}
-                <CBadge color="info" class="ms-1">{{ parseFloat(t.industor_counter_price || 0).toFixed(0) }} EGP</CBadge>
+                <CBadge color="info" class="ms-1">{{ formatPrice(t.industor_counter_price, 0) }}</CBadge>
               </div>
               <span v-else-if="t.tester_suggested_deadline || t.tester_suggested_price" class="text-warning">
                 <CIcon icon="cil-arrow-thick-left" class="me-1" />{{ formatDate(t.tester_suggested_deadline) }}
-                <CBadge color="warning" class="ms-1">{{ parseFloat(t.tester_suggested_price || 0).toFixed(0) }} EGP</CBadge>
+                <CBadge color="warning" class="ms-1">{{ formatPrice(t.tester_suggested_price, 0) }}</CBadge>
               </span>
               <span v-else class="text-body-secondary">-</span>
             </CTableDataCell>

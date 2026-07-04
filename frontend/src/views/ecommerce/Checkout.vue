@@ -92,12 +92,19 @@ const subtotal = computed(() => {
   if (!cart.value?.items) return 0
   const currency = form.value.currency
   return cart.value.items.reduce((sum, item) => {
-    const price = currency === 'USD'
-      ? parseFloat(item.product?.price_usd || 0)
-      : parseFloat(item.product?.price_egp || 0)
+    const price = checkoutItemPrice(item, currency)
     return sum + price * item.quantity
   }, 0)
 })
+
+const checkoutItemPrice = (item, currency) => {
+  if (currency === 'USD') {
+    if (parseFloat(item.product?.price_usd) > 0) return parseFloat(item.product.price_usd)
+    if (parseFloat(item.product?.price_egp) > 0) return parseFloat(item.product.price_egp) / (auth.exchangeRate || 30)
+    return 0
+  }
+  return parseFloat(item.product?.price_egp || 0)
+}
 
 const shippingCost = computed(() => parseFloat(form.value.shipping_cost || 0))
 
@@ -201,7 +208,7 @@ onMounted(loadData)
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h3 class="mb-1">إتمام الشراء / Checkout</h3>
-        <p class="text-body-secondary mb-0">جميع الأسعار بالجنيه المصري (EGP) — All prices in Egyptian Pounds.</p>
+        <p class="text-body-secondary mb-0">جميع الأسعار بـ ({{ currencySymbol }}) — All prices in {{ currencySymbol }}.</p>
       </div>
       <CButton color="secondary" variant="outline" size="sm" router-link to="/cart">
         <CIcon icon="cil-arrow-left" class="me-1" /> العودة للسلة / Back to Cart
@@ -332,7 +339,7 @@ onMounted(loadData)
                 {{ item.product?.name }}
                 <span class="text-body-secondary">x{{ item.quantity }}</span>
               </span>
-              <span class="text-nowrap">{{ money(form.currency === 'USD' ? parseFloat(item.product?.price_usd || 0) : parseFloat(item.product?.price_egp || 0)) }} {{ currencySymbol }}</span>
+              <span class="text-nowrap">{{ money(checkoutItemPrice(item, form.currency)) }} {{ currencySymbol }}</span>
             </div>
 
             <hr class="my-3" />
@@ -347,7 +354,7 @@ onMounted(loadData)
               <span>{{ money(shippingCost) }} {{ currencySymbol }}</span>
             </div>
             <div class="small text-success mb-2">
-              <CIcon icon="cil-info" class="me-1" />شحن مجاني للطلبات فوق ١٠٠٠ جنيه / Free shipping on orders over 1000 EGP
+              <CIcon icon="cil-info" class="me-1" />شحن مجاني للطلبات فوق ١٠٠٠ {{ currencySymbol }} / Free shipping on orders over 1000 {{ currencySymbol }}
             </div>
             <div v-if="appliedCoupon" class="d-flex justify-content-between mb-2">
               <span class="text-success">
