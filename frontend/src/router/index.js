@@ -10,19 +10,16 @@ const routes = [
     name: 'Home',
     component: DefaultLayout,
     redirect: '/dashboard',
-    meta: { requiresAuth: true },
     children: [
       {
         path: '/dashboard',
         name: 'Dashboard',
         component: () => import('@/views/dashboard/Dashboard.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/products',
         name: 'Products',
         component: () => import('@/views/ecommerce/Products.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/admin/products',
@@ -34,19 +31,16 @@ const routes = [
         path: '/cart',
         name: 'Cart',
         component: () => import('@/views/ecommerce/Cart.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/checkout',
         name: 'Checkout',
         component: () => import('@/views/ecommerce/Checkout.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/orders',
         name: 'Orders',
         component: () => import('@/views/ecommerce/Orders.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/wishlist',
@@ -123,13 +117,11 @@ const routes = [
         path: '/theme/colors',
         name: 'Colors',
         component: () => import('@/views/theme/Colors.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/theme/typography',
         name: 'Typography',
         component: () => import('@/views/theme/Typography.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/base',
@@ -140,7 +132,6 @@ const routes = [
           },
         },
         redirect: '/base/breadcrumbs',
-        meta: { requiresAuth: true },
         children: [
           {
             path: '/base/accordion',
@@ -233,7 +224,6 @@ const routes = [
           },
         },
         redirect: '/buttons/standard-buttons',
-        meta: { requiresAuth: true },
         children: [
           {
             path: '/buttons/standard-buttons',
@@ -261,7 +251,6 @@ const routes = [
           },
         },
         redirect: '/forms/form-control',
-        meta: { requiresAuth: true },
         children: [
           {
             path: '/forms/form-control',
@@ -314,7 +303,6 @@ const routes = [
         path: '/charts',
         name: 'Charts',
         component: () => import('@/views/charts/Charts.vue'),
-        meta: { requiresAuth: true },
       },
       {
         path: '/icons',
@@ -325,7 +313,6 @@ const routes = [
           },
         },
         redirect: '/icons/coreui-icons',
-        meta: { requiresAuth: true },
         children: [
           {
             path: '/icons/coreui-icons',
@@ -347,41 +334,12 @@ const routes = [
       {
         path: '/notifications',
         name: 'Notifications',
-        component: {
-          render() {
-            return h(resolveComponent('router-view'))
-          },
-        },
-        redirect: '/notifications/alerts',
-        meta: { requiresAuth: true },
-        children: [
-          {
-            path: '/notifications/alerts',
-            name: 'Alerts',
-            component: () => import('@/views/notifications/Alerts.vue'),
-          },
-          {
-            path: '/notifications/badges',
-            name: 'Badges',
-            component: () => import('@/views/notifications/Badges.vue'),
-          },
-          {
-            path: '/notifications/modals',
-            name: 'Modals',
-            component: () => import('@/views/notifications/Modals.vue'),
-          },
-          {
-            path: '/notifications/toasts',
-            name: 'Toasts',
-            component: () => import('@/views/notifications/Toasts.vue'),
-          },
-        ],
+        component: () => import('@/views/notifications/Alerts.vue'),
       },
       {
         path: '/widgets',
         name: 'Widgets',
         component: () => import('@/views/widgets/Widgets.vue'),
-        meta: { requiresAuth: true },
       },
     ],
   },

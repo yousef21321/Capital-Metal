@@ -11,12 +11,51 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    protected function guestToken(Request $request): ?string
+    {
+        return $request->header('X-Guest-Token', $request->input('guest_token'));
+    }
+
+    protected function resolveUser(Request $request): ?int
+    {
+        return $request->user()?->id;
+    }
+
+    protected function cartIdentifier(Request $request): array
+    {
+        $userId = $this->resolveUser($request);
+
+        if ($userId) {
+            return ['user_id' => $userId];
+        }
+
+        $token = $this->guestToken($request);
+
+        if ($token) {
+            return ['guest_token' => $token];
+        }
+
+        return [];
+    }
+
     public function index(Request $request)
     {
         $query = Order::with(['items.product', 'payments', 'user']);
 
-        if ($request->user()->role->name !== 'admin') {
-            $query->where('user_id', $request->user()->id);
+        $user = $request->user();
+
+        if ($user) {
+            if ($user->role->name !== 'admin') {
+                $query->where('user_id', $user->id);
+            }
+        } else {
+            $token = $this->guestToken($request);
+
+            if ($token) {
+                $query->whereNull('user_id')->where('guest_name', '!=', '');
+            } else {
+                return response()->json(['data' => [], 'meta' => ['current_page' => 1, 'last_page' => 1]]);
+            }
         }
 
         if ($request->status) {
@@ -37,7 +76,13 @@ class OrderController extends Controller
             'refunds', 'user', 'affiliate',
         ])->findOrFail($id);
 
-        if ($request->user()->role->name === 'user' && $order->user_id !== $request->user()->id) {
+        $user = $request->user();
+
+        if ($user && $user->role->name === 'user' && $order->user_id !== $user->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if (!$user && $order->user_id !== null) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -52,14 +97,28 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
             'address_id' => 'nullable|exists:addresses,id',
             'coupon_code' => 'nullable|string|max:100',
+            'guest_name' => 'nullable|string|max:255',
+            'guest_phone' => 'nullable|string|max:50',
         ]);
 
+        $identifier = $this->cartIdentifier($request);
+
+        if (empty($identifier)) {
+            return response()->json(['message' => 'Cart identifier required.'], 400);
+        }
+
         $cart = Cart::with('items.product')
-            ->where('user_id', $request->user()->id)
+            ->where($identifier)
             ->first();
 
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty.'], 400);
+        }
+
+        $userId = $this->resolveUser($request);
+
+        if (!$userId && empty($validated['guest_name'])) {
+            return response()->json(['message' => 'Guest name is required for guest checkout.'], 422);
         }
 
         $orderNumber = 'ORD-' . strtoupper(uniqid());
@@ -87,11 +146,11 @@ class OrderController extends Controller
         $totalAmount = max(0, ($subtotal + $shippingCost) - $discount);
 
         return DB::transaction(function () use (
-            $request, $validated, $orderNumber, $subtotal,
+            $request, $validated, $userId, $orderNumber, $subtotal,
             $shippingCost, $discount, $couponId, $totalAmount, $orderItems, $cart
         ) {
-            $order = Order::create([
-                'user_id' => $request->user()->id,
+            $orderData = [
+                'user_id' => $userId,
                 'order_number' => $orderNumber,
                 'currency' => $validated['currency'],
                 'subtotal' => $subtotal,
@@ -102,7 +161,15 @@ class OrderController extends Controller
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
                 'notes' => $validated['notes'] ?? null,
-            ]);
+            ];
+
+            // Guest fields
+            if (!$userId) {
+                $orderData['guest_name'] = $validated['guest_name'];
+                $orderData['guest_phone'] = $validated['guest_phone'] ?? null;
+            }
+
+            $order = Order::create($orderData);
 
             foreach ($orderItems as $item) {
                 $order->items()->create($item);
@@ -171,8 +238,14 @@ class OrderController extends Controller
 
     public function myOrders(Request $request)
     {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['data' => [], 'meta' => ['current_page' => 1, 'last_page' => 1]]);
+        }
+
         $orders = Order::with(['items.product.images', 'payments'])
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $user->id)
             ->latest()
             ->paginate($request->per_page ?? 20);
 

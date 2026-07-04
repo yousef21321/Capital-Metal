@@ -59,7 +59,10 @@ const AppSidebarNav = defineComponent({
 
     const canSee = (item) => {
       const role = auth.userRole
-      if (!role) return false
+      if (!role) {
+        // Guest: show only items without role restrictions
+        return !item.roles || item.roles.length === 0
+      }
       if (role === 'admin') return true
       if (!item.roles || item.roles.length === 0) return true
       return item.roles.includes(role)

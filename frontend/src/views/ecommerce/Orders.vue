@@ -1,8 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 
+const router = useRouter()
+const auth = useAuthStore()
 const toast = useToastStore()
 const orders = ref([])
 const loading = ref(true)
@@ -63,6 +67,17 @@ onMounted(fetchOrders)
 
     <div v-if="loading" class="text-center py-5">
       <CSpinner />
+    </div>
+
+    <div v-else-if="!auth.isAuthenticated && !orders.length" class="text-center py-5 text-body-secondary">
+      <h4>سجل دخولك / Login to see your orders</h4>
+      <p>قم بتسجيل الدخول لمشاهدة طلباتك أو تتبع طلب جديد.</p>
+      <CButton color="primary" class="me-2" @click="router.push('/pages/login')">
+        <CIcon icon="cil-account-login" class="me-1" /> Login
+      </CButton>
+      <CButton color="outline-primary" @click="router.push('/products')">
+        <CIcon icon="cil-grid" class="me-1" /> Browse Products
+      </CButton>
     </div>
 
     <div v-else-if="!orders.length" class="text-center py-5 text-body-secondary">

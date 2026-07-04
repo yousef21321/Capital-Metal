@@ -8,11 +8,32 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    protected function cartIdentifier(Request $request): array
+    {
+        if ($request->user()) {
+            return ['user_id' => $request->user()->id];
+        }
+
+        $token = $request->header('X-Guest-Token', $request->input('guest_token'));
+
+        if (!$token) {
+            return [];
+        }
+
+        return ['guest_token' => $token];
+    }
+
     public function show(Request $request)
     {
+        $identifier = $this->cartIdentifier($request);
+
+        if (empty($identifier)) {
+            return response()->json(['items' => []]);
+        }
+
         $cart = Cart::with('items.product.images')
-            ->where('user_id', $request->user()->id)
-            ->firstOrCreate(['user_id' => $request->user()->id]);
+            ->where($identifier)
+            ->firstOrCreate($identifier);
 
         return response()->json($cart);
     }
@@ -25,7 +46,13 @@ class CartController extends Controller
             'license_type' => 'nullable|in:personal,commercial,extended',
         ]);
 
-        $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
+        $identifier = $this->cartIdentifier($request);
+
+        if (empty($identifier)) {
+            return response()->json(['message' => 'Authentication required or provide a guest token.'], 401);
+        }
+
+        $cart = Cart::firstOrCreate($identifier);
 
         $item = $cart->items()->updateOrCreate(
             ['product_id' => $validated['product_id']],
@@ -42,8 +69,14 @@ class CartController extends Controller
             'license_type' => 'nullable|in:personal,commercial,extended',
         ]);
 
-        $item = CartItem::whereHas('cart', function ($q) use ($request) {
-            $q->where('user_id', $request->user()->id);
+        $identifier = $this->cartIdentifier($request);
+
+        if (empty($identifier)) {
+            return response()->json(['message' => 'Authentication required.'], 401);
+        }
+
+        $item = CartItem::whereHas('cart', function ($q) use ($identifier) {
+            $q->where($identifier);
         })->findOrFail($itemId);
 
         $item->update($validated);
@@ -53,8 +86,14 @@ class CartController extends Controller
 
     public function removeItem(Request $request, $itemId)
     {
-        $item = CartItem::whereHas('cart', function ($q) use ($request) {
-            $q->where('user_id', $request->user()->id);
+        $identifier = $this->cartIdentifier($request);
+
+        if (empty($identifier)) {
+            return response()->json(['message' => 'Authentication required.'], 401);
+        }
+
+        $item = CartItem::whereHas('cart', function ($q) use ($identifier) {
+            $q->where($identifier);
         })->findOrFail($itemId);
 
         $item->delete();
@@ -64,7 +103,13 @@ class CartController extends Controller
 
     public function clear(Request $request)
     {
-        $cart = Cart::where('user_id', $request->user()->id)->first();
+        $identifier = $this->cartIdentifier($request);
+
+        if (empty($identifier)) {
+            return response()->json(['message' => 'Authentication required.'], 401);
+        }
+
+        $cart = Cart::where($identifier)->first();
 
         if ($cart) {
             $cart->items()->delete();

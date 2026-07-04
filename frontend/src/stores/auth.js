@@ -10,12 +10,22 @@ function loadUser() {
   }
 }
 
+function generateGuestToken() {
+  let token = localStorage.getItem('guest-token')
+  if (!token) {
+    token = 'guest_' + crypto.randomUUID()
+    localStorage.setItem('guest-token', token)
+  }
+  return token
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: loadUser(),
     token: localStorage.getItem('auth-token') || null,
     loading: false,
-    exchangeRate: 30.00,
+    exchangeRate: null,
+    guestToken: generateGuestToken(),
   }),
 
   getters: {
@@ -81,7 +91,7 @@ export const useAuthStore = defineStore('auth', {
         const { data } = await api.get('/api/exchange-rate')
         this.exchangeRate = parseFloat(data.rate) || 30
       } catch {
-        this.exchangeRate = 30
+        this.exchangeRate = this.exchangeRate || 30
       }
     },
 

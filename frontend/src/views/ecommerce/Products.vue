@@ -38,6 +38,7 @@ async function fetchProducts() {
 }
 
 async function fetchWishlistIds() {
+  if (!auth.isAuthenticated) return
   try {
     const { data } = await api.get('/api/wishlist')
     wishlistIds.value = new Set(data.map((w) => w.product_id))
@@ -47,6 +48,10 @@ async function fetchWishlistIds() {
 }
 
 async function toggleWishlist(productId) {
+  if (!auth.isAuthenticated) {
+    toast.info('Please login to use wishlist.')
+    return
+  }
   try {
     const { data } = await api.post('/api/wishlist/toggle', { product_id: productId })
     if (data.wishlisted) {

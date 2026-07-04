@@ -13,6 +13,12 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  const guestToken = localStorage.getItem('guest-token')
+  if (guestToken) {
+    config.headers['X-Guest-Token'] = guestToken
+  }
+
   return config
 })
 
@@ -20,8 +26,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth-token')
-      window.location.hash = '#/pages/login'
+      const isAuthRoute = error.config?.url?.includes('/api/me')
+        || error.config?.url?.includes('/api/logout')
+        || error.config?.url?.includes('/api/wishlist')
+      if (isAuthRoute) {
+        localStorage.removeItem('auth-token')
+        window.location.hash = '#/pages/login'
+      }
     }
     return Promise.reject(error)
   },

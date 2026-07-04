@@ -10,6 +10,12 @@ export default [
     },
   },
   {
+    component: 'CNavItem',
+    name: 'Notifications',
+    to: '/notifications',
+    icon: 'cil-bell',
+  },
+  {
     component: 'CNavTitle',
     name: 'Shop',
   },

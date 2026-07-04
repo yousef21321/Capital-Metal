@@ -10,6 +10,7 @@ class Order extends Model
         'user_id', 'order_number', 'affiliate_id', 'currency', 'subtotal',
         'shipping_cost', 'discount', 'coupon_id', 'total_amount',
         'payment_status', 'order_status', 'shipping_tracking_number', 'notes',
+        'guest_name', 'guest_phone',
     ];
 
     protected function casts(): array

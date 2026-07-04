@@ -20,6 +20,8 @@ const form = ref({
   currency: auth.userCurrency,
   shipping_cost: 50,
   notes: '',
+  guest_name: '',
+  guest_phone: '',
 })
 
 const couponCode = ref('')
@@ -72,15 +74,20 @@ const currencySymbol = computed(() => (form.value.currency === 'EGP' ? 'EGP' : '
 async function loadData() {
   loading.value = true
   try {
-    const [cartRes, addrRes] = await Promise.all([
-      api.get('/api/cart'),
-      api.get('/api/addresses'),
-    ])
-    cart.value = cartRes.data
-    addresses.value = addrRes.data
+    const requests = [api.get('/api/cart')]
 
-    const defaultAddr = addrRes.data.find(a => a.is_default)
-    if (defaultAddr) form.value.address_id = defaultAddr.id
+    if (auth.isAuthenticated) {
+      requests.push(api.get('/api/addresses'))
+    }
+
+    const [cartRes, addrRes] = await Promise.all(requests)
+    cart.value = cartRes.data
+
+    if (addrRes) {
+      addresses.value = addrRes.data
+      const defaultAddr = addrRes.data.find(a => a.is_default)
+      if (defaultAddr) form.value.address_id = defaultAddr.id
+    }
   } catch (e) {
     console.error(e)
   } finally {
@@ -161,13 +168,20 @@ async function placeOrder() {
   success.value = ''
   submitting.value = true
   try {
-    const { data } = await api.post('/api/checkout', {
+    const payload = {
       currency: form.value.currency,
       shipping_cost: form.value.shipping_cost,
       notes: form.value.notes,
       address_id: form.value.address_id || undefined,
       coupon_code: appliedCoupon.value?.code || undefined,
-    })
+    }
+
+    if (!auth.isAuthenticated) {
+      payload.guest_name = form.value.guest_name
+      payload.guest_phone = form.value.guest_phone
+    }
+
+    const { data } = await api.post('/api/checkout', payload)
 
     const orderId = data.id
     const orderNumber = data.order_number
@@ -229,6 +243,32 @@ onMounted(loadData)
     <CRow v-else :gutter="{ md: 24 }">
       <!-- Left column: shipping + notes -->
       <CCol :md="7">
+        <!-- Guest name/phone fields -->
+        <CCard v-if="!auth.isAuthenticated" class="mb-4 shadow-sm">
+          <CCardHeader class="bg-body">
+            <h5 class="mb-0 d-flex align-items-center gap-2">
+              <CIcon icon="cil-user" /> معلوماتك / Your Information
+            </h5>
+          </CCardHeader>
+          <CCardBody>
+            <CRow>
+              <CCol :sm="6" class="mb-3">
+                <CFormLabel class="small fw-semibold">الاسم بالكامل / Full Name <span class="text-danger">*</span></CFormLabel>
+                <CFormInput v-model="form.guest_name" placeholder="Your full name" />
+              </CCol>
+              <CCol :sm="6" class="mb-3">
+                <CFormLabel class="small fw-semibold">رقم التليفون / Phone Number <span class="text-danger">*</span></CFormLabel>
+                <CFormInput v-model="form.guest_phone" placeholder="Phone number" />
+              </CCol>
+            </CRow>
+            <p class="text-body-secondary small mb-0">
+              <CIcon icon="cil-info" class="me-1" />
+              سيتم حفظ بياناتك مع الطلب. يمكنك إنشاء حساب لتتبع طلباتك لاحقاً.
+              Your details will be saved with the order. You can create an account to track your orders later.
+            </p>
+          </CCardBody>
+        </CCard>
+
         <CCard class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
             <h5 class="mb-0 d-flex align-items-center gap-2">
@@ -236,7 +276,11 @@ onMounted(loadData)
             </h5>
           </CCardHeader>
           <CCardBody>
-            <div v-if="!addresses.length && !showAddressForm" class="text-body-secondary">
+            <div v-if="!auth.isAuthenticated" class="text-body-secondary mb-3">
+              <p class="mb-0 small">سيتم تأكيد العنوان لاحقاً / Address will be confirmed later.</p>
+            </div>
+
+            <div v-if="auth.isAuthenticated && !addresses.length && !showAddressForm" class="text-body-secondary">
               <p class="mb-2">لا توجد عناوين / No addresses found.</p>
               <CButton color="primary" variant="outline" size="sm" @click="toggleAddressForm">
                 <CIcon icon="cil-plus" class="me-1" /> إضافة عنوان / Add Address
@@ -244,7 +288,7 @@ onMounted(loadData)
             </div>
 
             <CFormRadioGroup
-              v-if="addresses.length"
+              v-if="auth.isAuthenticated && addresses.length"
               v-model="form.address_id"
               :options="addresses.map(a => ({
                 label: `${a.full_name || 'Address'} - ${a.governorate}, ${a.city}`,
@@ -253,7 +297,7 @@ onMounted(loadData)
             />
 
             <CButton
-              v-if="addresses.length && !showAddressForm"
+              v-if="auth.isAuthenticated && addresses.length && !showAddressForm"
               color="secondary" variant="outline" size="sm" class="mt-2"
               @click="toggleAddressForm"
             >
@@ -410,7 +454,13 @@ onMounted(loadData)
             <CAlert v-if="error" color="danger" class="mb-3">{{ error }}</CAlert>
             <CAlert v-if="success" color="success" class="mb-3">{{ success }}</CAlert>
 
-            <CButton color="primary" class="w-100" size="lg" :disabled="submitting" @click="placeOrder">
+            <CButton
+              color="primary"
+              class="w-100"
+              size="lg"
+              :disabled="submitting || (!auth.isAuthenticated && (!form.guest_name || !form.guest_phone))"
+              @click="placeOrder"
+            >
               <CSpinner v-if="submitting" size="sm" class="me-2" />
               تأكيد الطلب / Place Order
             </CButton>

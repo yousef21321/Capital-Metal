@@ -7,11 +7,26 @@ import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
 import AppHeaderDropdownAccnt from '@/components/AppHeaderDropdownAccnt.vue'
 import { useSidebarStore } from '@/stores/sidebar.js'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notifications'
+
+function timeAgo(date) {
+  const diff = Date.now() - new Date(date).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
 
 const headerClassNames = ref('mb-4 p-0')
 const { colorMode, setColorMode } = useColorModes('coreui-free-vue-admin-template-theme')
 const sidebar = useSidebarStore()
 const cart = useCartStore()
+const auth = useAuthStore()
+const notif = useNotificationStore()
 
 onMounted(() => {
   document.addEventListener('scroll', () => {
@@ -21,6 +36,10 @@ onMounted(() => {
       headerClassNames.value = 'mb-4 p-0'
     }
   })
+
+  if (auth.isAuthenticated) {
+    notif.startPolling(30000)
+  }
 })
 </script>
 
@@ -58,20 +77,60 @@ onMounted(() => {
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem>
-          <RouterLink custom to="/notifications" v-slot="{ href, navigate }">
-            <CNavLink :href="href" @click="navigate" class="position-relative">
+        <CNavItem v-if="auth.isAuthenticated">
+          <CDropdown placement="bottom-end" variant="nav-item" @show="notif.fetchNotifications()">
+            <CDropdownToggle :caret="false" class="position-relative py-0">
               <CIcon icon="cil-bell" size="lg" />
               <CBadge
-                color="info"
+                v-if="notif.unreadCount > 0"
+                color="danger"
                 shape="pill"
                 class="position-absolute top-0 start-100 translate-middle"
                 style="font-size: 0.65rem"
               >
-                3
+                {{ notif.unreadCount > 99 ? '99+' : notif.unreadCount }}
               </CBadge>
-            </CNavLink>
-          </RouterLink>
+            </CDropdownToggle>
+            <CDropdownMenu style="min-width: 320px" class="p-0">
+              <CDropdownHeader class="bg-body-secondary fw-bold small py-2 px-3 d-flex justify-content-between align-items-center">
+                <span>Notifications</span>
+                <CButton
+                  v-if="notif.unreadCount > 0"
+                  color="link"
+                  size="sm"
+                  class="p-0 text-decoration-none"
+                  @click="notif.markAllAsRead()"
+                >
+                  Mark all read
+                </CButton>
+              </CDropdownHeader>
+              <div style="max-height: 300px; overflow-y: auto">
+                <CDropdownItem
+                  v-for="n in notif.notifications.slice(0, 5)"
+                  :key="n.id"
+                  :class="{ 'bg-info-subtle': !n.read_at }"
+                  class="d-flex flex-column align-items-start py-2 px-3 border-bottom"
+                  style="cursor: pointer"
+                  @click="notif.markAsRead(n.id)"
+                >
+                  <div class="d-flex justify-content-between w-100">
+                    <small class="fw-semibold">{{ n.title }}</small>
+                    <small class="text-body-secondary ms-2 text-nowrap">{{ timeAgo(n.created_at) }}</small>
+                  </div>
+                  <small class="text-body-secondary mt-1">{{ n.body || n.data?.message || '' }}</small>
+                </CDropdownItem>
+                <div v-if="notif.notifications.length === 0" class="text-center py-4 text-body-secondary small">
+                  No notifications yet
+                </div>
+              </div>
+              <CDropdownItem
+                class="text-center small py-2 fw-semibold border-top"
+                router-link to="/notifications"
+              >
+                View all notifications
+              </CDropdownItem>
+            </CDropdownMenu>
+          </CDropdown>
         </CNavItem>
       </CHeaderNav>
       <CHeaderNav>
@@ -117,7 +176,25 @@ onMounted(() => {
         <li class="nav-item py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-25"></div>
         </li>
-        <AppHeaderDropdownAccnt />
+        <template v-if="auth.isAuthenticated">
+          <AppHeaderDropdownAccnt />
+        </template>
+        <template v-else>
+          <li class="nav-item">
+            <RouterLink to="/pages/login" custom v-slot="{ href, navigate }">
+              <CNavLink :href="href" @click="navigate" class="fw-semibold">
+                <CIcon icon="cil-account-login" class="me-1" />Login
+              </CNavLink>
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/pages/register" custom v-slot="{ href, navigate }">
+              <CButton color="primary" size="sm" :href="href" @click="navigate" class="my-1">
+                Sign Up
+              </CButton>
+            </RouterLink>
+          </li>
+        </template>
       </CHeaderNav>
     </CContainer>
     <CContainer class="px-4" fluid>

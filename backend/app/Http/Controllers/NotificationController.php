@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -45,5 +46,38 @@ class NotificationController extends Controller
             ->update(['read_at' => now()]);
 
         return response()->json(['message' => 'All notifications marked as read.']);
+    }
+
+    /**
+     * Send a system-wide notification to all users (admin only).
+     */
+    public function broadcast(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:200',
+            'body' => 'nullable|string',
+            'type' => 'nullable|string|max:100',
+        ]);
+
+        $userIds = User::pluck('id');
+
+        $notifications = $userIds->map(fn ($id) => [
+            'user_id' => $id,
+            'type' => $validated['type'] ?? 'system',
+            'title' => $validated['title'],
+            'body' => $validated['body'] ?? null,
+            'data' => json_encode(['system' => true]),
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        Notification::insert($notifications->toArray());
+
+        $count = $notifications->count();
+
+        return response()->json([
+            'message' => "Notification sent to {$count} users.",
+            'users_count' => $count,
+        ]);
     }
 }

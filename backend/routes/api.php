@@ -42,6 +42,20 @@ Route::get('/exchange-rate', [ExchangeRateController::class, 'show']);
 // PayMob webhook (no auth)
 Route::post('/paymob/callback', [PayMobController::class, 'callback']);
 
+// Cart (public — supports guest_token)
+Route::get('/cart', [CartController::class, 'show']);
+Route::post('/cart/items', [CartController::class, 'addItem']);
+Route::put('/cart/items/{itemId}', [CartController::class, 'updateItem']);
+Route::delete('/cart/items/{itemId}', [CartController::class, 'removeItem']);
+Route::delete('/cart', [CartController::class, 'clear']);
+
+// Checkout & orders (public — supports guest checkout)
+Route::post('/checkout', [OrderController::class, 'checkout']);
+Route::get('/orders', [OrderController::class, 'index']);
+Route::get('/orders/my', [OrderController::class, 'myOrders']);
+Route::get('/orders/{id}', [OrderController::class, 'show']);
+Route::middleware('role:admin')->put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/me/currency', [AuthController::class, 'updateCurrency']);
@@ -58,20 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/products/{id}/inventory', [ProductController::class, 'updateInventory']);
         Route::post('/products/{id}/digital-files', [ProductController::class, 'addDigitalFile']);
     });
-
-    // Cart
-    Route::get('/cart', [CartController::class, 'show']);
-    Route::post('/cart/items', [CartController::class, 'addItem']);
-    Route::put('/cart/items/{itemId}', [CartController::class, 'updateItem']);
-    Route::delete('/cart/items/{itemId}', [CartController::class, 'removeItem']);
-    Route::delete('/cart', [CartController::class, 'clear']);
-
-    // Orders
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/my', [OrderController::class, 'myOrders']);
-    Route::get('/orders/{id}', [OrderController::class, 'show']);
-    Route::post('/checkout', [OrderController::class, 'checkout']);
-    Route::middleware('role:admin')->put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 
     // Addresses
     Route::get('/addresses', [AddressController::class, 'index']);
@@ -200,6 +200,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/broadcast', [NotificationController::class, 'broadcast'])->middleware('role:admin');
 
     // Subscriptions & admin approvals
     Route::get('/subscriptions/me', [SubscriptionController::class, 'mine']);

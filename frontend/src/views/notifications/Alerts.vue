@@ -1,152 +1,148 @@
 <script setup>
-const alert = () => {
-  console.log('👋 Well, hi there! Thanks for dismissing me.')
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useNotificationStore } from '@/stores/notifications'
+
+const notif = useNotificationStore()
+const notifications = ref([])
+const loading = ref(true)
+const currentPage = ref(1)
+const lastPage = ref(1)
+const filter = ref('all')
+
+async function loadNotifications() {
+  loading.value = true
+  const unread = filter.value === 'unread'
+  const result = await notif.fetchNotifications(currentPage.value, unread)
+  if (result) {
+    notifications.value = result.data
+    currentPage.value = result.current_page
+    lastPage.value = result.last_page
+  }
+  loading.value = false
 }
+
+function timeAgo(date) {
+  const diff = Date.now() - new Date(date).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days}d ago`
+  return new Date(date).toLocaleDateString()
+}
+
+const filteredNotifications = computed(() => {
+  if (filter.value === 'unread') {
+    return notifications.value.filter(n => !n.read_at)
+  }
+  return notifications.value
+})
+
+function goToPage(page) {
+  currentPage.value = page
+  loadNotifications()
+}
+
+onMounted(() => {
+  loadNotifications()
+})
 </script>
 
 <template>
-  <CRow>
-    <CCol :xs="12">
-      <DocsComponents href="components/alert.html" />
-      <CCard class="mb-4">
-        <CCardHeader>
-          <strong>Vue Alert</strong>
-        </CCardHeader>
-        <CCardBody>
-          <p class="text-body-secondary small">
-            Vue Alert is prepared for any length of text, as well as an optional
-            close button. For a styling, use one of the
-            <strong>required</strong> contextual <code>color</code> props (e.g.,
-            <code>primary</code>). For inline dismissal, use the
-            <a
-              href="https://coreui.io/vue/docs/components/alert.html#dismissing"
-            >
-              dismissing prop
-            </a>
-            .
-          </p>
-          <DocsExample href="components/alert.html">
-            <CAlert color="primary"
-              >A simple primary alert—check it out!</CAlert
-            >
-            <CAlert color="secondary"
-              >A simple secondary alert—check it out!</CAlert
-            >
-            <CAlert color="success"
-              >A simple success alert—check it out!</CAlert
-            >
-            <CAlert color="danger">A simple danger alert—check it out!</CAlert>
-            <CAlert color="warning"
-              >A simple warning alert—check it out!</CAlert
-            >
-            <CAlert color="info">A simple info alert—check it out!</CAlert>
-            <CAlert color="light">A simple light alert—check it out!</CAlert>
-            <CAlert color="dark">A simple dark alert—check it out!</CAlert>
-          </DocsExample>
-        </CCardBody>
-      </CCard>
-    </CCol>
-    <CCol :xs="12">
-      <CCard class="mb-4">
-        <CCardHeader>
-          <strong>Vue Alert</strong> <small>Link color</small>
-        </CCardHeader>
-        <CCardBody>
-          <p class="text-body-secondary small">
-            Use the <code>&lt;CAlertLink&gt;</code> component to immediately
-            give matching colored links inside any alert.
-          </p>
-          <DocsExample href="components/alert.html#link-color">
-            <CAlert color="primary">
-              A simple primary alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="secondary">
-              A simple secondary alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="success">
-              A simple success alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="danger">
-              A simple danger alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="warning">
-              A simple warning alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="info">
-              A simple info alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="light">
-              A simple light alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-            <CAlert color="dark">
-              A simple dark alert with
-              <CAlertLink href="#">an example link</CAlertLink>. Give it a click
-              if you like.
-            </CAlert>
-          </DocsExample>
-        </CCardBody>
-      </CCard>
-    </CCol>
-    <CCol :xs="12">
-      <CCard class="mb-4">
-        <CCardHeader>
-          <strong>Vue Alert</strong> <small>Additional content</small>
-        </CCardHeader>
-        <CCardBody>
-          <p class="text-body-secondary small">
-            Alert can also incorporate supplementary components &amp; elements
-            like heading, paragraph, and divider.
-          </p>
-          <DocsExample href="components/alert.html#additional-content">
-            <CAlert color="success">
-              <CAlertHeading tag="h4">Well done!</CAlertHeading>
-              <p>
-                Aww yeah, you successfully read this important alert message.
-                This example text is going to run a bit longer so that you can
-                see how spacing within an alert works with this kind of content.
+  <div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0">
+        <CIcon icon="cil-bell" class="me-2" />
+        Notifications
+      </h3>
+      <CButton
+        v-if="notif.unreadCount > 0"
+        color="primary"
+        size="sm"
+        variant="outline"
+        @click="notif.markAllAsRead(); loadNotifications()"
+      >
+        <CIcon icon="cil-check-all" class="me-1" />Mark All Read
+      </CButton>
+    </div>
+
+    <CCard class="mb-4 shadow-sm">
+      <CCardBody class="py-2">
+        <div class="d-flex gap-2">
+          <CButton
+            :color="filter === 'all' ? 'primary' : 'outline-secondary'"
+            size="sm"
+            @click="filter = 'all'; loadNotifications()"
+          >
+            All
+          </CButton>
+          <CButton
+            :color="filter === 'unread' ? 'primary' : 'outline-secondary'"
+            size="sm"
+            @click="filter = 'unread'; loadNotifications()"
+          >
+            Unread
+            <CBadge v-if="notif.unreadCount > 0" color="danger" class="ms-1">{{ notif.unreadCount }}</CBadge>
+          </CButton>
+        </div>
+      </CCardBody>
+    </CCard>
+
+    <div v-if="loading" class="text-center py-5">
+      <CSpinner />
+    </div>
+
+    <div v-else-if="filteredNotifications.length === 0" class="text-center py-5 text-body-secondary">
+      <CIcon icon="cil-bell" size="3xl" class="mb-3" />
+      <h5>No notifications</h5>
+      <p class="mb-0">{{ filter === 'unread' ? 'All caught up!' : 'You have no notifications yet.' }}</p>
+    </div>
+
+    <div v-else>
+      <CCard
+        v-for="n in filteredNotifications"
+        :key="n.id"
+        class="mb-2 notification-card"
+        :class="{ 'border-start border-start-4 border-start-primary': !n.read_at }"
+        @click="notif.markAsRead(n.id)"
+        style="cursor: pointer"
+      >
+        <CCardBody class="py-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1 me-3">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <CBadge v-if="!n.read_at" color="primary" size="sm" class="px-1">NEW</CBadge>
+                <span class="fw-semibold">{{ n.title }}</span>
+              </div>
+              <p class="mb-0 text-body-secondary small">
+                {{ n.body || n.data?.message || '' }}
               </p>
-              <hr />
-              <p class="mb-0">
-                Whenever you need to, be sure to use margin utilities to keep
-                things nice and tidy.
-              </p>
-            </CAlert>
-          </DocsExample>
+            </div>
+            <small class="text-body-secondary text-nowrap">{{ timeAgo(n.created_at) }}</small>
+          </div>
         </CCardBody>
       </CCard>
-    </CCol>
-    <CCol :xs="12">
-      <CCard class="mb-4">
-        <CCardHeader>
-          <strong>Vue Alert</strong> <small>Dismissing</small>
-        </CCardHeader>
-        <CCardBody>
-          <p class="text-body-secondary small">
-            Alerts can also be easily dismissed. Just add the
-            <code>dismissible</code> prop.
-          </p>
-          <DocsExample href="components/alert.html#dismissing">
-            <CAlert color="warning" dismissible @close="alert()">
-              <strong>Go right ahead</strong> and click that dimiss over there
-              on the right.
-            </CAlert>
-          </DocsExample>
-        </CCardBody>
-      </CCard>
-    </CCol>
-  </CRow>
+
+      <div v-if="lastPage > 1" class="mt-4">
+        <CPagination align="center">
+          <CPaginationItem :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</CPaginationItem>
+          <CPaginationItem
+            v-for="p in lastPage"
+            :key="p"
+            :active="p === currentPage"
+            @click="goToPage(p)"
+          >{{ p }}</CPaginationItem>
+          <CPaginationItem :disabled="currentPage === lastPage" @click="goToPage(currentPage + 1)">Next</CPaginationItem>
+        </CPagination>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.notification-card:hover {
+  background-color: var(--cui-body-bg, #f8f9fa);
+}
+</style>
