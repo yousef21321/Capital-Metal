@@ -64,7 +64,7 @@ const formatPrice = (product) => {
 
 const productImage = (product) => {
   const img = product?.images?.[0]
-  if (img && img.image_url) return `${api.defaults.baseURL}/storage/${img.image_url}`
+  if (img && img.image_url) return `/storage/${img.image_url}`
   return null
 }
 

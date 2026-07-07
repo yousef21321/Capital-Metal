@@ -15,10 +15,7 @@ export default [
     to: '/notifications',
     icon: 'cil-bell',
   },
-  {
-    component: 'CNavTitle',
-    name: 'Shop',
-  },
+  
   {
     component: 'CNavItem',
     name: 'Products',
@@ -59,10 +56,6 @@ export default [
     to: '/saved-cards',
     icon: 'cil-credit-card',
     roles: ['user', 'industor'],
-  },
-  {
-    component: 'CNavTitle',
-    name: 'Project Workflow',
   },
   {
     component: 'CNavItem',
@@ -120,10 +113,7 @@ export default [
     icon: 'cil-cloud-upload',
     roles: ['designer', 'admin'],
   },
-  {
-    component: 'CNavTitle',
-    name: 'Policies',
-  },
+  
   {
     component: 'CNavItem',
     name: 'سياسة الخصوصية',

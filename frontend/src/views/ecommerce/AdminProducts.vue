@@ -166,7 +166,7 @@ async function removeImage(productId, imageId) {
 
 const productImage = (product) => {
   const img = product.images?.[0]
-  if (img && img.image_url) return `${api.defaults.baseURL}/storage/${img.image_url}`
+  if (img && img.image_url) return `/storage/${img.image_url}`
   return null
 }
 
@@ -371,7 +371,7 @@ onMounted(fetchProducts)
         <CRow v-if="detailProduct.images?.length">
           <CCol v-for="img in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
             <div class="position-relative">
-              <img :src="`${api.defaults.baseURL}/storage/${img.image_url}`" class="w-100 rounded" style="height: 120px; object-fit: cover;" />
+              <img :src="`/storage/${img.image_url}`" class="w-100 rounded" style="height: 120px; object-fit: cover;" />
               <CButton color="danger" size="sm" class="position-absolute top-0 end-0 m-1" @click="removeImage(detailProduct.id, img.id)">
                 <CIcon icon="cil-x" />
               </CButton>

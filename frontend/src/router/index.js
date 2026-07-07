@@ -22,6 +22,11 @@ const routes = [
         component: () => import('@/views/ecommerce/Products.vue'),
       },
       {
+        path: '/products/:id',
+        name: 'ProductDetail',
+        component: () => import('@/views/ecommerce/ProductDetail.vue'),
+      },
+      {
         path: '/admin/products',
         name: 'AdminProducts',
         component: () => import('@/views/ecommerce/AdminProducts.vue'),

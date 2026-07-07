@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useColorModes } from '@coreui/vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
 import AppHeaderDropdownAccnt from '@/components/AppHeaderDropdownAccnt.vue'
@@ -9,6 +9,7 @@ import { useSidebarStore } from '@/stores/sidebar.js'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
+import nav from '@/_nav.js'
 
 function timeAgo(date) {
   const diff = Date.now() - new Date(date).getTime()
@@ -27,6 +28,30 @@ const sidebar = useSidebarStore()
 const cart = useCartStore()
 const auth = useAuthStore()
 const notif = useNotificationStore()
+const route = useRoute()
+
+const canSee = (item) => {
+  const role = auth.userRole
+  if (!role) return !item.roles || item.roles.length === 0
+  if (role === 'admin') return true
+  if (!item.roles || item.roles.length === 0) return true
+  return item.roles.includes(role)
+}
+
+const visibleNav = computed(() => {
+  const result = []
+  nav.forEach((item) => {
+    if (!canSee(item)) return
+    if (item.items) {
+      const children = item.items.filter((child) => canSee(child))
+      if (children.length === 0) return
+      result.push({ ...item, items: children })
+      return
+    }
+    result.push(item)
+  })
+  return result
+})
 
 onMounted(() => {
   document.addEventListener('scroll', () => {
@@ -49,14 +74,19 @@ onMounted(() => {
       <CHeaderToggler @click="sidebar.toggleVisible()" style="margin-inline-start: -14px">
         <CIcon icon="cil-menu" size="lg" />
       </CHeaderToggler>
-      <div class="header-brand d-flex align-items-center gap-2 ms-2">
-        <CIcon icon="cil-industry" size="xl" class="brand-icon" />
-        <span class="brand-text fw-bold fs-5">FLFL_Design</span>
+      <div class="header-brand d-flex align-items-center ms-2">
+        <img src="@/assets/images/logo.png" alt="FLFL Design" class="header-logo" />
+      </div>
+      <div class="header-actions d-flex align-items-center gap-2 ms-4">
+        <button class="btn-animated-glow" @click="sidebar.toggleVisible()">
+          <CIcon icon="cil-view-quilt" class="me-1" />
+          <span>Menu</span>
+        </button>
       </div>
       <CHeaderNav class="ms-auto">
         <CNavItem>
-          <RouterLink custom to="/cart" v-slot="{ href, navigate }">
-            <CNavLink :href="href" @click="navigate" class="position-relative">
+          <RouterLink custom to="/cart" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative">
               <CIcon icon="cil-basket" size="lg" />
               <CBadge
                 v-if="cart.count > 0"
@@ -71,9 +101,16 @@ onMounted(() => {
           </RouterLink>
         </CNavItem>
         <CNavItem>
-          <RouterLink custom to="/tickets" v-slot="{ href, navigate }">
-            <CNavLink :href="href" @click="navigate">
+          <RouterLink custom to="/tickets" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive">
               <CIcon icon="cil-description" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="['industor','designer','admin'].includes(auth.userRole)">
+          <RouterLink custom to="/tickets/create" v-slot="{ href, navigate }">
+            <CNavLink :href="href" class="btn-create-header" @click="navigate">
+              <CIcon icon="cil-plus" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
@@ -197,7 +234,64 @@ onMounted(() => {
         </template>
       </CHeaderNav>
     </CContainer>
-    <CContainer class="px-4" fluid>
+    <CContainer class="px-4 header-nav-row" fluid>
+      <CNav variant="underline-border" class="header-nav-horizontal">
+        <template v-for="item in visibleNav" :key="item.name">
+          <template v-if="item.component === 'CNavTitle'">
+            <li class="nav-item header-nav-title">
+              <span class="nav-link disabled">{{ item.name }}</span>
+            </li>
+          </template>
+          <template v-else-if="item.items">
+            <CDropdown variant="nav-item" placement="bottom">
+              <CDropdownToggle :caret="true">
+                <CIcon v-if="item.icon" :icon="item.icon" class="me-1" />
+                {{ item.name }}
+              </CDropdownToggle>
+              <CDropdownMenu>
+                <CDropdownItem
+                  v-for="child in item.items"
+                  :key="child.name"
+                  :to="child.to"
+                  :href="child.href"
+                  :target="child.href ? '_blank' : undefined"
+                  router-link
+                >
+                  <CIcon v-if="child.icon" :icon="child.icon" class="me-2" />
+                  {{ child.name }}
+                </CDropdownItem>
+              </CDropdownMenu>
+            </CDropdown>
+          </template>
+          <template v-else>
+            <CNavItem>
+              <RouterLink
+                custom
+                :to="item.to"
+                v-slot="{ href, navigate, isActive }"
+              >
+                <CNavLink
+                  :href="href"
+                  @click="navigate"
+                  :active="isActive"
+                >
+                  <CIcon v-if="item.icon" :icon="item.icon" class="me-1" />
+                  {{ item.name }}
+                  <CBadge
+                    v-if="item.badge"
+                    :color="item.badge.color"
+                    shape="rounded-pill"
+                    class="ms-1"
+                    size="sm"
+                  >
+                    {{ item.badge.text }}
+                  </CBadge>
+                </CNavLink>
+              </RouterLink>
+            </CNavItem>
+          </template>
+        </template>
+      </CNav>
       <AppBreadcrumb />
     </CContainer>
   </CHeader>

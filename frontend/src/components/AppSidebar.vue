@@ -19,12 +19,11 @@ const sidebar = useSidebarStore()
     <CSidebarHeader class="border-bottom sidebar-header-modern">
       <RouterLink custom to="/" v-slot="{ href, navigate }">
         <CSidebarBrand v-bind="$attrs" as="a" :href="href" @click="navigate" class="text-decoration-none">
-          <span class="sidebar-brand-full d-flex align-items-center gap-2 fs-4 fw-bold">
-            <CIcon icon="cil-industry" class="brand-icon" :height="28" />
-            <span class="brand-text">FLFL_Design</span>
+          <span class="sidebar-brand-full d-flex align-items-center gap-2">
+            <img src="@/assets/images/logo.png" alt="FLFL Design" class="sidebar-logo" />
           </span>
-          <span class="sidebar-brand-narrow fs-4 fw-bold">
-            <CIcon icon="cil-industry" class="brand-icon" :height="32" />
+          <span class="sidebar-brand-narrow">
+            <img src="@/assets/images/logo.png" alt="FLFL Design" class="sidebar-logo-narrow" />
           </span>
         </CSidebarBrand>
       </RouterLink>

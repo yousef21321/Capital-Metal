@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -12,7 +12,7 @@ const loading = ref(true)
 const error = ref('')
 const activeStatus = ref('')
 
-const role = () => auth.userRole
+const role = computed(() => auth.userRole)
 
 async function fetchTickets() {
   loading.value = true
@@ -37,106 +37,128 @@ function createTicket() {
   router.push('/tickets/create')
 }
 
-const titleByRole = () => {
+const titleByRole = computed(() => {
   const map = {
     industor: 'My Requests',
     tester: 'QA Queue',
     designer: 'My Tickets',
     admin: 'All Tickets',
   }
-  return map[role()] || 'Tickets'
-}
+  return map[role.value] || 'Tickets'
+})
 
-const canCreate = () => role() === 'industor'
+const canCreate = computed(() => role.value === 'industor')
 
 const statusFilters = [
-  { value: '', label: 'All' },
-  { value: 'pending_tester_review', label: 'Pending Tester' },
-  { value: 'waiting_industor_approval', label: 'Awaiting Industor' },
-  { value: 'waiting_tester_review', label: 'Awaiting Tester' },
-  { value: 'pending_payment', label: 'Pending Payment' },
-  { value: 'approved_by_tester', label: 'Available' },
-  { value: 'accepted', label: 'Accepted' },
-  { value: 'modification_requested', label: 'Mod Requested' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'awaiting_qa', label: 'Awaiting QA' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'rejected_qa', label: 'QA Rejected' },
+  { value: '', label: 'All', icon: 'cil-grid' },
+  { value: 'pending_tester_review', label: 'Pending Tester', icon: 'cil-hourglass' },
+  { value: 'waiting_industor_approval', label: 'Awaiting Industor', icon: 'cil-clock' },
+  { value: 'pending_payment', label: 'Pending Payment', icon: 'cil-credit-card' },
+  { value: 'approved_by_tester', label: 'Available', icon: 'cil-check' },
+  { value: 'in_progress', label: 'In Progress', icon: 'cil-settings' },
+  { value: 'completed', label: 'Completed', icon: 'cil-check-circle' },
 ]
+
+const statusCount = computed(() => {
+  const counts = {}
+  tickets.value.forEach((t) => {
+    counts[t.status] = (counts[t.status] || 0) + 1
+  })
+  return counts
+})
 
 onMounted(fetchTickets)
 </script>
 
 <template>
-  <div>
+  <div class="ticket-list-page">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">{{ titleByRole() }}</h3>
+        <h3 class="mb-1 fw-bold">
+          <CIcon icon="cil-description" class="me-2 text-primary" />{{ titleByRole }}
+        </h3>
         <p class="text-body-secondary mb-0">Track design requests across the workflow.</p>
       </div>
-      <CButton v-if="canCreate()" color="primary" @click="createTicket">
+      <CButton v-if="canCreate" color="primary" class="btn-new-ticket" @click="createTicket">
         <CIcon icon="cil-plus" class="me-1" /> New Request
       </CButton>
     </div>
 
-    <CCard class="mb-4 shadow-sm">
+    <CCard class="mb-4 filter-card">
       <CCardBody>
-        <div class="d-flex flex-wrap gap-2">
-          <CButton
+        <div class="filter-pills d-flex flex-wrap gap-2">
+          <button
             v-for="f in statusFilters"
             :key="f.value"
-            size="sm"
-            :color="activeStatus === f.value ? 'primary' : 'outline-secondary'"
+            class="filter-pill"
+            :class="{ active: activeStatus === f.value }"
             @click="activeStatus = f.value; fetchTickets()"
           >
+            <CIcon :icon="f.icon" class="me-1" />
             {{ f.label }}
-          </CButton>
+            <span v-if="statusCount[f.value]" class="filter-count">{{ statusCount[f.value] }}</span>
+          </button>
         </div>
       </CCardBody>
     </CCard>
 
     <div v-if="loading" class="text-center py-5">
-      <CSpinner />
+      <div class="loading-spinner">
+        <CSpinner color="primary" />
+      </div>
     </div>
 
     <div v-else-if="error" class="py-3">
       <CAlert color="danger" class="mb-0">{{ error }}</CAlert>
     </div>
 
-    <div v-else-if="!tickets.length" class="text-center py-5 text-body-secondary">
-      <CIcon icon="cil-file" size="3xl" class="mb-3" />
-      <h4>No tickets found</h4>
-      <p v-if="canCreate()">Create your first request to get started.</p>
+    <div v-else-if="!tickets.length" class="text-center py-5 empty-state">
+      <div class="empty-icon-wrapper mb-3">
+        <CIcon icon="cil-file" size="3xl" />
+      </div>
+      <h4 class="fw-semibold">No tickets found</h4>
+      <p v-if="canCreate" class="text-body-secondary">Create your first request to get started.</p>
     </div>
 
-    <CCard v-else class="shadow-sm">
-      <CTable hover responsive align="middle">
-        <CTableHead>
-          <CTableRow>
-            <CTableHeaderCell>Title</CTableHeaderCell>
-            <CTableHeaderCell>Status</CTableHeaderCell>
-            <CTableHeaderCell v-if="role() !== 'industor'">Industor</CTableHeaderCell>
-            <CTableHeaderCell v-if="role() === 'admin' || role() === 'industor'">Designer</CTableHeaderCell>
-            <CTableHeaderCell>Created</CTableHeaderCell>
-            <CTableHeaderCell class="text-end">Action</CTableHeaderCell>
-          </CTableRow>
-        </CTableHead>
-        <CTableBody>
-          <CTableRow v-for="t in tickets" :key="t.id" style="cursor: pointer" @click="openTicket(t.id)">
-            <CTableDataCell class="fw-semibold">{{ t.title }}</CTableDataCell>
-            <CTableDataCell>
-              <CBadge :color="statusMeta(t.status).color">{{ statusMeta(t.status).label }}</CBadge>
-              <span v-if="t.is_overdue" class="badge text-bg-danger ms-1">Overdue</span>
-            </CTableDataCell>
-            <CTableDataCell v-if="role() !== 'industor'">{{ t.industor?.name || '-' }}</CTableDataCell>
-            <CTableDataCell v-if="role() === 'admin' || role() === 'industor'">{{ t.designer?.name || '-' }}</CTableDataCell>
-            <CTableDataCell class="small text-body-secondary">{{ formatDate(t.created_at) }}</CTableDataCell>
-            <CTableDataCell class="text-end">
-              <CButton color="primary" variant="outline" size="sm" @click.stop="openTicket(t.id)">Open</CButton>
-            </CTableDataCell>
-          </CTableRow>
-        </CTableBody>
-      </CTable>
+    <CCard v-else class="tickets-card">
+      <div class="ticket-list">
+        <div
+          v-for="(t, idx) in tickets"
+          :key="t.id"
+          class="ticket-row"
+          :style="{ '--row-delay': idx * 0.05 + 's' }"
+          @click="openTicket(t.id)"
+        >
+          <div class="ticket-left">
+            <div class="ticket-icon">
+              <CIcon icon="cil-description" />
+            </div>
+            <div class="ticket-info">
+              <h6 class="ticket-title mb-1">{{ t.title }}</h6>
+              <div class="ticket-meta d-flex align-items-center gap-2 flex-wrap">
+                <CBadge :color="statusMeta(t.status).color" class="ticket-badge">{{ statusMeta(t.status).label }}</CBadge>
+                <span v-if="t.is_overdue" class="overdue-badge">Overdue</span>
+                <span class="small text-body-secondary">
+                  <CIcon icon="cil-clock" size="sm" class="me-1" />{{ formatDate(t.created_at) }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="ticket-right">
+            <div v-if="role !== 'industor' && t.industor" class="ticket-person">
+              <span class="person-avatar" :style="{ background: '#b81300' }">{{ t.industor.name?.charAt(0) }}</span>
+              <span class="person-name small">{{ t.industor.name }}</span>
+            </div>
+            <div v-if="(role === 'admin' || role === 'industor') && t.designer" class="ticket-person">
+              <span class="person-avatar" :style="{ background: '#39f' }">{{ t.designer.name?.charAt(0) }}</span>
+              <span class="person-name small">{{ t.designer.name }}</span>
+            </div>
+            <CButton color="primary" variant="outline" size="sm" class="btn-open" @click.stop="openTicket(t.id)">
+              Open <CIcon icon="cil-arrow-right" class="ms-1" />
+            </CButton>
+          </div>
+        </div>
+      </div>
     </CCard>
   </div>
 </template>

@@ -94,120 +94,137 @@ onMounted(fetchAvailable)
 </script>
 
 <template>
-  <div>
+  <div class="designer-queue-page">
+    <div class="queue-top-header">
+      <span class="policy-link">سياسة الخصوصية</span>
+      <span class="policy-sep">|</span>
+      <span class="policy-link">سياسة الاسترجاع</span>
+      <span class="policy-sep">|</span>
+      <span class="policy-link">سياسة الشحن</span>
+      <span class="policy-sep">|</span>
+      <span class="policy-link">اتصل بنا</span>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">Available Tickets</h3>
+        <h3 class="mb-1 fw-bold">
+          <CIcon icon="cil-color-border" class="me-2 queue-header-icon" />
+          Available Tickets
+        </h3>
         <p class="text-body-secondary mb-0">Open design requests you can accept. Urgent tickets are highlighted.</p>
       </div>
-      <CButton color="secondary" variant="outline" size="sm" @click="fetchAvailable">
+      <CButton color="secondary" variant="outline" size="sm" class="btn-refresh" @click="fetchAvailable">
         <CIcon icon="cil-reload" class="me-1" /> Refresh
       </CButton>
     </div>
 
-    <CAlert v-if="error" color="danger" class="mb-3">{{ error }}</CAlert>
+    <CAlert v-if="error" color="danger" class="mb-3 animated-alert">{{ error }}</CAlert>
 
-    <div v-if="loading" class="text-center py-5"><CSpinner /></div>
+    <div v-if="loading" class="text-center py-5 loading-section">
+      <div class="loading-spinner-inner">
+        <CSpinner color="primary" />
+      </div>
+    </div>
 
-    <div v-else-if="!tickets.length" class="text-center py-5 text-body-secondary">
-      <CIcon icon="cil-file" size="3xl" class="mb-3" />
-      <h4>No open tickets</h4>
-      <p>Check back later for new design requests.</p>
+    <div v-else-if="!tickets.length" class="text-center py-5 empty-state-queue">
+      <div class="empty-icon-wrapper mb-3">
+        <CIcon icon="cil-color-border" size="3xl" />
+      </div>
+      <h4 class="fw-semibold">No open tickets</h4>
+      <p class="text-body-secondary">Check back later for new design requests.</p>
     </div>
 
     <CRow v-else>
-      <CCol v-for="t in sortedTickets" :key="t.id" md="6" lg="4" class="mb-4">
+      <CCol v-for="(t, idx) in sortedTickets" :key="t.id" md="6" lg="4" class="mb-4 queue-col">
         <CCard
-          class="h-100 shadow-sm"
-          :class="ticketMetrics(t).type === 'urgent' ? 'border-danger border-2' : 'border-success'"
+          class="queue-card h-100"
+          :class="ticketMetrics(t).type === 'urgent' ? 'queue-card-urgent' : ''"
+          :style="{ '--card-delay': idx * 0.08 + 's' }"
         >
-          <CCardHeader
-            class="d-flex justify-content-between align-items-center"
-            :class="ticketMetrics(t).type === 'urgent' ? 'bg-danger-subtle' : 'bg-success-subtle'"
-          >
-            <h5 class="card-title mb-0 text-truncate" style="max-width: 200px;">{{ t.title }}</h5>
-            <CBadge :color="ticketMetrics(t).type === 'urgent' ? 'danger' : 'success'" class="text-uppercase">
-              <CIcon v-if="ticketMetrics(t).type === 'urgent'" icon="cil-warning" class="me-1" />
-              {{ ticketMetrics(t).type === 'urgent' ? 'Urgent' : 'Normal' }}
-            </CBadge>
+          <CCardHeader class="queue-card-header" :class="ticketMetrics(t).type === 'urgent' ? 'queue-card-header-urgent' : ''">
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <h5 class="card-title mb-0 queue-card-title">{{ t.title }}</h5>
+              <CBadge :color="ticketMetrics(t).type === 'urgent' ? 'danger' : 'success'" class="queue-badge text-uppercase">
+                <CIcon v-if="ticketMetrics(t).type === 'urgent'" icon="cil-warning" class="me-1" />
+                {{ ticketMetrics(t).type === 'urgent' ? 'Urgent' : 'Normal' }}
+              </CBadge>
+            </div>
           </CCardHeader>
 
           <CCardBody class="d-flex flex-column">
-            <p class="card-text text-body-secondary small flex-grow-1">
+            <p class="queue-desc flex-grow-1">
               {{ t.description?.slice(0, 120) }}{{ t.description?.length > 120 ? '...' : '' }}
             </p>
 
-            <div class="small text-body-secondary mb-2">
-              <CIcon icon="cil-user" class="me-1" /> {{ t.industor?.name }}
+            <div class="queue-meta-row">
+              <CIcon icon="cil-user" class="meta-icon" />
+              <span>{{ t.industor?.name }}</span>
             </div>
 
-            <div v-if="t.designer_price" class="d-flex justify-content-between align-items-center mb-2 p-2 rounded"
-              :class="t.urgent_price_applied ? 'bg-warning-subtle' : 'bg-success-subtle'">
-              <span class="small fw-semibold">
+            <div v-if="t.designer_price" class="queue-price-row" :class="t.urgent_price_applied ? 'price-urgent' : 'price-normal'">
+              <div class="price-label">
                 <CIcon icon="cil-money" class="me-1" /> Designer Price
-              </span>
-              <span class="fw-bold fs-5" :class="t.urgent_price_applied ? 'text-warning-emphasis' : 'text-success'">
-                {{ formatPrice(t.designer_price) }}
-              </span>
-            </div>
-            <div v-if="t.urgent_price_applied" class="small text-warning mb-2">
-              <CIcon icon="cil-arrow-up" class="me-1" /> +10% urgent bonus applied
+              </div>
+              <div class="price-value">{{ formatPrice(t.designer_price) }}</div>
+              <div v-if="t.urgent_price_applied" class="price-bonus">
+                <CIcon icon="cil-arrow-up" class="me-1" />+10% urgent bonus
+              </div>
             </div>
 
-            <div v-if="t.reviewed_at" class="small text-body-secondary mb-2">
-              <CIcon icon="cil-check-circle" class="me-1 text-success" />
+            <div v-if="t.reviewed_at" class="queue-meta-row approved-row">
+              <CIcon icon="cil-check-circle" class="approved-icon" />
               Approved: {{ formatDate(t.reviewed_at) }}
             </div>
 
-            <!-- Countdown -->
             <div
-              class="rounded p-2 mb-2 text-center"
-              :class="ticketMetrics(t).type === 'urgent' ? 'bg-danger-subtle' : 'bg-light'"
+              class="queue-countdown"
+              :class="ticketMetrics(t).type === 'urgent' ? 'countdown-urgent' : 'countdown-normal'"
             >
-              <div class="small text-body-secondary mb-1">
+              <div class="countdown-label">
                 <CIcon :icon="ticketMetrics(t).type === 'urgent' ? 'cil-bell' : 'cil-clock'" class="me-1" />
                 Time Remaining
               </div>
-              <div class="d-flex justify-content-center align-items-center gap-1 font-monospace fs-5">
-                <span v-if="ticketMetrics(t).parts.days > 0" class="badge" :class="ticketMetrics(t).type === 'urgent' ? 'text-bg-danger' : 'text-bg-dark'">
-                  {{ ticketMetrics(t).parts.days }}d
-                </span>
-                <span class="badge" :class="ticketMetrics(t).type === 'urgent' ? 'text-bg-danger' : 'text-bg-dark'">{{ pad(ticketMetrics(t).parts.hours) }}</span>
-                <span class="text-body-secondary">:</span>
-                <span class="badge" :class="ticketMetrics(t).type === 'urgent' ? 'text-bg-danger' : 'text-bg-dark'">{{ pad(ticketMetrics(t).parts.minutes) }}</span>
-                <span class="text-body-secondary">:</span>
-                <span class="badge" :class="ticketMetrics(t).type === 'urgent' ? 'text-bg-danger' : 'text-bg-dark'">{{ pad(ticketMetrics(t).parts.seconds) }}</span>
+              <div class="countdown-digits">
+                <span v-if="ticketMetrics(t).parts.days > 0" class="countdown-unit">{{ ticketMetrics(t).parts.days }}<span class="unit-label">d</span></span>
+                <span class="countdown-unit">{{ pad(ticketMetrics(t).parts.hours) }}<span class="unit-label">h</span></span>
+                <span class="countdown-sep">:</span>
+                <span class="countdown-unit">{{ pad(ticketMetrics(t).parts.minutes) }}<span class="unit-label">m</span></span>
+                <span class="countdown-sep">:</span>
+                <span class="countdown-unit seconds-unit">{{ pad(ticketMetrics(t).parts.seconds) }}<span class="unit-label">s</span></span>
               </div>
-              <div v-if="ticketMetrics(t).remaining === 0" class="small text-danger fw-bold mt-1">
+              <div v-if="ticketMetrics(t).remaining === 0" class="deadline-passed">
                 <CIcon icon="cil-clock-history" class="me-1" /> Deadline passed
               </div>
             </div>
 
-            <!-- Progress bar -->
-            <div class="mb-3">
-              <div class="d-flex justify-content-between small text-body-secondary mb-1">
+            <div class="queue-progress-section">
+              <div class="progress-header">
                 <span>Time Used</span>
-                <span>{{ (100 - ticketMetrics(t).percentage).toFixed(0) }}%</span>
+                <span class="progress-pct">{{ (100 - ticketMetrics(t).percentage).toFixed(0) }}%</span>
               </div>
-              <CProgress height="6px">
+              <CProgress height="6px" class="queue-progress">
                 <CProgressBar
                   :color="ticketMetrics(t).type === 'urgent' ? 'danger' : 'success'"
+                  class="queue-progress-bar"
                   :value="100 - ticketMetrics(t).percentage"
                 />
               </CProgress>
             </div>
 
-            <div class="d-flex gap-2 mt-auto">
+            <div class="queue-actions mt-auto">
               <CButton
                 :color="ticketMetrics(t).type === 'urgent' ? 'danger' : 'primary'"
-                class="flex-grow-1"
+                class="btn-accept"
+                :class="ticketMetrics(t).type === 'urgent' ? 'btn-accept-urgent' : 'btn-accept-normal'"
                 :disabled="accepting === t.id"
                 @click="accept(t.id)"
               >
                 <CSpinner v-if="accepting === t.id" size="sm" class="me-1" />
                 {{ ticketMetrics(t).type === 'urgent' ? 'Accept Urgent' : 'Accept' }}
               </CButton>
-              <CButton color="secondary" variant="outline" @click="openTicket(t.id)">Details</CButton>
+              <CButton color="secondary" variant="outline" class="btn-details" @click="openTicket(t.id)">
+                Details <CIcon icon="cil-arrow-right" class="ms-1" />
+              </CButton>
             </div>
           </CCardBody>
         </CCard>
@@ -215,3 +232,401 @@ onMounted(fetchAvailable)
     </CRow>
   </div>
 </template>
+
+<style scoped>
+.designer-queue-page {
+  animation: fade-up 0.5s ease-out;
+}
+
+.queue-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1.2rem;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  font-size: 0.82rem;
+  flex-wrap: wrap;
+}
+.policy-link {
+  color: var(--cui-body-color);
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.policy-link:hover {
+  color: var(--cui-primary, #b81300);
+}
+.policy-sep {
+  color: var(--cui-border-color, rgba(0,0,0,0.1));
+  font-size: 0.7rem;
+}
+
+.queue-header-icon {
+  color: var(--cui-primary, #b81300);
+}
+
+.btn-refresh {
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.82rem;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-refresh:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.animated-alert {
+  animation: slide-down 0.35s ease-out;
+}
+
+.loading-section {
+  .loading-spinner-inner {
+    display: inline-flex;
+    padding: 1.2rem;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+}
+
+.empty-state-queue {
+  animation: fade-up 0.6s ease-out;
+}
+.empty-icon-wrapper {
+  display: inline-flex;
+  padding: 1.2rem;
+  border-radius: 20px;
+  background: rgba(184, 19, 0, 0.06);
+  color: var(--cui-primary, #b81300);
+}
+
+.queue-col {
+  animation: fade-up 0.5s ease-out both;
+  animation-delay: var(--card-delay, 0s);
+}
+
+.queue-card {
+  border: none;
+  border-radius: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  position: relative;
+}
+.queue-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.1);
+}
+.queue-card-urgent {
+  border: 2px solid var(--cui-danger, #e55353);
+  box-shadow: 0 0 0 1px rgba(229, 83, 83, 0.1), 0 4px 20px rgba(229, 83, 83, 0.08);
+}
+.queue-card-urgent:hover {
+  box-shadow: 0 24px 64px rgba(229, 83, 83, 0.12);
+}
+
+.queue-card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0.9rem 1.1rem;
+  transition: background 0.3s ease;
+}
+.queue-card-header-urgent {
+  background: linear-gradient(135deg, rgba(229, 83, 83, 0.08), rgba(229, 83, 83, 0.02));
+  border-bottom-color: rgba(229, 83, 83, 0.15);
+}
+
+.queue-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  transition: color 0.2s ease;
+}
+.queue-card:hover .queue-card-title {
+  color: var(--cui-primary, #b81300);
+}
+.queue-card-urgent:hover .queue-card-title {
+  color: var(--cui-danger, #e55353);
+}
+
+.queue-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 50px;
+  flex-shrink: 0;
+}
+.queue-card-urgent .queue-badge {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+.queue-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--cui-body-secondary, #6b7785);
+  margin-bottom: 0.75rem;
+}
+
+.queue-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--cui-body-secondary, #6b7785);
+  margin-bottom: 0.5rem;
+}
+.meta-icon {
+  opacity: 0.6;
+  width: 1rem;
+}
+
+.approved-row {
+  font-size: 0.8rem;
+}
+.approved-icon {
+  color: var(--cui-success, #2eb85c);
+}
+
+.queue-price-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 0.65rem;
+  transition: all 0.3s ease;
+}
+.price-normal {
+  background: linear-gradient(135deg, rgba(46, 184, 92, 0.06), rgba(46, 184, 92, 0.02));
+  border: 1px solid rgba(46, 184, 92, 0.1);
+}
+.price-urgent {
+  background: linear-gradient(135deg, rgba(229, 83, 83, 0.08), rgba(229, 83, 83, 0.02));
+  border: 1px solid rgba(229, 83, 83, 0.12);
+}
+.price-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cui-body-secondary, #6b7785);
+  font-weight: 600;
+}
+.price-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--cui-primary, #b81300), var(--cui-info, #39f));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+.price-bonus {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--cui-warning, #f9b115);
+}
+
+.queue-countdown {
+  border-radius: 10px;
+  padding: 0.7rem 0.6rem;
+  margin-bottom: 0.65rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.countdown-normal {
+  background: var(--cui-light, rgba(0, 0, 0, 0.03));
+}
+.countdown-urgent {
+  background: linear-gradient(135deg, rgba(229, 83, 83, 0.08), rgba(229, 83, 83, 0.02));
+  border: 1px solid rgba(229, 83, 83, 0.1);
+  animation: countdown-pulse 2s ease-in-out infinite;
+}
+
+.countdown-label {
+  font-size: 0.72rem;
+  color: var(--cui-body-secondary, #6b7785);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-digits {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.15rem;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.countdown-unit {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  padding: 0.3rem 0.45rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--cui-dark, #212631);
+  color: #fff;
+  min-width: 36px;
+  justify-content: center;
+}
+.countdown-urgent .countdown-unit {
+  background: var(--cui-danger, #e55353);
+  color: #fff;
+}
+.unit-label {
+  font-size: 0.55rem;
+  font-weight: 600;
+  opacity: 0.6;
+  margin-left: 1px;
+}
+.seconds-unit {
+  transition: transform 0.1s ease;
+}
+.countdown-urgent .seconds-unit {
+  animation: seconds-flash 1s step-end infinite;
+}
+
+.countdown-sep {
+  font-weight: 700;
+  color: var(--cui-body-secondary, #6b7785);
+  font-size: 1rem;
+  margin: 0 0.1rem;
+}
+
+.deadline-passed {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cui-danger, #e55353);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-deadline 1.5s ease-in-out infinite;
+}
+
+.queue-progress-section {
+  margin-bottom: 0.75rem;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--cui-body-secondary, #6b7785);
+  margin-bottom: 0.3rem;
+}
+.progress-pct {
+  font-weight: 600;
+}
+.queue-progress {
+  border-radius: 100px;
+  overflow: hidden;
+  background: var(--cui-light, rgba(0, 0, 0, 0.04));
+}
+.queue-progress .progress-bar {
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+.queue-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-accept {
+  flex: 1;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-accept-normal {
+  box-shadow: 0 4px 16px rgba(184, 19, 0, 0.2);
+}
+.btn-accept-normal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(184, 19, 0, 0.3);
+}
+.btn-accept-urgent {
+  box-shadow: 0 4px 16px rgba(229, 83, 83, 0.25);
+  animation: pulse-glow-btn 2s ease-in-out infinite;
+}
+.btn-accept-urgent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(229, 83, 83, 0.4);
+}
+
+.btn-details {
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.82rem;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-details:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes countdown-pulse {
+  0%, 100% { border-color: rgba(229, 83, 83, 0.1); }
+  50% { border-color: rgba(229, 83, 83, 0.25); }
+}
+
+@keyframes seconds-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes pulse-deadline {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-glow-btn {
+  0%, 100% { box-shadow: 0 4px 16px rgba(229, 83, 83, 0.25); }
+  50% { box-shadow: 0 4px 28px rgba(229, 83, 83, 0.5); }
+}
+</style>

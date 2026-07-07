@@ -40,6 +40,7 @@ export default defineConfig(() => {
       },
       proxy: {
         '/api': 'http://app:8000',
+        '/storage': 'http://app:8000',
       },
     },
   }

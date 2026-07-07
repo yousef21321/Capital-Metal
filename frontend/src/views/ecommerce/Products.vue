@@ -84,7 +84,7 @@ const formatPrice = (product) => {
 const productImage = (product) => {
   const img = product.images?.[0]
   if (img && img.image_url) {
-    return `${api.defaults.baseURL}/storage/${img.image_url}`
+    return `/storage/${img.image_url}`
   }
   return null
 }
@@ -109,81 +109,138 @@ onMounted(fetchProducts)
 </script>
 
 <template>
-  <div>
+  <div class="products-page">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">Products</h3>
+        <h3 class="mb-1 fw-bold">
+          <CIcon icon="cil-grid" class="me-2 text-primary" />Products
+        </h3>
         <p class="text-body-secondary mb-0">Browse and add products to your cart.</p>
       </div>
     </div>
 
-    <CCard class="mb-4 shadow-sm">
+    <CCard class="mb-4 search-card">
       <CCardBody>
-        <CRow class="g-2 align-items-center">
+        <CRow class="g-3 align-items-center">
           <CCol md="5">
-            <div class="input-group">
-              <span class="input-group-text"><CIcon icon="cil-search" /></span>
-              <input v-model="search" class="form-control" placeholder="Search products..." @input="fetchProducts" />
+            <div class="input-group search-input-group">
+              <span class="input-group-text bg-transparent border-end-0"><CIcon icon="cil-search" /></span>
+              <input v-model="search" class="form-control border-start-0 ps-0" placeholder="Search products..." @input="fetchProducts" />
             </div>
           </CCol>
-          <CCol md="3">
-            <CFormSelect v-model="productType" @change="fetchProducts">
-              <option value="">All Types</option>
-              <option value="physical">Physical</option>
-              <option value="digital">Digital</option>
-            </CFormSelect>
-          </CCol>
-          <CCol md="2">
-            <CButton color="primary" variant="outline" class="w-100" @click="fetchProducts">Search</CButton>
+          <CCol md="7">
+            <div class="filter-buttons d-flex align-items-center gap-2 flex-wrap">
+              <span class="filter-label small text-body-secondary fw-semibold me-1">Type:</span>
+              <button
+                class="filter-btn"
+                :class="{ active: productType === '' }"
+                @click="productType = ''; fetchProducts()"
+              >
+                <CIcon icon="cil-grid" class="me-1" />All
+              </button>
+              <button
+                class="filter-btn"
+                :class="{ active: productType === 'physical' }"
+                @click="productType = 'physical'; fetchProducts()"
+              >
+                <CIcon icon="cil-box" class="me-1" />Physical
+              </button>
+              <button
+                class="filter-btn"
+                :class="{ active: productType === 'digital' }"
+                @click="productType = 'digital'; fetchProducts()"
+              >
+                <CIcon icon="cil-cloud-download" class="me-1" />Digital
+              </button>
+              <span class="vr mx-2"></span>
+              <CButton color="primary" size="sm" class="btn-search" @click="fetchProducts">
+                <CIcon icon="cil-search" class="me-1" />Search
+              </CButton>
+            </div>
           </CCol>
         </CRow>
       </CCardBody>
     </CCard>
 
     <div v-if="loading" class="text-center py-5">
-      <CSpinner />
+      <div class="loading-spinner">
+        <CSpinner color="primary" />
+      </div>
     </div>
 
-    <div v-else-if="!products.length" class="text-center py-5 text-body-secondary">
-      <CIcon icon="cil-cart" size="3xl" class="mb-3" />
-      <h4>No products found</h4>
+    <div v-else-if="!products.length" class="text-center py-5 empty-state">
+      <div class="empty-icon-wrapper mb-3">
+        <CIcon icon="cil-cart" size="3xl" />
+      </div>
+      <h4 class="fw-semibold">No products found</h4>
+      <p class="text-body-secondary">Try adjusting your search or filter.</p>
     </div>
 
-    <CRow v-else>
-      <CCol v-for="product in products" :key="product.id" sm="6" lg="4" xl="3" class="mb-4">
-        <CCard class="h-100 shadow-sm">
-          <div class="product-img-wrapper text-center bg-light" style="height: 200px; overflow: hidden; cursor: pointer;" @click="viewProduct(product.id)">
+    <CRow v-else class="g-4 products-grid">
+      <CCol v-for="product in products" :key="product.id" sm="6" lg="4" xl="3" class="product-col">
+        <CCard class="product-card h-100">
+          <div class="product-img-wrapper" @click="viewProduct(product.id)">
             <img
               v-if="productImage(product)"
               :src="productImage(product)"
               :alt="product.name"
-              class="w-100 h-100"
-              style="object-fit: cover;"
+              class="product-img"
             />
-            <div v-else class="d-flex align-items-center justify-content-center h-100">
+            <div v-else class="product-img-fallback">
               <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="3xl" class="text-body-secondary" />
+              <span class="small text-body-secondary mt-2">{{ product.product_type === 'digital' ? 'Digital' : 'Physical' }}</span>
             </div>
-          </div>
-          <CCardBody class="d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <CCardTitle class="mb-0" style="cursor: pointer" @click="viewProduct(product.id)">{{ product.name }}</CCardTitle>
+            <div class="product-badges">
+              <span v-if="product.product_type === 'digital'" class="badge-type badge-digital">
+                <CIcon icon="cil-cloud-download" size="sm" class="me-1" />Digital
+              </span>
+              <span v-else class="badge-type badge-physical">
+                <CIcon icon="cil-box" size="sm" class="me-1" />Physical
+              </span>
+            </div>
+            <div class="product-actions-overlay">
+              <CButton color="light" size="sm" class="action-btn action-view" @click.stop="viewProduct(product.id)">
+                <CIcon icon="cil-zoom-in" />
+              </CButton>
               <CButton
-                color="danger"
-                :variant="wishlistIds.has(product.id) ? '' : 'ghost'"
+                color="light"
                 size="sm"
-                class="p-1"
-                @click="toggleWishlist(product.id)"
+                class="action-btn action-wishlist"
+                :class="{ liked: wishlistIds.has(product.id) }"
+                @click.stop="toggleWishlist(product.id)"
               >
                 <CIcon :icon="wishlistIds.has(product.id) ? 'cil-heart' : 'cil-heart'" />
               </CButton>
-            </div>
-            <p class="card-text text-body-secondary small flex-grow-1">{{ product.description?.slice(0, 80) || 'No description' }}{{ product.description?.length > 80 ? '...' : '' }}</p>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <h5 class="text-primary mb-0">{{ formatPrice(product) }}</h5>
-              <CButton color="primary" size="sm" :disabled="addingId === product.id" @click="addToCart(product)">
-                <CSpinner v-if="addingId === product.id" size="sm" class="me-1" />
-                <CIcon v-else icon="cil-cart" class="me-1" />Add
+              <CButton
+                color="primary"
+                size="sm"
+                class="action-btn action-cart"
+                :disabled="addingId === product.id"
+                @click.stop="addToCart(product)"
+              >
+                <CSpinner v-if="addingId === product.id" size="sm" />
+                <CIcon v-else icon="cil-cart" />
               </CButton>
+            </div>
+          </div>
+          <CCardBody class="d-flex flex-column">
+            <div class="product-type-row d-flex align-items-center gap-2 mb-1">
+              <span class="type-dot" :class="product.product_type"></span>
+              <span class="small text-body-secondary text-capitalize">{{ product.product_type || 'physical' }}</span>
+            </div>
+            <CCardTitle class="product-name mb-1" @click="viewProduct(product.id)">{{ product.name }}</CCardTitle>
+            <div class="product-rating d-flex align-items-center gap-1 mb-1">
+              <CIcon v-for="i in 5" :key="i" :icon="i <= (product.rating || 4) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
+              <span class="small text-body-secondary ms-1">({{ product.reviews_count || 0 }})</span>
+            </div>
+            <p class="product-desc text-body-secondary small flex-grow-1">
+              {{ product.description?.slice(0, 70) || 'No description available' }}{{ product.description?.length > 70 ? '...' : '' }}
+            </p>
+            <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+              <div class="product-price-row">
+                <h5 class="product-price mb-0">{{ formatPrice(product) }}</h5>
+                <small v-if="product.compare_price" class="text-decoration-line-through text-body-secondary ms-1">{{ product.compare_price }}</small>
+              </div>
             </div>
           </CCardBody>
         </CCard>
@@ -191,7 +248,7 @@ onMounted(fetchProducts)
     </CRow>
 
     <div v-if="lastPage > 1" class="mt-4">
-      <CPagination align="center" aria-label="Products pagination">
+      <CPagination align="center" aria-label="Products pagination" class="products-pagination">
         <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">Previous</CPaginationItem>
         <CPaginationItem v-for="page in lastPage" :key="page" :active="page === currentPage" @click="currentPage = page; fetchProducts()">{{ page }}</CPaginationItem>
         <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">Next</CPaginationItem>
