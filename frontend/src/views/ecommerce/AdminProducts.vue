@@ -236,16 +236,16 @@ onMounted(fetchProducts)
             </CTableDataCell>
             <CTableDataCell class="text-end">
               <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
-                <CIcon icon="cil-image-plus" />
+                <CIcon icon="cil-image-plus" class="me-1" />{{ $t('admin_products.upload') }}
               </CButton>
               <CButton color="primary" variant="ghost" size="sm" class="me-1" @click="openDetail(p)">
-                <CIcon icon="cil-eye" />
+                <CIcon icon="cil-eye" class="me-1" />{{ $t('admin_products.view') }}
               </CButton>
               <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEdit(p)">
-                <CIcon icon="cil-pencil" />
+                <CIcon icon="cil-pencil" class="me-1" />{{ $t('admin_products.edit') }}
               </CButton>
               <CButton color="danger" variant="ghost" size="sm" @click="remove(p)">
-                <CIcon icon="cil-trash" />
+                <CIcon icon="cil-trash" class="me-1" />{{ $t('admin_products.delete') }}
               </CButton>
             </CTableDataCell>
           </CTableRow>

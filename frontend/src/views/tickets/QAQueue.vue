@@ -1,10 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate } from './ticketHelpers'
 
 const router = useRouter()
+const auth = useAuthStore()
 const tickets = ref([])
 const loading = ref(true)
 const error = ref('')
@@ -37,8 +39,20 @@ async function claim(id) {
   }
 }
 
+const isAdmin = computed(() => auth.userRole === 'admin')
+
 function openTicket(id) {
   router.push(`/tickets/${id}`)
+}
+
+async function cancelTicket(id) {
+  if (!confirm('Delete this ticket? This cannot be undone.')) return
+  try {
+    await api.post(`/api/tickets/${id}/cancel`)
+    await fetchQueue()
+  } catch (e) {
+    error.value = e.response?.data?.message || 'Failed to delete ticket.'
+  }
 }
 
 onMounted(fetchQueue)
@@ -86,6 +100,9 @@ onMounted(fetchQueue)
             <CTableDataCell class="text-end">
               <CButton color="success" size="sm" :disabled="claiming === t.id" @click="claim(t.id)">
                 <CSpinner v-if="claiming === t.id" size="sm" class="me-1" /> {{ $t('qa_queue.review') }}
+              </CButton>
+              <CButton v-if="isAdmin" color="danger" variant="ghost" size="sm" class="ms-1" @click="cancelTicket(t.id)">
+                <CIcon icon="cil-trash" class="me-1" />{{ $t('admin_products.delete') }}
               </CButton>
             </CTableDataCell>
           </CTableRow>

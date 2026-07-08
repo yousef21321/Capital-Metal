@@ -83,10 +83,15 @@ onMounted(fetchOrders)
     <div v-else-if="!orders.length" class="text-center py-5 text-body-secondary">
       <h4>{{ $t('orders.empty') }}</h4>
       <p>{{ $t('orders.empty_desc') }}</p>
-      <CButton color="primary" router-link to="/products">{{ $t('orders.browse') }}</CButton>
+      <RouterLink to="/products" class="btn btn-primary">{{ $t('orders.browse') }}</RouterLink>
     </div>
 
     <div v-else>
+      <div class="d-flex justify-content-end mb-3">
+        <RouterLink to="/products" class="btn btn-outline-primary btn-sm">
+          <CIcon icon="cil-grid" class="me-1" />{{ $t('orders.browse') }}
+        </RouterLink>
+      </div>
       <CCard v-for="order in orders" :key="order.id" class="mb-3">
         <CCardBody>
           <div class="d-flex justify-content-between align-items-start">
@@ -119,8 +124,10 @@ onMounted(fetchOrders)
           </div>
           <hr />
           <div v-if="order.items?.length">
-            <div v-for="item in order.items" :key="item.id" class="d-flex justify-content-between mb-1">
-              <span>{{ item.product?.name }} x{{ item.quantity }}</span>
+            <div v-for="item in order.items" :key="item.id" class="d-flex justify-content-between align-items-center mb-1">
+              <RouterLink :to="`/products/${item.product?.id}`" class="btn btn-link btn-sm p-0 text-start">
+                {{ item.product?.name }} x{{ item.quantity }}
+              </RouterLink>
               <span>{{ item.price }} {{ order.currency }}</span>
             </div>
           </div>

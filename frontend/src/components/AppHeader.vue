@@ -109,20 +109,21 @@ onMounted(() => {
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem>
+        <CNavItem v-if="['industor','designer','tester','admin'].includes(auth.userRole)">
           <RouterLink custom to="/tickets" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive">
               <CIcon icon="cil-description" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="['industor','designer','admin'].includes(auth.userRole)">
+        <CNavItem v-if="['industor','admin'].includes(auth.userRole)">
           <RouterLink custom to="/tickets/create" v-slot="{ href, navigate }">
             <CNavLink :href="href" class="btn-create-header" @click="navigate">
               <CIcon icon="cil-plus" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
+
         <CNavItem v-if="auth.isAuthenticated">
           <CDropdown placement="bottom-end" variant="nav-item" @show="notif.fetchNotifications()">
             <CDropdownToggle :caret="false" class="position-relative py-0">
@@ -137,8 +138,8 @@ onMounted(() => {
                 {{ notif.unreadCount > 99 ? '99+' : notif.unreadCount }}
               </CBadge>
             </CDropdownToggle>
-            <CDropdownMenu style="min-width: 320px" class="p-0">
-              <CDropdownHeader class="bg-body-secondary fw-bold small py-2 px-3 d-flex justify-content-between align-items-center">
+            <CDropdownMenu class="notif-dropdown-menu p-0">
+              <CDropdownHeader class="notif-header fw-bold small py-2 px-3 d-flex justify-content-between align-items-center">
                 <span>{{ $t('header.notifications') }}</span>
                 <CButton
                   v-if="notif.unreadCount > 0"
@@ -154,7 +155,7 @@ onMounted(() => {
                 <CDropdownItem
                   v-for="n in notif.notifications.slice(0, 5)"
                   :key="n.id"
-                  :class="{ 'bg-info-subtle': !n.read_at }"
+                  :class="!n.read_at ? 'notif-item-unread' : 'notif-item-read'"
                   class="d-flex flex-column align-items-start py-2 px-3 border-bottom"
                   style="cursor: pointer"
                   @click="notif.markAsRead(n.id)"
@@ -165,12 +166,12 @@ onMounted(() => {
                   </div>
                   <small class="text-body-secondary mt-1">{{ n.body || n.data?.message || '' }}</small>
                 </CDropdownItem>
-                <div v-if="notif.notifications.length === 0" class="text-center py-4 text-body-secondary small">
+                <div v-if="notif.notifications.length === 0" class="text-center py-4 notif-empty small">
                   {{ $t('header.no_notifications') }}
                 </div>
               </div>
               <CDropdownItem
-                class="text-center small py-2 fw-semibold border-top"
+                class="notif-view-all text-center small py-2 fw-semibold"
                 router-link to="/notifications"
               >
                 {{ $t('header.view_all') }}
@@ -310,3 +311,36 @@ onMounted(() => {
     </CContainer>
   </CHeader>
 </template>
+
+<style scoped>
+.notif-dropdown-menu {
+  min-width: 320px;
+}
+
+.notif-header {
+  background: var(--cui-body-bg, #fff);
+  border-bottom: 1px solid var(--cui-border-color, rgba(0,0,0,.125));
+}
+
+.notif-item-unread {
+  background: var(--cui-tertiary-bg, #f8f9fa);
+}
+
+.notif-item-read {
+  background: transparent;
+}
+
+.notif-item-unread:hover,
+.notif-item-read:hover {
+  background: var(--cui-tertiary-bg, #e9ecef);
+}
+
+.notif-empty {
+  color: var(--cui-secondary-color, #6c757d);
+}
+
+.notif-view-all {
+  border-top: 1px solid var(--cui-border-color, rgba(0,0,0,.125));
+  color: var(--cui-primary, #b81300);
+}
+</style>

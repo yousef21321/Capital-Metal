@@ -134,6 +134,48 @@ class SubscriptionController extends Controller
         return response()->json($sub->fresh(['user', 'plan', 'approver']));
     }
 
+    public function storePlan(Request $request)
+    {
+        abort_unless($request->user()->hasRole('admin'), 403);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'currency' => 'nullable|string|size:3',
+            'duration_days' => 'required|integer|min:1',
+            'ticket_limit' => 'required|integer|min:1',
+            'can_publish_to_store' => 'boolean',
+        ]);
+        $plan = SubscriptionPlan::create($data);
+        return response()->json($plan, 201);
+    }
+
+    public function updatePlan(Request $request, $id)
+    {
+        abort_unless($request->user()->hasRole('admin'), 403);
+        $plan = SubscriptionPlan::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric|min:0',
+            'currency' => 'nullable|string|size:3',
+            'duration_days' => 'sometimes|integer|min:1',
+            'ticket_limit' => 'sometimes|integer|min:1',
+            'can_publish_to_store' => 'boolean',
+        ]);
+        $plan->update($data);
+        return response()->json($plan);
+    }
+
+    public function destroyPlan(Request $request, $id)
+    {
+        abort_unless($request->user()->hasRole('admin'), 403);
+        $plan = SubscriptionPlan::withCount('subscriptions')->findOrFail($id);
+        if ($plan->subscriptions_count > 0) {
+            abort(422, 'Cannot delete a plan that has active subscriptions.');
+        }
+        $plan->delete();
+        return response()->json(['message' => 'Plan deleted.']);
+    }
+
     protected function notify(int $userId, string $type, string $title, array $data = []): void
     {
         \App\Models\Notification::create([

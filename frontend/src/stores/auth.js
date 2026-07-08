@@ -19,6 +19,28 @@ function generateGuestToken() {
   return token
 }
 
+export async function detectCurrency() {
+  const cached = localStorage.getItem('detected-v2')
+  if (cached) return cached
+  try {
+    const pos = await new Promise((res, rej) =>
+      navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
+    )
+    const { latitude, longitude } = pos.coords
+    const geo = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+    ).then(r => r.json())
+    const countryCode = geo?.address?.country_code?.toLowerCase()
+    const currency = countryCode === 'eg' ? 'EGP' : 'USD'
+    localStorage.setItem('detected-v2', currency)
+    return currency
+  } catch {
+    const fallback = 'EGP'
+    localStorage.setItem('detected-v2', fallback)
+    return fallback
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: loadUser(),
@@ -53,6 +75,10 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.token
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
+        const detected = await detectCurrency()
+        if (detected !== (data.user?.currency_preference || 'EGP')) {
+          try { await this.updateCurrency(detected) } catch {}
+        }
         this.fetchExchangeRate()
         return true
       } catch (error) {
@@ -66,12 +92,13 @@ export const useAuthStore = defineStore('auth', {
     async register(name, email, password, passwordConfirmation, currencyPreference) {
       this.loading = true
       try {
+        const detected = currencyPreference || await detectCurrency()
         const { data } = await api.post('/api/register', {
           name,
           email,
           password,
           password_confirmation: passwordConfirmation,
-          currency_preference: currencyPreference || 'EGP',
+          currency_preference: detected,
         })
         this.token = data.token
         this.persistUser(data.user)

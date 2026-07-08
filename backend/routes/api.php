@@ -30,6 +30,9 @@ Route::get('/products/{productId}/reviews', [ReviewController::class, 'index']);
 Route::post('/coupons/verify', [CouponController::class, 'verify']);
 
 Route::get('/plans', [SubscriptionController::class, 'plans']);
+Route::post('/plans', [SubscriptionController::class, 'storePlan'])->middleware(['auth:sanctum', 'role:admin']);
+Route::put('/plans/{id}', [SubscriptionController::class, 'updatePlan'])->middleware(['auth:sanctum', 'role:admin']);
+Route::delete('/plans/{id}', [SubscriptionController::class, 'destroyPlan'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/store', [StoreController::class, 'index']);
 Route::get('/store/{id}', [StoreController::class, 'show']);
 
@@ -158,9 +161,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tickets — static routes MUST come before {id}
     Route::get('/tickets', [TicketController::class, 'index']);
     Route::post('/tickets', [TicketController::class, 'store'])->middleware('role:industor');
-    Route::get('/tickets/available', [TicketController::class, 'available'])->middleware('role:designer');
-    Route::get('/tickets/pending-negotiations', [TicketController::class, 'pendingTickets'])->middleware('role:tester');
-    Route::get('/tickets/qa-queue', [TicketController::class, 'qaQueue'])->middleware('role:tester');
+    Route::get('/tickets/available', [TicketController::class, 'available'])->middleware('role:designer,admin');
+    Route::get('/tickets/pending-negotiations', [TicketController::class, 'pendingTickets'])->middleware('role:tester,admin');
+    Route::get('/tickets/qa-queue', [TicketController::class, 'qaQueue'])->middleware('role:tester,admin');
     Route::get('/tickets/{id}', [TicketController::class, 'show']);
     Route::put('/tickets/{id}', [TicketController::class, 'update'])->middleware('role:industor');
     Route::get('/tickets/{id}/attachments/{attachmentId}/download', [TicketController::class, 'downloadAttachment']);

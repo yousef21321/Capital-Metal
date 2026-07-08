@@ -106,7 +106,7 @@ class TicketController extends Controller
     public function available(Request $request)
     {
         $user = $request->user();
-        abort_unless($user->hasRole('designer'), 403, 'Only designers can view the available queue.');
+        abort_unless($user->hasRole('designer') || $user->hasRole('admin'), 403, 'Only designers can view the available queue.');
 
         $tickets = Ticket::with(['industor', 'subscription.plan', 'reviewer'])
             ->where('status', Ticket::STATUS_APPROVED_BY_TESTER)
@@ -168,7 +168,7 @@ class TicketController extends Controller
     public function pendingTickets(Request $request)
     {
         $user = $request->user();
-        abort_unless($user->hasRole('tester'), 403, 'Only testers can view the negotiation queue.');
+        abort_unless($user->hasRole('tester') || $user->hasRole('admin'), 403, 'Only testers can view the negotiation queue.');
 
         $tickets = Ticket::with(['industor', 'subscription.plan'])
             ->whereIn('status', [
@@ -184,7 +184,7 @@ class TicketController extends Controller
     public function qaQueue(Request $request)
     {
         $user = $request->user();
-        abort_unless($user->hasRole('tester'), 403, 'Only testers can view the QA queue.');
+        abort_unless($user->hasRole('tester') || $user->hasRole('admin'), 403, 'Only testers can view the QA queue.');
 
         $query = Ticket::with(['industor', 'designer', 'attachments'])
             ->where('status', Ticket::STATUS_AWAITING_QA)
