@@ -97,6 +97,22 @@ body {
     animation: pulse-glow 2.5s ease-in-out infinite;
   }
 }
+.header-actions .btn-animated-glow {
+  width: 100px;
+  animation: pulse-glow-dark 2.5s ease-in-out infinite;
+}
+
+.lang-switcher-btn {
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  &:hover {
+    color: var(--cui-primary, #b81300) !important;
+  }
+}
 
 .btn-create-header {
   display: inline-flex;
@@ -126,7 +142,7 @@ body {
    height: 47px;
   width: 85px;
   display: block;}
-  
+
 .sidebar-logo-narrow {
   height: 24px;
   width: auto;
@@ -2133,4 +2149,148 @@ body {
       color: #e55353;
     }
   }
+}
+
+/* ───────── WhatsApp Floating Button ───────── */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  inset-inline-start: 24px;
+  z-index: 9999;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #25d366, #1da851);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 24px rgba(37, 211, 102, 0.45);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  animation: whatsapp-pulse 2.5s ease-in-out infinite;
+  text-decoration: none;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.15) rotate(-6deg);
+  box-shadow: 0 8px 36px rgba(37, 211, 102, 0.65);
+}
+
+.whatsapp-float::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(37, 211, 102, 0.25);
+  animation: whatsapp-ring 2.5s ease-in-out infinite;
+}
+
+@keyframes whatsapp-pulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(37, 211, 102, 0.45); }
+  50% { box-shadow: 0 4px 40px rgba(37, 211, 102, 0.75); }
+}
+
+@keyframes whatsapp-ring {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.25); opacity: 0; }
+}
+
+/* ───────── Purchase Notifications ───────── */
+.notification-stack {
+  position: fixed;
+  bottom: 96px;
+  inset-inline-start: 24px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.purchase-notif {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 14px 20px;
+  min-width: 300px;
+  max-width: 380px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  pointer-events: auto;
+}
+
+[data-coreui-theme="dark"] .purchase-notif {
+  background: rgba(30, 33, 41, 0.88);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.notif-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--gradient-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(184, 19, 0, 0.25);
+}
+
+.notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-text {
+  margin: 0 0 3px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--cui-body-color, #333);
+}
+
+.notif-text strong {
+  font-weight: 700;
+}
+
+.notif-amount {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #25d366;
+  background: rgba(37, 211, 102, 0.1);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+[data-coreui-theme="dark"] .notif-amount {
+  background: rgba(37, 211, 102, 0.15);
+}
+
+/* TransitionGroup animations */
+.notif-enter-active {
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.notif-leave-active {
+  transition: all 0.35s ease-in;
+}
+.notif-enter-from {
+  opacity: 0;
+  transform: translateX(-60px) scale(0.88);
+}
+.notif-leave-to {
+  opacity: 0;
+  transform: translateX(-40px) scale(0.92);
 }

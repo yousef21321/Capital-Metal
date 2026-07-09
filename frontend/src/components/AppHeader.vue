@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useColorModes } from '@coreui/vue'
+import logoLight from '@/assets/images/logo.png'
+import logoDark from '@/assets/images/logodark.png'
 import { RouterLink, useRoute } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
@@ -24,6 +27,11 @@ function timeAgo(date) {
 
 const headerClassNames = ref('mb-4 p-0')
 const { colorMode, setColorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
+const { locale } = useI18n()
+const toggleLocale = () => {
+  locale.value = locale.value === 'ar' ? 'en' : 'ar'
+}
 const sidebar = useSidebarStore()
 const cart = useCartStore()
 const auth = useAuthStore()
@@ -72,15 +80,16 @@ onMounted(() => {
   <CHeader position="sticky" :class="['modern-header', headerClassNames]">
     <CContainer class="border-bottom px-4" fluid>
       <CHeaderToggler @click="sidebar.toggleVisible()" style="margin-inline-start: -14px">
-        <CIcon icon="cil-menu" size="lg" />
       </CHeaderToggler>
       <div class="header-brand d-flex align-items-center ms-2">
-        <img src="@/assets/images/logo.png" alt="FLFL Design" class="header-logo" />
+        <RouterLink to="/">
+          <img :src="logoSrc" alt="FLFL Design" class="header-logo" />
+        </RouterLink>
       </div>
       <div class="header-actions d-flex align-items-center gap-2 ms-4">
         <button class="btn-animated-glow" @click="sidebar.toggleVisible()">
           <CIcon icon="cil-view-quilt" class="me-1" />
-          <span>Menu</span>
+  <CIcon icon="cil-menu" size="lg" />
         </button>
       </div>
       <CHeaderNav class="ms-auto">
@@ -91,7 +100,7 @@ onMounted(() => {
               <CBadge
                 v-if="cart.count > 0"
                 color="danger"
-                shape="pill"
+                shape="rounded-pill"
                 class="position-absolute top-0 start-100 translate-middle"
                 style="font-size: 0.65rem"
               >
@@ -130,7 +139,7 @@ onMounted(() => {
             </CDropdownToggle>
             <CDropdownMenu style="min-width: 320px" class="p-0">
               <CDropdownHeader class="bg-body-secondary fw-bold small py-2 px-3 d-flex justify-content-between align-items-center">
-                <span>Notifications</span>
+                <span>{{ $t('header.notifications') }}</span>
                 <CButton
                   v-if="notif.unreadCount > 0"
                   color="link"
@@ -138,7 +147,7 @@ onMounted(() => {
                   class="p-0 text-decoration-none"
                   @click="notif.markAllAsRead()"
                 >
-                  Mark all read
+                  {{ $t('header.mark_all_read') }}
                 </CButton>
               </CDropdownHeader>
               <div style="max-height: 300px; overflow-y: auto">
@@ -157,14 +166,14 @@ onMounted(() => {
                   <small class="text-body-secondary mt-1">{{ n.body || n.data?.message || '' }}</small>
                 </CDropdownItem>
                 <div v-if="notif.notifications.length === 0" class="text-center py-4 text-body-secondary small">
-                  No notifications yet
+                  {{ $t('header.no_notifications') }}
                 </div>
               </div>
               <CDropdownItem
                 class="text-center small py-2 fw-semibold border-top"
                 router-link to="/notifications"
               >
-                View all notifications
+                {{ $t('header.view_all') }}
               </CDropdownItem>
             </CDropdownMenu>
           </CDropdown>
@@ -188,7 +197,7 @@ onMounted(() => {
               type="button"
               @click="setColorMode('light')"
             >
-              <CIcon class="me-2" icon="cil-sun" size="lg" /> Light
+              <CIcon class="me-2" icon="cil-sun" size="lg" />{{ $t('header.light') }}
             </CDropdownItem>
             <CDropdownItem
               :active="colorMode === 'dark'"
@@ -197,7 +206,7 @@ onMounted(() => {
               type="button"
               @click="setColorMode('dark')"
             >
-              <CIcon class="me-2" icon="cil-moon" size="lg" /> Dark
+              <CIcon class="me-2" icon="cil-moon" size="lg" />{{ $t('header.dark') }}
             </CDropdownItem>
             <CDropdownItem
               :active="colorMode === 'auto'"
@@ -206,10 +215,15 @@ onMounted(() => {
               type="button"
               @click="setColorMode('auto')"
             >
-              <CIcon class="me-2" icon="cil-contrast" size="lg" /> Auto
+              <CIcon class="me-2" icon="cil-contrast" size="lg" />{{ $t('header.auto') }}
             </CDropdownItem>
           </CDropdownMenu>
         </CDropdown>
+        <CNavItem>
+          <CNavLink class="lang-switcher-btn" @click="toggleLocale">
+            {{ locale === 'ar' ? 'EN' : 'AR' }}
+          </CNavLink>
+        </CNavItem>
         <li class="nav-item py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-25"></div>
         </li>
@@ -220,14 +234,14 @@ onMounted(() => {
           <li class="nav-item">
             <RouterLink to="/pages/login" custom v-slot="{ href, navigate }">
               <CNavLink :href="href" @click="navigate" class="fw-semibold">
-                <CIcon icon="cil-account-login" class="me-1" />Login
+                <CIcon icon="cil-account-login" class="me-1" />{{ $t('header.login') }}
               </CNavLink>
             </RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink to="/pages/register" custom v-slot="{ href, navigate }">
               <CButton color="primary" size="sm" :href="href" @click="navigate" class="my-1">
-                Sign Up
+                {{ $t('header.sign_up') }}
               </CButton>
             </RouterLink>
           </li>
@@ -236,61 +250,61 @@ onMounted(() => {
     </CContainer>
     <CContainer class="px-4 header-nav-row" fluid>
       <CNav variant="underline-border" class="header-nav-horizontal">
-        <template v-for="item in visibleNav" :key="item.name">
-          <template v-if="item.component === 'CNavTitle'">
-            <li class="nav-item header-nav-title">
-              <span class="nav-link disabled">{{ item.name }}</span>
-            </li>
-          </template>
-          <template v-else-if="item.items">
-            <CDropdown variant="nav-item" placement="bottom">
-              <CDropdownToggle :caret="true">
-                <CIcon v-if="item.icon" :icon="item.icon" class="me-1" />
-                {{ item.name }}
-              </CDropdownToggle>
-              <CDropdownMenu>
-                <CDropdownItem
-                  v-for="child in item.items"
-                  :key="child.name"
-                  :to="child.to"
-                  :href="child.href"
-                  :target="child.href ? '_blank' : undefined"
-                  router-link
-                >
-                  <CIcon v-if="child.icon" :icon="child.icon" class="me-2" />
-                  {{ child.name }}
-                </CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
-          </template>
-          <template v-else>
-            <CNavItem>
-              <RouterLink
-                custom
-                :to="item.to"
-                v-slot="{ href, navigate, isActive }"
-              >
-                <CNavLink
-                  :href="href"
-                  @click="navigate"
-                  :active="isActive"
-                >
+          <template v-for="item in visibleNav" :key="item.name">
+            <template v-if="item.component === 'CNavTitle'">
+              <li class="nav-item header-nav-title">
+                <span class="nav-link disabled">{{ $t(item.translationKey || item.name) }}</span>
+              </li>
+            </template>
+            <template v-else-if="item.items">
+              <CDropdown variant="nav-item" placement="bottom">
+                <CDropdownToggle :caret="true">
                   <CIcon v-if="item.icon" :icon="item.icon" class="me-1" />
-                  {{ item.name }}
-                  <CBadge
-                    v-if="item.badge"
-                    :color="item.badge.color"
-                    shape="rounded-pill"
-                    class="ms-1"
-                    size="sm"
+                  {{ $t(item.translationKey || item.name) }}
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem
+                    v-for="child in item.items"
+                    :key="child.name"
+                    :to="child.to"
+                    :href="child.href"
+                    :target="child.href ? '_blank' : undefined"
+                    router-link
                   >
-                    {{ item.badge.text }}
-                  </CBadge>
-                </CNavLink>
-              </RouterLink>
-            </CNavItem>
+                    <CIcon v-if="child.icon" :icon="child.icon" class="me-2" />
+                    {{ $t(child.translationKey || child.name) }}
+                  </CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+            </template>
+            <template v-else>
+              <CNavItem>
+                <RouterLink
+                  custom
+                  :to="item.to"
+                  v-slot="{ href, navigate, isActive }"
+                >
+                  <CNavLink
+                    :href="href"
+                    @click="navigate"
+                    :active="isActive"
+                  >
+                    <CIcon v-if="item.icon" :icon="item.icon" class="me-1" />
+                    {{ $t(item.translationKey || item.name) }}
+                    <CBadge
+                      v-if="item.badge"
+                      :color="item.badge.color"
+                      shape="rounded-pill"
+                      class="ms-1"
+                      size="sm"
+                    >
+                      {{ item.badge.text }}
+                    </CBadge>
+                  </CNavLink>
+                </RouterLink>
+              </CNavItem>
+            </template>
           </template>
-        </template>
       </CNav>
       <AppBreadcrumb />
     </CContainer>

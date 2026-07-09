@@ -1,9 +1,14 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+import { useColorModes } from '@coreui/vue'
 import { useAuthStore } from '@/stores/auth'
+import logoLight from '@/assets/images/logo.png'
+import logoDark from '@/assets/images/logodark.png'
 
 const authStore = useAuthStore()
+const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 const router = useRouter()
 
 const email = ref('')
@@ -40,53 +45,57 @@ async function handleLogin() {
             <CRow class="g-0">
               <CCol md="5" class="auth-brand-panel d-none d-md-flex flex-column align-items-center justify-content-center">
                 <div class="auth-brand-content">
-                  <img src="@/assets/images/logo.png" alt="FLFL Design" class="auth-logo mb-3" />
+                  <RouterLink to="/">
+                    <img :src="logoSrc" alt="FLFL Design" class="auth-logo mb-3" />
+                  </RouterLink>
                   <h3 class="auth-brand-title">FLFL Design</h3>
-                  <p class="auth-brand-desc">Role-based platform for admin, user, tester, designer, and industor.</p>
+                  <p class="auth-brand-desc">{{ $t('register.platform_desc') }}</p>
                   <div class="auth-brand-divider"></div>
-                  <p class="auth-brand-question">Don't have an account?</p>
+                  <p class="auth-brand-question">{{ $t('login.no_account') }}</p>
                   <CButton color="light" variant="outline" class="auth-brand-btn" @click="router.push('/pages/register')">
-                    Register Now!
+                    {{ $t('login.register') }}
                   </CButton>
                 </div>
               </CCol>
               <CCol md="7">
                 <CCardBody class="auth-form-body p-4 p-lg-5">
                   <div class="text-center d-md-none mb-4">
-                    <img src="@/assets/images/logo.png" alt="FLFL Design" class="auth-logo-sm mb-2" />
+                    <RouterLink to="/">
+                      <img :src="logoSrc" alt="FLFL Design" class="auth-logo-sm mb-2" />
+                    </RouterLink>
                   </div>
                   <div class="auth-form-header">
-                    <h3 class="fw-bold mb-1 auth-form-title">Welcome Back</h3>
-                    <p class="mb-0" style="color: rgba(255,255,255,0.5);">Sign in to your FLFL Design account</p>
+                    <h3 class="fw-bold mb-1 auth-form-title">{{ $t('login.title') }}</h3>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.5);">{{ $t('login.subtitle') }}</p>
                   </div>
 
                   <CAlert v-if="error" color="danger" class="py-2 auth-alert">{{ error }}</CAlert>
 
                   <CForm @submit.prevent="handleLogin" class="auth-form">
                     <div class="mb-4">
-                      <label class="form-label small fw-semibold" style="color: rgba(255,255,255,0.7);">Email</label>
+                      <label class="form-label small fw-semibold" style="color: rgba(255,255,255,0.7);">{{ $t('login.email') }}</label>
                       <CInputGroup class="auth-input-group">
                         <CInputGroupText><CIcon icon="cil-envelope" /></CInputGroupText>
-                        <CFormInput v-model="email" type="email" placeholder="Enter your email" autocomplete="email" required />
+                        <CFormInput v-model="email" type="email" :placeholder="$t('login.email_placeholder')" autocomplete="email" required />
                       </CInputGroup>
                     </div>
                     <div class="mb-4">
-                      <label class="form-label small fw-semibold" style="color: rgba(255,255,255,0.7);">Password</label>
+                      <label class="form-label small fw-semibold" style="color: rgba(255,255,255,0.7);">{{ $t('login.password') }}</label>
                       <CInputGroup class="auth-input-group">
                         <CInputGroupText><CIcon icon="cil-lock-locked" /></CInputGroupText>
-                        <CFormInput v-model="password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+                        <CFormInput v-model="password" type="password" :placeholder="$t('login.password_placeholder')" autocomplete="current-password" required />
                       </CInputGroup>
                     </div>
                     <div class="d-grid mb-3">
                       <CButton type="submit" color="primary" size="lg" class="auth-submit-btn" :disabled="loading">
                         <CSpinner v-if="loading" size="sm" class="me-2" />
                         <template v-else><CIcon icon="cil-account-login" class="me-2" /></template>
-                        {{ loading ? 'Signing in...' : 'Sign In' }}
+                        {{ loading ? 'Signing in...' : $t('login.sign_in') }}
                       </CButton>
                     </div>
                     <div class="text-center">
                       <CButton color="link" class="auth-link p-0" @click="router.push('/pages/register')">
-                        Create Account
+                        {{ $t('login.register') }}
                       </CButton>
                     </div>
                   </CForm>

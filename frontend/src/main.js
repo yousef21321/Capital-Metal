@@ -20,6 +20,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import i18n from './i18n'
 
 // CoreUI Vue components and icons
 import CoreuiVue from '@coreui/vue'
@@ -38,6 +39,7 @@ const app = createApp(App)
 app.use(createPinia()) // State management
 app.use(router) // Router for SPA navigation
 app.use(CoreuiVue) // CoreUI component library
+app.use(i18n) // Internationalization
 
 // Provide icons globally
 app.provide('icons', icons)

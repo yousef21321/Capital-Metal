@@ -58,11 +58,11 @@ onMounted(fetchPending)
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">Subscription Approvals</h3>
-        <p class="text-body-secondary mb-0">Approve industor subscriptions before they can create tickets.</p>
+        <h3 class="mb-1">{{ $t('admin_approvals.title') }}</h3>
+        <p class="text-body-secondary mb-0">{{ $t('admin_approvals.desc') }}</p>
       </div>
       <CButton color="secondary" variant="outline" size="sm" @click="fetchPending">
-        <CIcon icon="cil-reload" class="me-1" /> Refresh
+        <CIcon icon="cil-reload" class="me-1" /> {{ $t('admin_approvals.refresh') }}
       </CButton>
     </div>
 
@@ -72,8 +72,8 @@ onMounted(fetchPending)
 
     <div v-else-if="!subs.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-check-circle" size="3xl" class="mb-3" />
-      <h4>No pending approvals</h4>
-      <p>All subscriptions are reviewed.</p>
+      <h4>{{ $t('admin_approvals.empty') }}</h4>
+      <p>{{ $t('admin_approvals.empty_desc') }}</p>
     </div>
 
     <CCard v-else class="shadow-sm">
@@ -81,18 +81,18 @@ onMounted(fetchPending)
         <div v-for="s in subs" :key="s.id" class="border-bottom pb-3 mb-3 last:border-0 last:mb-0 last:pb-0">
           <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
             <div>
-              <h5 class="mb-0">{{ s.plan?.name }} <CBadge color="info">{{ s.plan?.ticket_limit }} tickets</CBadge></h5>
+              <h5 class="mb-0">{{ s.plan?.name }} <CBadge color="info">{{ s.plan?.ticket_limit }} {{ $t('admin_approvals.tickets') }}</CBadge></h5>
               <small class="text-body-secondary">{{ s.user?.name }} ({{ s.user?.email }}) - requested {{ formatDate(s.start_date) }}</small>
             </div>
             <div>
               <CButton color="success" size="sm" class="me-2" :disabled="processing === s.id" @click="approve(s.id)">
-                <CSpinner v-if="processing === s.id" size="sm" /> Approve
+                <CSpinner v-if="processing === s.id" size="sm" /> {{ $t('admin_approvals.approve') }}
               </CButton>
             </div>
           </div>
           <CInputGroup>
-            <CFormInput v-model="rejectReasons[s.id]" size="sm" placeholder="Rejection reason (optional)" />
-            <CButton color="danger" variant="outline" size="sm" :disabled="processing === s.id" @click="reject(s.id)">Reject</CButton>
+            <CFormInput v-model="rejectReasons[s.id]" size="sm" :placeholder="$t('admin_approvals.reject_placeholder')" />
+            <CButton color="danger" variant="outline" size="sm" :disabled="processing === s.id" @click="reject(s.id)">{{ $t('admin_approvals.reject') }}</CButton>
           </CInputGroup>
         </div>
       </CCardBody>

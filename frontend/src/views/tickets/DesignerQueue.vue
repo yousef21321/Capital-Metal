@@ -95,26 +95,18 @@ onMounted(fetchAvailable)
 
 <template>
   <div class="designer-queue-page">
-    <div class="queue-top-header">
-      <span class="policy-link">سياسة الخصوصية</span>
-      <span class="policy-sep">|</span>
-      <span class="policy-link">سياسة الاسترجاع</span>
-      <span class="policy-sep">|</span>
-      <span class="policy-link">سياسة الشحن</span>
-      <span class="policy-sep">|</span>
-      <span class="policy-link">اتصل بنا</span>
-    </div>
+    <div class="queue-top-header"></div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h3 class="mb-1 fw-bold">
           <CIcon icon="cil-color-border" class="me-2 queue-header-icon" />
-          Available Tickets
+          {{ $t('designer_queue.title') }}
         </h3>
-        <p class="text-body-secondary mb-0">Open design requests you can accept. Urgent tickets are highlighted.</p>
+        <p class="text-body-secondary mb-0">{{ $t('designer_queue.desc') }}</p>
       </div>
       <CButton color="secondary" variant="outline" size="sm" class="btn-refresh" @click="fetchAvailable">
-        <CIcon icon="cil-reload" class="me-1" /> Refresh
+        <CIcon icon="cil-reload" class="me-1" /> {{ $t('designer_queue.refresh') }}
       </CButton>
     </div>
 
@@ -130,8 +122,8 @@ onMounted(fetchAvailable)
       <div class="empty-icon-wrapper mb-3">
         <CIcon icon="cil-color-border" size="3xl" />
       </div>
-      <h4 class="fw-semibold">No open tickets</h4>
-      <p class="text-body-secondary">Check back later for new design requests.</p>
+      <h4 class="fw-semibold">{{ $t('designer_queue.empty') }}</h4>
+      <p class="text-body-secondary">{{ $t('designer_queue.empty_desc') }}</p>
     </div>
 
     <CRow v-else>
@@ -146,7 +138,7 @@ onMounted(fetchAvailable)
               <h5 class="card-title mb-0 queue-card-title">{{ t.title }}</h5>
               <CBadge :color="ticketMetrics(t).type === 'urgent' ? 'danger' : 'success'" class="queue-badge text-uppercase">
                 <CIcon v-if="ticketMetrics(t).type === 'urgent'" icon="cil-warning" class="me-1" />
-                {{ ticketMetrics(t).type === 'urgent' ? 'Urgent' : 'Normal' }}
+                {{ ticketMetrics(t).type === 'urgent' ? $t('tickets.urgent') : $t('tickets.normal') }}
               </CBadge>
             </div>
           </CCardHeader>
@@ -163,17 +155,17 @@ onMounted(fetchAvailable)
 
             <div v-if="t.designer_price" class="queue-price-row" :class="t.urgent_price_applied ? 'price-urgent' : 'price-normal'">
               <div class="price-label">
-                <CIcon icon="cil-money" class="me-1" /> Designer Price
+                <CIcon icon="cil-money" class="me-1" /> {{ $t('designer_queue.designer_price') }}
               </div>
               <div class="price-value">{{ formatPrice(t.designer_price) }}</div>
               <div v-if="t.urgent_price_applied" class="price-bonus">
-                <CIcon icon="cil-arrow-up" class="me-1" />+10% urgent bonus
+                <CIcon icon="cil-arrow-up" class="me-1" />{{ $t('designer_queue.urgent_bonus') }}
               </div>
             </div>
 
             <div v-if="t.reviewed_at" class="queue-meta-row approved-row">
               <CIcon icon="cil-check-circle" class="approved-icon" />
-              Approved: {{ formatDate(t.reviewed_at) }}
+              {{ $t('designer_queue.approved') }} {{ formatDate(t.reviewed_at) }}
             </div>
 
             <div
@@ -182,7 +174,7 @@ onMounted(fetchAvailable)
             >
               <div class="countdown-label">
                 <CIcon :icon="ticketMetrics(t).type === 'urgent' ? 'cil-bell' : 'cil-clock'" class="me-1" />
-                Time Remaining
+                {{ $t('designer_queue.time_remaining') }}
               </div>
               <div class="countdown-digits">
                 <span v-if="ticketMetrics(t).parts.days > 0" class="countdown-unit">{{ ticketMetrics(t).parts.days }}<span class="unit-label">d</span></span>
@@ -193,13 +185,13 @@ onMounted(fetchAvailable)
                 <span class="countdown-unit seconds-unit">{{ pad(ticketMetrics(t).parts.seconds) }}<span class="unit-label">s</span></span>
               </div>
               <div v-if="ticketMetrics(t).remaining === 0" class="deadline-passed">
-                <CIcon icon="cil-clock-history" class="me-1" /> Deadline passed
+                <CIcon icon="cil-clock-history" class="me-1" /> {{ $t('designer_queue.deadline_passed') }}
               </div>
             </div>
 
             <div class="queue-progress-section">
               <div class="progress-header">
-                <span>Time Used</span>
+                <span>{{ $t('designer_queue.time_used') }}</span>
                 <span class="progress-pct">{{ (100 - ticketMetrics(t).percentage).toFixed(0) }}%</span>
               </div>
               <CProgress height="6px" class="queue-progress">
@@ -220,10 +212,10 @@ onMounted(fetchAvailable)
                 @click="accept(t.id)"
               >
                 <CSpinner v-if="accepting === t.id" size="sm" class="me-1" />
-                {{ ticketMetrics(t).type === 'urgent' ? 'Accept Urgent' : 'Accept' }}
+                {{ ticketMetrics(t).type === 'urgent' ? $t('designer_queue.accept_urgent') : $t('designer_queue.accept') }}
               </CButton>
               <CButton color="secondary" variant="outline" class="btn-details" @click="openTicket(t.id)">
-                Details <CIcon icon="cil-arrow-right" class="ms-1" />
+                {{ $t('designer_queue.details') }} <CIcon icon="cil-arrow-right" class="ms-1" />
               </CButton>
             </div>
           </CCardBody>

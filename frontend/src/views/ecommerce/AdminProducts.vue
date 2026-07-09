@@ -173,7 +173,7 @@ const productImage = (product) => {
 const formatPrice = (p) => {
   if (parseFloat(p.price_egp) > 0) return `${parseFloat(p.price_egp).toFixed(2)} EGP`
   if (parseFloat(p.price_usd) > 0) return `$${parseFloat(p.price_usd).toFixed(2)}`
-  return 'Free'
+  return $t('admin_products.free')
 }
 
 onMounted(fetchProducts)
@@ -183,11 +183,11 @@ onMounted(fetchProducts)
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">Product Management</h3>
-        <p class="text-body-secondary mb-0">Create, edit, and manage all products.</p>
+        <h3 class="mb-1">{{ $t('admin_products.title') }}</h3>
+        <p class="text-body-secondary mb-0">{{ $t('admin_products.desc') }}</p>
       </div>
       <CButton color="primary" @click="openCreate">
-        <CIcon icon="cil-plus" class="me-1" /> Add Product
+        <CIcon icon="cil-plus" class="me-1" /> {{ $t('admin_products.add') }}
       </CButton>
     </div>
 
@@ -195,7 +195,7 @@ onMounted(fetchProducts)
       <CCardBody>
         <div class="input-group">
           <span class="input-group-text"><CIcon icon="cil-search" /></span>
-          <input v-model="search" class="form-control" placeholder="Search products..." @input="fetchProducts" />
+          <input v-model="search" class="form-control" :placeholder="$t('admin_products.search')" @input="fetchProducts" />
         </div>
       </CCardBody>
     </CCard>
@@ -204,20 +204,20 @@ onMounted(fetchProducts)
 
     <div v-else-if="!products.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-cart" size="3xl" class="mb-3" />
-      <h4>No products yet</h4>
-      <CButton color="primary" @click="openCreate">Create your first product</CButton>
+      <h4>{{ $t('admin_products.no_products') }}</h4>
+      <CButton color="primary" @click="openCreate">{{ $t('admin_products.create_first') }}</CButton>
     </div>
 
     <CCard v-else class="shadow-sm">
       <CTable hover responsive align="middle">
         <CTableHead>
           <CTableRow>
-            <CTableHeaderCell style="width: 60px">Image</CTableHeaderCell>
-            <CTableHeaderCell>Name</CTableHeaderCell>
-            <CTableHeaderCell>Type</CTableHeaderCell>
-            <CTableHeaderCell>Price</CTableHeaderCell>
-            <CTableHeaderCell>Status</CTableHeaderCell>
-            <CTableHeaderCell class="text-end">Actions</CTableHeaderCell>
+            <CTableHeaderCell style="width: 60px">{{ $t('admin_products.image') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('admin_products.name') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('admin_products.type') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('admin_products.price') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('admin_products.status') }}</CTableHeaderCell>
+            <CTableHeaderCell class="text-end">{{ $t('admin_products.actions') }}</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -228,11 +228,11 @@ onMounted(fetchProducts)
             </CTableDataCell>
             <CTableDataCell class="fw-semibold">{{ p.name }}</CTableDataCell>
             <CTableDataCell>
-              <CBadge :color="p.product_type === 'digital' ? 'info' : 'success'">{{ p.product_type }}</CBadge>
+              <CBadge :color="p.product_type === 'digital' ? 'info' : 'success'">{{ $t('products.' + p.product_type) }}</CBadge>
             </CTableDataCell>
             <CTableDataCell>{{ formatPrice(p) }}</CTableDataCell>
             <CTableDataCell>
-              <CBadge :color="p.status === 'published' ? 'success' : 'secondary'">{{ p.status }}</CBadge>
+              <CBadge :color="p.status === 'published' ? 'success' : 'secondary'">{{ $t('admin_products.' + p.status) }}</CBadge>
             </CTableDataCell>
             <CTableDataCell class="text-end">
               <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
@@ -255,68 +255,68 @@ onMounted(fetchProducts)
 
     <div v-if="lastPage > 1" class="mt-4">
       <CPagination align="center">
-        <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">Previous</CPaginationItem>
+        <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">{{ $t('admin_products.previous') }}</CPaginationItem>
         <CPaginationItem v-for="page in lastPage" :key="page" :active="page === currentPage" @click="currentPage = page; fetchProducts()">{{ page }}</CPaginationItem>
-        <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">Next</CPaginationItem>
+        <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">{{ $t('admin_products.next') }}</CPaginationItem>
       </CPagination>
     </div>
 
     <!-- Create/Edit Modal -->
     <CModal :visible="modalVisible" @close="modalVisible = false" size="lg" backdrop="static">
       <CModalHeader>
-        <CModalTitle>{{ editing ? 'Edit Product' : 'Add Product' }}</CModalTitle>
+        <CModalTitle>{{ editing ? $t('admin_products.edit_title') : $t('admin_products.add_title') }}</CModalTitle>
       </CModalHeader>
       <CModalBody>
         <CRow>
           <CCol :sm="12" class="mb-3">
-            <CFormLabel class="fw-semibold">Name</CFormLabel>
-            <CFormInput v-model="form.name" placeholder="Product name" @input="onNameInput" />
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.name_label') }}</CFormLabel>
+            <CFormInput v-model="form.name" :placeholder="$t('admin_products.name_placeholder')" @input="onNameInput" />
           </CCol>
           <CCol :sm="6" class="mb-3">
-            <CFormLabel class="fw-semibold">Slug</CFormLabel>
-            <CFormInput v-model="form.slug" placeholder="product-slug" />
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.slug') }}</CFormLabel>
+            <CFormInput v-model="form.slug" :placeholder="$t('admin_products.slug_placeholder')" />
           </CCol>
           <CCol :sm="6" class="mb-3">
-            <CFormLabel class="fw-semibold">Type</CFormLabel>
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.type') }}</CFormLabel>
             <CFormSelect v-model="form.product_type">
-              <option value="physical">Physical</option>
-              <option value="digital">Digital</option>
+              <option value="physical">{{ $t('products.physical') }}</option>
+              <option value="digital">{{ $t('products.digital') }}</option>
             </CFormSelect>
           </CCol>
           <CCol :sm="12" class="mb-3">
-            <CFormLabel class="fw-semibold">Description</CFormLabel>
-            <CFormTextarea v-model="form.description" rows="3" placeholder="Product description" />
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.description') }}</CFormLabel>
+            <CFormTextarea v-model="form.description" rows="3" :placeholder="$t('admin_products.description_placeholder')" />
           </CCol>
           <CCol :sm="4" class="mb-3">
-            <CFormLabel class="fw-semibold">Price (EGP)</CFormLabel>
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.price_egp') }}</CFormLabel>
             <CFormInput v-model.number="form.price_egp" type="number" min="0" step="0.01" />
           </CCol>
           <CCol :sm="4" class="mb-3">
-            <CFormLabel class="fw-semibold">Price (USD)</CFormLabel>
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.price_usd') }}</CFormLabel>
             <CFormInput v-model.number="form.price_usd" type="number" min="0" step="0.01" />
           </CCol>
           <CCol :sm="4" class="mb-3">
-            <CFormLabel class="fw-semibold">Cost</CFormLabel>
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.cost') }}</CFormLabel>
             <CFormInput v-model.number="form.cost" type="number" min="0" step="0.01" />
           </CCol>
           <CCol :sm="6" class="mb-3">
-            <CFormLabel class="fw-semibold">Status</CFormLabel>
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.status') }}</CFormLabel>
             <CFormSelect v-model="form.status">
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-              <option value="archived">Archived</option>
+              <option value="published">{{ $t('admin_products.published') }}</option>
+              <option value="draft">{{ $t('admin_products.draft') }}</option>
+              <option value="archived">{{ $t('admin_products.archived') }}</option>
             </CFormSelect>
           </CCol>
           <CCol :sm="6" class="mb-3">
-            <CFormLabel class="fw-semibold">Country Availability</CFormLabel>
-            <CFormInput v-model="form.country_availability" placeholder="e.g. Egypt, USA" />
+            <CFormLabel class="fw-semibold">{{ $t('admin_products.country') }}</CFormLabel>
+            <CFormInput v-model="form.country_availability" :placeholder="$t('admin_products.country_placeholder')" />
           </CCol>
         </CRow>
       </CModalBody>
       <CModalFooter>
-        <CButton color="secondary" variant="outline" @click="modalVisible = false">Cancel</CButton>
+        <CButton color="secondary" variant="outline" @click="modalVisible = false">{{ $t('admin_products.cancel') }}</CButton>
         <CButton color="primary" :disabled="saving || !form.name || !form.slug" @click="save">
-          <CSpinner v-if="saving" size="sm" class="me-1" /> {{ editing ? 'Update' : 'Create' }}
+          <CSpinner v-if="saving" size="sm" class="me-1" /> {{ editing ? $t('admin_products.update') : $t('admin_products.create_btn') }}
         </CButton>
       </CModalFooter>
     </CModal>
@@ -324,7 +324,7 @@ onMounted(fetchProducts)
     <!-- Image Upload Modal -->
     <CModal :visible="!!uploadTargetId" @close="uploadTargetId = null" backdrop="static">
       <CModalHeader>
-        <CModalTitle>Upload Product Image</CModalTitle>
+        <CModalTitle>{{ $t('admin_products.upload_image') }}</CModalTitle>
       </CModalHeader>
       <CModalBody>
         <CFormInput type="file" accept="image/*" @change="onImageSelect" class="mb-3" />
@@ -333,9 +333,9 @@ onMounted(fetchProducts)
         </div>
       </CModalBody>
       <CModalFooter>
-        <CButton color="secondary" variant="outline" @click="uploadTargetId = null">Cancel</CButton>
+        <CButton color="secondary" variant="outline" @click="uploadTargetId = null">{{ $t('admin_products.cancel') }}</CButton>
         <CButton color="primary" :disabled="!imageFile || uploadingImage" @click="uploadImage">
-          <CSpinner v-if="uploadingImage" size="sm" class="me-1" /> Upload
+          <CSpinner v-if="uploadingImage" size="sm" class="me-1" /> {{ $t('admin_products.upload') }}
         </CButton>
       </CModalFooter>
     </CModal>
@@ -348,26 +348,26 @@ onMounted(fetchProducts)
       <CModalBody v-if="detailProduct">
         <CRow class="mb-3">
           <CCol :sm="6">
-            <span class="text-body-secondary d-block small">Type</span>
-            <CBadge :color="detailProduct.product_type === 'digital' ? 'info' : 'success'">{{ detailProduct.product_type }}</CBadge>
+            <span class="text-body-secondary d-block small">{{ $t('admin_products.type') }}</span>
+            <CBadge :color="detailProduct.product_type === 'digital' ? 'info' : 'success'">{{ $t('products.' + detailProduct.product_type) }}</CBadge>
           </CCol>
           <CCol :sm="6">
-            <span class="text-body-secondary d-block small">Status</span>
-            <CBadge :color="detailProduct.status === 'published' ? 'success' : 'secondary'">{{ detailProduct.status }}</CBadge>
+            <span class="text-body-secondary d-block small">{{ $t('admin_products.status') }}</span>
+            <CBadge :color="detailProduct.status === 'published' ? 'success' : 'secondary'">{{ $t('admin_products.' + detailProduct.status) }}</CBadge>
           </CCol>
           <CCol :sm="6" class="mt-2">
-            <span class="text-body-secondary d-block small">Price EGP</span>
+            <span class="text-body-secondary d-block small">{{ $t('admin_products.price_egp') }}</span>
             <strong>{{ parseFloat(detailProduct.price_egp || 0).toFixed(2) }} EGP</strong>
           </CCol>
           <CCol :sm="6" class="mt-2">
-            <span class="text-body-secondary d-block small">Price USD</span>
+            <span class="text-body-secondary d-block small">{{ $t('admin_products.price_usd') }}</span>
             <strong>${{ parseFloat(detailProduct.price_usd || 0).toFixed(2) }}</strong>
           </CCol>
         </CRow>
         <hr />
-        <p>{{ detailProduct.description || 'No description' }}</p>
+        <p>{{ detailProduct.description || $t('admin_products.no_description') }}</p>
         <hr />
-        <h6>Images ({{ detailProduct.images?.length || 0 }})</h6>
+        <h6>{{ $t('admin_products.images', { count: detailProduct.images?.length || 0 }) }}</h6>
         <CRow v-if="detailProduct.images?.length">
           <CCol v-for="img in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
             <div class="position-relative">
@@ -378,13 +378,13 @@ onMounted(fetchProducts)
             </div>
           </CCol>
         </CRow>
-        <div v-else class="text-body-secondary small">No images uploaded yet.</div>
+        <div v-else class="text-body-secondary small">{{ $t('admin_products.no_images') }}</div>
       </CModalBody>
       <CModalFooter>
         <CButton color="info" variant="outline" @click="openImageUpload(detailProduct); detailVisible = false">
-          <CIcon icon="cil-image-plus" class="me-1" /> Add Image
+          <CIcon icon="cil-image-plus" class="me-1" /> {{ $t('admin_products.add_image') }}
         </CButton>
-        <CButton color="secondary" @click="detailVisible = false">Close</CButton>
+        <CButton color="secondary" @click="detailVisible = false">{{ $t('admin_products.close') }}</CButton>
       </CModalFooter>
     </CModal>
   </div>

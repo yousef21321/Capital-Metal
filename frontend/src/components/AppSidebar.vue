@@ -1,10 +1,16 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useColorModes } from '@coreui/vue'
 
 import { AppSidebarNav } from '@/components/AppSidebarNav.js'
 import { useSidebarStore } from '@/stores/sidebar.js'
+import logoLight from '@/assets/images/logo.png'
+import logoDark from '@/assets/images/logodark.png'
 
 const sidebar = useSidebarStore()
+const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 </script>
 
 <template>
@@ -20,10 +26,10 @@ const sidebar = useSidebarStore()
       <RouterLink custom to="/" v-slot="{ href, navigate }">
         <CSidebarBrand v-bind="$attrs" as="a" :href="href" @click="navigate" class="text-decoration-none">
           <span class="sidebar-brand-full d-flex align-items-center gap-2">
-            <img src="@/assets/images/logo.png" alt="FLFL Design" class="sidebar-logo" />
+            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo" />
           </span>
           <span class="sidebar-brand-narrow">
-            <img src="@/assets/images/logo.png" alt="FLFL Design" class="sidebar-logo-narrow" />
+            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo-narrow" />
           </span>
         </CSidebarBrand>
       </RouterLink>

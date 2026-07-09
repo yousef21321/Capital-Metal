@@ -39,14 +39,14 @@ async function handleLogout() {
         </div>
       </CDropdownHeader>
       <CDropdownItem class="dropdown-item-custom">
-        <CIcon icon="cil-user" class="dropdown-item-icon" />Profile
+        <CIcon icon="cil-user" class="dropdown-item-icon" />{{ $t('account.profile') }}
       </CDropdownItem>
       <CDropdownItem class="dropdown-item-custom">
-        <CIcon icon="cil-settings" class="dropdown-item-icon" />Settings
+        <CIcon icon="cil-settings" class="dropdown-item-icon" />{{ $t('account.settings') }}
       </CDropdownItem>
       <CDropdownDivider class="my-1" />
       <CDropdownItem @click="handleLogout" style="cursor: pointer" class="dropdown-item-custom logout-item">
-        <CIcon icon="cil-lock-locked" class="dropdown-item-icon" />Logout
+        <CIcon icon="cil-lock-locked" class="dropdown-item-icon" />{{ $t('account.logout') }}
       </CDropdownItem>
     </CDropdownMenu>
   </CDropdown>

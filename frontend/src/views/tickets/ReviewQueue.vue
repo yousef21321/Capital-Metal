@@ -36,11 +36,11 @@ onMounted(fetchQueue)
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">Ticket Review Queue</h3>
-        <p class="text-body-secondary mb-0">New requests awaiting price, deadline & approval before designers can see them.</p>
+        <h3 class="mb-1">{{ $t('review_queue.title') }}</h3>
+        <p class="text-body-secondary mb-0">{{ $t('review_queue.desc') }}</p>
       </div>
       <CButton color="secondary" variant="outline" size="sm" @click="fetchQueue">
-        <CIcon icon="cil-reload" class="me-1" /> Refresh
+        <CIcon icon="cil-reload" class="me-1" /> {{ $t('review_queue.refresh') }}
       </CButton>
     </div>
 
@@ -50,20 +50,20 @@ onMounted(fetchQueue)
 
     <div v-else-if="!tickets.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-check-circle" size="3xl" class="mb-3" />
-      <h4>Queue is empty</h4>
-      <p>No tickets awaiting review right now.</p>
+      <h4>{{ $t('review_queue.empty') }}</h4>
+      <p>{{ $t('review_queue.empty_desc') }}</p>
     </div>
 
     <CCard v-else class="shadow-sm">
       <CTable hover responsive>
         <CTableHead>
           <CTableRow>
-            <CTableHeaderCell>Ticket</CTableHeaderCell>
-            <CTableHeaderCell>Industor</CTableHeaderCell>
-            <CTableHeaderCell>Industor Proposal</CTableHeaderCell>
-            <CTableHeaderCell>Counter</CTableHeaderCell>
-            <CTableHeaderCell>Created</CTableHeaderCell>
-            <CTableHeaderCell class="text-end">Action</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('review_queue.ticket') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('review_queue.industor') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('review_queue.industor_proposal') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('review_queue.counter') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('review_queue.created') }}</CTableHeaderCell>
+            <CTableHeaderCell class="text-end">{{ $t('review_queue.action') }}</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -91,7 +91,7 @@ onMounted(fetchQueue)
             <CTableDataCell class="small text-body-secondary">{{ formatDate(t.created_at) }}</CTableDataCell>
             <CTableDataCell class="text-end">
               <CButton color="primary" size="sm" @click.stop="openTicket(t.id)">
-                {{ t.status === 'waiting_tester_review' ? 'Respond' : 'Review' }}
+                {{ t.status === 'waiting_tester_review' ? $t('review_queue.respond') : $t('review_queue.review') }}
               </CButton>
             </CTableDataCell>
           </CTableRow>

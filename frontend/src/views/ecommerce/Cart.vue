@@ -79,8 +79,8 @@ onMounted(fetchCart)
 <template>
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3>Shopping Cart</h3>
-      <CButton v-if="cart?.items?.length" color="danger" size="sm" variant="outline" @click="clearCart">Clear Cart</CButton>
+      <h3>{{ $t('cart.title') }}</h3>
+      <CButton v-if="cart?.items?.length" color="danger" size="sm" variant="outline" @click="clearCart">{{ $t('cart.clear') }}</CButton>
     </div>
 
     <div v-if="loading" class="text-center py-5">
@@ -89,9 +89,9 @@ onMounted(fetchCart)
 
     <div v-else-if="!cart?.items?.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-basket" size="3xl" class="mb-3" />
-      <h4>Your cart is empty</h4>
-      <p>Browse products to add items to your cart.</p>
-      <CButton color="primary" router-link to="/products">Browse Products</CButton>
+      <h4>{{ $t('cart.empty') }}</h4>
+      <p>{{ $t('cart.empty_desc') }}</p>
+      <CButton color="primary" router-link to="/products">{{ $t('cart.browse') }}</CButton>
     </div>
 
     <CRow v-else>
@@ -119,7 +119,7 @@ onMounted(fetchCart)
       <CCol :md="4">
         <CCard class="sticky-top" style="top: 20px;">
           <CCardBody>
-            <h5>Order Summary</h5>
+            <h5>{{ $t('cart.summary') }}</h5>
             <hr />
             <div class="d-flex justify-content-between mb-2">
               <span>Items ({{ cart.items.length }})</span>
@@ -130,7 +130,7 @@ onMounted(fetchCart)
               <span class="fw-bold text-primary fs-5">{{ total() }} {{ auth.userCurrency }}</span>
             </div>
             <CButton color="primary" class="w-100 mt-2" size="lg" @click="goToCheckout">
-              Proceed to Checkout
+              {{ $t('cart.checkout') }}
             </CButton>
           </CCardBody>
         </CCard>

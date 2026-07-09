@@ -64,8 +64,8 @@ async function subscribe(planId) {
 const money = (p) => formatPrice(p.price)
 
 const approvalBadge = (status) => {
-  const map = { pending: { color: 'warning', text: 'Pending Approval' }, approved: { color: 'success', text: 'Approved' }, rejected: { color: 'danger', text: 'Rejected' } }
-  return map[status] || { color: 'secondary', text: status }
+  const map = { pending: { color: 'warning', key: 'pending_approval' }, approved: { color: 'success', key: 'approved' }, rejected: { color: 'danger', key: 'rejected' } }
+  return map[status] || { color: 'secondary', key: status }
 }
 
 onMounted(load)
@@ -73,27 +73,27 @@ onMounted(load)
 
 <template>
   <div>
-    <h3 class="mb-1">Subscription Plans</h3>
-    <p class="text-body-secondary mb-4">Choose a plan to get tickets for design requests. Admin approval required.</p>
+    <h3 class="mb-1">{{ $t('plans.title') }}</h3>
+    <p class="text-body-secondary mb-4">{{ $t('plans.desc') }}</p>
 
     <CAlert v-if="error" color="danger" class="mb-3">{{ error }}</CAlert>
 
     <CCard v-if="subscription?.subscription" class="mb-4 shadow-sm" :class="subscription.approval_status === 'approved' ? 'border-success' : 'border-warning'">
       <CCardBody class="d-flex flex-wrap justify-content-between align-items-center">
         <div>
-          <span class="text-body-secondary small">Current Plan</span>
+          <span class="text-body-secondary small">{{ $t('plans.current_plan') }}</span>
           <h5 class="mb-0">{{ subscription.subscription.plan?.name }}</h5>
         </div>
         <div class="d-flex align-items-center gap-3 flex-wrap">
-          <CBadge :color="approvalBadge(subscription.approval_status).color">{{ approvalBadge(subscription.approval_status).text }}</CBadge>
+          <CBadge :color="approvalBadge(subscription.approval_status).color">{{ $t('plans.' + approvalBadge(subscription.approval_status).key) }}</CBadge>
           <template v-if="subscription.approval_status === 'approved'">
             <div class="text-center">
               <div class="fs-4 fw-bold text-primary">{{ subscription.tickets_remaining }}</div>
-              <small class="text-body-secondary">Tickets Left</small>
+              <small class="text-body-secondary">{{ $t('plans.tickets_left') }}</small>
             </div>
             <div class="text-center">
-              <div class="fs-4 fw-bold">{{ subscription.can_publish_to_store ? 'Yes' : 'No' }}</div>
-              <small class="text-body-secondary">Store Publishing</small>
+              <div class="fs-4 fw-bold">{{ subscription.can_publish_to_store ? $t('plans.yes') : $t('plans.no') }}</div>
+              <small class="text-body-secondary">{{ $t('plans.store_publishing') }}</small>
             </div>
           </template>
         </div>
@@ -111,11 +111,11 @@ onMounted(load)
           <CCardBody class="text-center d-flex flex-column">
             <div class="fs-2 fw-bold text-primary mb-2">{{ money(plan) }}</div>
             <CListGroup class="text-start mb-3">
-              <CListGroupItem><CIcon icon="cil-tag" class="me-2 text-success" /> {{ plan.ticket_limit }} tickets</CListGroupItem>
-              <CListGroupItem><CIcon icon="cil-clock" class="me-2 text-warning" /> {{ plan.duration_days || 30 }} days</CListGroupItem>
+              <CListGroupItem><CIcon icon="cil-tag" class="me-2 text-success" /> {{ plan.ticket_limit }} {{ $t('plans.tickets') }}</CListGroupItem>
+              <CListGroupItem><CIcon icon="cil-clock" class="me-2 text-warning" /> {{ plan.duration_days || 30 }} {{ $t('plans.days') }}</CListGroupItem>
               <CListGroupItem>
                 <CIcon :icon="plan.can_publish_to_store ? 'cil-check' : 'cil-x'" :class="plan.can_publish_to_store ? 'me-2 text-success' : 'me-2 text-danger'" />
-                Store publishing
+                {{ $t('plans.store_publishing') }}
               </CListGroupItem>
             </CListGroup>
             <CButton
@@ -126,7 +126,7 @@ onMounted(load)
               @click="subscribe(plan.id)"
             >
               <CSpinner v-if="subscribing === plan.id" size="sm" class="me-1" />
-              {{ subscription?.subscription?.plan_id === plan.id ? 'Current Plan' : 'Subscribe' }}
+              {{ subscription?.subscription?.plan_id === plan.id ? $t('plans.current_plan') : $t('plans.subscribe') }}
             </CButton>
           </CCardBody>
         </CCard>

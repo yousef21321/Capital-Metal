@@ -79,9 +79,9 @@ onMounted(checkSubscription)
 <template>
   <div>
     <CButton color="secondary" variant="ghost" size="sm" class="mb-2" @click="router.push('/tickets')">
-      <CIcon icon="cil-arrow-left" class="me-1" /> Back to Tickets
+      <CIcon icon="cil-arrow-left" class="me-1" /> {{ $t('ticket_create.back') }}
     </CButton>
-    <h3 class="mb-4">New Ticket</h3>
+    <h3 class="mb-4">{{ $t('ticket_create.title') }}</h3>
 
     <CRow>
       <CCol :md="8">
@@ -90,49 +90,49 @@ onMounted(checkSubscription)
             <CAlert v-if="error" color="danger" class="mb-3">{{ error }}</CAlert>
 
             <CAlert v-if="!loadingStatus && !hasSubscription" color="info" class="mb-3">
-              <CIcon icon="cil-info" class="me-1" /> You don't have an active subscription. This ticket will be created as a
-              <strong>single-purchase</strong> ticket — you'll pay the price set by the tester after review.
+              <CIcon icon="cil-info" class="me-1" /> {{ $t('ticket_create.no_subscription') }}
+              <strong>{{ $t('ticket_create.single_purchase') }}</strong> {{ $t('ticket_create.after_review') }}
             </CAlert>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Project Title</CFormLabel>
-              <CFormInput v-model="form.title" placeholder="e.g. Logo design for new product" />
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.project_title') }}</CFormLabel>
+              <CFormInput v-model="form.title" :placeholder="$t('ticket_create.project_title_placeholder')" />
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Project Description</CFormLabel>
-              <CFormTextarea v-model="form.description" rows="8" placeholder="Describe the digital product you need: dimensions, style, references, file format, usage rights..." />
-              <div class="form-text">Be as detailed as possible - the tester will review this before approval.</div>
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.project_description') }}</CFormLabel>
+              <CFormTextarea v-model="form.description" rows="8" :placeholder="$t('ticket_create.project_description_placeholder')" />
+              <div class="form-text">{{ $t('ticket_create.project_description_help') }}</div>
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Expected Delivery Deadline</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.expected_deadline') }}</CFormLabel>
               <CFormInput v-model="expectedDeadlineLocal" type="datetime-local" />
-              <div class="form-text">Propose a delivery time. The tester will review it and may accept it or negotiate a new deadline.</div>
+              <div class="form-text">{{ $t('ticket_create.expected_deadline_help') }}</div>
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Expected Price ({{ auth.userCurrency }})</CFormLabel>
-              <CFormInput v-model.number="form.expected_price" type="number" min="0" step="0.01" placeholder="e.g. 1000" />
-              <div class="form-text">Propose a price. The tester will review it and may accept or counter with a different price.</div>
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.expected_price') }} ({{ auth.userCurrency }})</CFormLabel>
+              <CFormInput v-model.number="form.expected_price" type="number" min="0" step="0.01" :placeholder="$t('ticket_create.expected_price_placeholder')" />
+              <div class="form-text">{{ $t('ticket_create.expected_price_help') }}</div>
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Project Attachments (optional)</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.attachments') }}</CFormLabel>
               <CFormInput type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.zip" @change="onFilesChange" />
-              <div class="form-text">Reference files, briefs, or mockups. You can also add more later from the ticket page.</div>
+              <div class="form-text">{{ $t('ticket_create.attachments_help') }}</div>
             </div>
 
             <div v-if="hasSubscription" class="mb-3">
-              <CFormCheck v-model="form.single_purchase" label="Create as single-purchase ticket (pay per ticket instead of using subscription)" />
+              <CFormCheck v-model="form.single_purchase" :label="$t('ticket_create.single_purchase_checkbox')" />
             </div>
 
             <div class="d-flex gap-2">
               <CButton color="primary" :disabled="submitting || !form.title || !form.description || !form.expected_deadline || !form.expected_price" @click="submit">
                 <CSpinner v-if="submitting" size="sm" class="me-1" />
-                {{ (!hasSubscription || form.single_purchase) ? 'Create Single-Purchase Ticket' : 'Create Ticket' }}
+                {{ (!hasSubscription || form.single_purchase) ? $t('ticket_create.create_single') : $t('ticket_create.create') }}
               </CButton>
-              <CButton color="secondary" variant="outline" @click="router.push('/tickets')">Cancel</CButton>
+              <CButton color="secondary" variant="outline" @click="router.push('/tickets')">{{ $t('ticket_create.cancel') }}</CButton>
             </div>
           </CCardBody>
         </CCard>
@@ -141,13 +141,13 @@ onMounted(checkSubscription)
       <CCol :md="4">
         <CCard class="shadow-sm bg-body-tertiary">
           <CCardBody>
-            <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> How it works</h6>
+            <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> {{ $t('ticket_create.how_it_works') }}</h6>
             <ol class="small text-body-secondary mb-0 ps-3">
-              <li>You propose an expected delivery deadline with your ticket.</li>
-              <li>The tester reviews it and approves the deadline or negotiates a new one with you.</li>
-              <li>Once the deadline is agreed, the tester sets the price.</li>
-              <li v-if="!hasSubscription || form.single_purchase">After approval, you pay the set price.</li>
-              <li>Designers can then accept it, upload the deliverable, and QA reviews the final design.</li>
+              <li>{{ $t('ticket_create.step1') }}</li>
+              <li>{{ $t('ticket_create.step2') }}</li>
+              <li>{{ $t('ticket_create.step3') }}</li>
+              <li v-if="!hasSubscription || form.single_purchase">{{ $t('ticket_create.step4') }}</li>
+              <li>{{ $t('ticket_create.step5') }}</li>
             </ol>
           </CCardBody>
         </CCard>

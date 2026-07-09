@@ -134,9 +134,9 @@ async function submit() {
 <template>
   <div>
     <CButton color="secondary" variant="ghost" size="sm" class="mb-2" @click="router.push('/products')">
-      <CIcon icon="cil-arrow-left" class="me-1" /> Back to Products
+      <CIcon icon="cil-arrow-left" class="me-1" /> {{ $t('designer_product.back') }}
     </CButton>
-    <h3 class="mb-4">Create Digital Product</h3>
+    <h3 class="mb-4">{{ $t('designer_product.title') }}</h3>
 
     <CRow>
       <CCol :md="8">
@@ -146,22 +146,22 @@ async function submit() {
             <CAlert v-if="success" color="success" class="mb-3">{{ success }}</CAlert>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Product Name</CFormLabel>
-              <CFormInput v-model="form.name" placeholder="e.g. Modern Logo Pack" @input="onNameInput" />
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.product_name') }}</CFormLabel>
+              <CFormInput v-model="form.name" :placeholder="$t('designer_product.product_name_placeholder')" @input="onNameInput" />
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Slug</CFormLabel>
-              <CFormInput v-model="form.slug" placeholder="auto-generated" />
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.slug') }}</CFormLabel>
+              <CFormInput v-model="form.slug" :placeholder="$t('designer_product.slug_placeholder')" />
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Description</CFormLabel>
-              <CFormTextarea v-model="form.description" rows="5" placeholder="Describe your digital product..." />
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.description') }}</CFormLabel>
+              <CFormTextarea v-model="form.description" rows="5" :placeholder="$t('designer_product.description_placeholder')" />
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Product Images (up to 2)</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.images') }}</CFormLabel>
               <CFormInput type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple @change="onImagesSelected" />
               <div v-if="imagePreviews.length" class="d-flex gap-2 mt-2">
                 <div v-for="(preview, i) in imagePreviews" :key="i" class="position-relative" style="width: 120px; height: 120px;">
@@ -172,38 +172,38 @@ async function submit() {
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Design File (hidden until purchase)</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.design_file') }}</CFormLabel>
               <div class="d-flex gap-2 align-items-center">
                 <CFormInput type="file" accept=".pdf,.zip,.ai,.eps,.svg,.dxf,.psd,image/png,image/jpeg" @change="onDesignFileSelected" />
               </div>
               <div v-if="designFileName" class="d-flex align-items-center gap-2 mt-2">
                 <CIcon icon="cil-file" class="text-body-secondary" />
                 <span class="small">{{ designFileName }}</span>
-                <span role="button" class="badge bg-danger" style="cursor: pointer;" @click="removeDesignFile">Remove</span>
+                <span role="button" class="badge bg-danger" style="cursor: pointer;" @click="removeDesignFile">{{ $t('designer_product.remove') }}</span>
               </div>
-              <small class="text-body-secondary">Customers will receive this file after purchase.</small>
+              <small class="text-body-secondary">{{ $t('designer_product.design_file_help') }}</small>
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Price ({{ auth.userCurrency }})</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: auth.userCurrency }) }}</CFormLabel>
               <div class="d-flex gap-2">
-                <CFormInput v-model.number="form.price_egp" type="number" min="0" class="flex-grow-1" placeholder="0.00" />
+                <CFormInput v-model.number="form.price_egp" type="number" min="0" class="flex-grow-1" :placeholder="$t('designer_product.price_placeholder')" />
                 <CButton color="primary" variant="outline" @click="applyPrice" :disabled="!form.price_egp || form.price_egp <= 0">
-                  Apply
+                  {{ $t('designer_product.apply') }}
                 </CButton>
               </div>
               <div v-if="priceApplied && form.price_egp > 0" class="mt-2 p-3 rounded" style="background: #f8f9fa;">
                 <div class="d-flex justify-content-between mb-1">
-                  <span class="text-body-secondary">Price:</span>
+                  <span class="text-body-secondary">{{ $t('designer_product.price_label') }}</span>
                   <strong>{{ formatPrice(form.price_egp) }}</strong>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
-                  <span class="text-body-secondary">Commission (10%):</span>
+                  <span class="text-body-secondary">{{ $t('designer_product.commission') }}</span>
                   <span class="text-danger">- {{ formatPrice(commission) }}</span>
                 </div>
                 <hr class="my-1" />
                 <div class="d-flex justify-content-between">
-                  <span class="fw-semibold">Net Profit:</span>
+                  <span class="fw-semibold">{{ $t('designer_product.net_profit') }}</span>
                   <strong class="text-success">{{ formatPrice(netProfit) }}</strong>
                 </div>
               </div>
@@ -211,52 +211,52 @@ async function submit() {
 
             <CRow>
               <CCol :sm="6" class="mb-3">
-                <CFormLabel class="fw-semibold">Price (USD)</CFormLabel>
-                <CFormInput v-model.number="form.price_usd" type="number" min="0" placeholder="0.00" />
+                <CFormLabel class="fw-semibold">{{ $t('designer_product.price_usd') }}</CFormLabel>
+                <CFormInput v-model.number="form.price_usd" type="number" min="0" :placeholder="$t('designer_product.price_usd_placeholder')" />
               </CCol>
               <CCol :sm="6" class="mb-3">
-                <CFormLabel class="fw-semibold">Material</CFormLabel>
+                <CFormLabel class="fw-semibold">{{ $t('designer_product.material') }}</CFormLabel>
                 <CFormSelect v-model="form.material">
-                  <option value="">-- Select Material --</option>
-                  <option value="cotton">Cotton</option>
-                  <option value="polyester">Polyester</option>
-                  <option value="silk">Silk</option>
-                  <option value="wool">Wool</option>
-                  <option value="linen">Linen</option>
-                  <option value="denim">Denim</option>
-                  <option value="leather">Leather</option>
-                  <option value="spandex">Spandex</option>
-                  <option value="nylon">Nylon</option>
-                  <option value="rayon">Rayon</option>
-                  <option value="velvet">Velvet</option>
-                  <option value="lace">Lace</option>
-                  <option value="other">Other</option>
+                  <option value="">{{ $t('designer_product.select_material') }}</option>
+                  <option value="cotton">{{ $t('product_type.cotton') }}</option>
+                  <option value="polyester">{{ $t('product_type.polyester') }}</option>
+                  <option value="silk">{{ $t('product_type.silk') }}</option>
+                  <option value="wool">{{ $t('product_type.wool') }}</option>
+                  <option value="linen">{{ $t('product_type.linen') }}</option>
+                  <option value="denim">{{ $t('product_type.denim') }}</option>
+                  <option value="leather">{{ $t('product_type.leather') }}</option>
+                  <option value="spandex">{{ $t('product_type.spandex') }}</option>
+                  <option value="nylon">{{ $t('product_type.nylon') }}</option>
+                  <option value="rayon">{{ $t('product_type.rayon') }}</option>
+                  <option value="velvet">{{ $t('product_type.velvet') }}</option>
+                  <option value="lace">{{ $t('product_type.lace') }}</option>
+                  <option value="other">{{ $t('product_type.other') }}</option>
                 </CFormSelect>
               </CCol>
             </CRow>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Manufacturing Method</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.method') }}</CFormLabel>
               <CFormSelect v-model="form.manufacturing_method">
-                <option value="">-- Select Method --</option>
-                <option value="knitted">Knitted</option>
-                <option value="woven">Woven</option>
-                <option value="embroidered">Embroidered</option>
-                <option value="printed">Printed</option>
-                <option value="embellished">Embellished</option>
-                <option value="handmade">Handmade</option>
-                <option value="machine_made">Machine Made</option>
-                <option value="cut_and_sew">Cut & Sew</option>
-                <option value="molded">Molded</option>
-                <option value="other">Other</option>
+                <option value="">{{ $t('designer_product.select_method') }}</option>
+                <option value="knitted">{{ $t('product_type.knitted') }}</option>
+                <option value="woven">{{ $t('product_type.woven') }}</option>
+                <option value="embroidered">{{ $t('product_type.embroidered') }}</option>
+                <option value="printed">{{ $t('product_type.printed') }}</option>
+                <option value="embellished">{{ $t('product_type.embellished') }}</option>
+                <option value="handmade">{{ $t('product_type.handmade') }}</option>
+                <option value="machine_made">{{ $t('product_type.machine_made') }}</option>
+                <option value="cut_and_sew">{{ $t('product_type.cut_sew') }}</option>
+                <option value="molded">{{ $t('product_type.molded') }}</option>
+                <option value="other">{{ $t('product_type.other') }}</option>
               </CFormSelect>
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">Tags</CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.tags') }}</CFormLabel>
               <div class="d-flex gap-2 mb-2">
-                <CFormInput v-model="tagInput" placeholder="Add a tag..." @keydown="onTagKeydown" />
-                <CButton color="secondary" variant="outline" @click="addTag" :disabled="!tagInput.trim()">Add</CButton>
+                <CFormInput v-model="tagInput" :placeholder="$t('designer_product.tag_placeholder')" @keydown="onTagKeydown" />
+                <CButton color="secondary" variant="outline" @click="addTag" :disabled="!tagInput.trim()">{{ $t('designer_product.add_tag') }}</CButton>
               </div>
               <div v-if="form.tags.length" class="d-flex flex-wrap gap-1">
                 <span v-for="(tag, i) in form.tags" :key="i"
@@ -266,14 +266,14 @@ async function submit() {
                   <span role="button" class="ms-1" style="cursor: pointer; line-height: 1;" @click="removeTag(i)">&times;</span>
                 </span>
               </div>
-              <small v-else class="text-body-secondary">Add tags so users can find your product by search.</small>
+              <small v-else class="text-body-secondary">{{ $t('designer_product.tags_help') }}</small>
             </div>
 
             <div class="d-flex gap-2">
               <CButton color="primary" :disabled="submitting || !form.name || !form.slug" @click="submit">
-                <CSpinner v-if="submitting" size="sm" class="me-1" /> Create Product
+                <CSpinner v-if="submitting" size="sm" class="me-1" /> {{ $t('designer_product.create') }}
               </CButton>
-              <CButton color="secondary" variant="outline" @click="router.push('/products')">Cancel</CButton>
+              <CButton color="secondary" variant="outline" @click="router.push('/products')">{{ $t('designer_product.cancel') }}</CButton>
             </div>
           </CCardBody>
         </CCard>
@@ -282,8 +282,8 @@ async function submit() {
       <CCol :md="4">
         <CCard class="shadow-sm bg-body-tertiary">
           <CCardBody>
-            <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> Digital Products</h6>
-            <p class="small text-body-secondary mb-0">Products you create appear in the public store. Upload images to showcase your work. The design file stays hidden and is delivered to customers after purchase.</p>
+            <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> {{ $t('designer_product.sidebar_title') }}</h6>
+            <p class="small text-body-secondary mb-0">{{ $t('designer_product.sidebar_desc') }}</p>
           </CCardBody>
         </CCard>
       </CCol>

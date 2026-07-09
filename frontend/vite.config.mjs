@@ -29,6 +29,14 @@ export default defineConfig(() => {
           find: '@',
           replacement: path.resolve(__dirname, '/src'),
         },
+        {
+          find: 'vue-i18n',
+          replacement: path.resolve(__dirname, 'vendor/node_modules/vue-i18n'),
+        },
+        {
+          find: '@intlify',
+          replacement: path.resolve(__dirname, 'vendor/node_modules/@intlify'),
+        },
       ],
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue', '.scss'],
     },

@@ -37,26 +37,26 @@ function createTicket() {
   router.push('/tickets/create')
 }
 
-const titleByRole = computed(() => {
+const translationKey = computed(() => {
   const map = {
-    industor: 'My Requests',
-    tester: 'QA Queue',
-    designer: 'My Tickets',
-    admin: 'All Tickets',
+    industor: 'tickets.my_requests',
+    tester: 'tickets.qa_queue',
+    designer: 'tickets.my_tickets',
+    admin: 'tickets.all_tickets',
   }
-  return map[role.value] || 'Tickets'
+  return map[role.value] || 'tickets.tickets'
 })
 
 const canCreate = computed(() => role.value === 'industor')
 
 const statusFilters = [
-  { value: '', label: 'All', icon: 'cil-grid' },
-  { value: 'pending_tester_review', label: 'Pending Tester', icon: 'cil-hourglass' },
-  { value: 'waiting_industor_approval', label: 'Awaiting Industor', icon: 'cil-clock' },
-  { value: 'pending_payment', label: 'Pending Payment', icon: 'cil-credit-card' },
-  { value: 'approved_by_tester', label: 'Available', icon: 'cil-check' },
-  { value: 'in_progress', label: 'In Progress', icon: 'cil-settings' },
-  { value: 'completed', label: 'Completed', icon: 'cil-check-circle' },
+  { value: '', label: '', translationKey: 'all', icon: 'cil-grid' },
+  { value: 'pending_tester_review', label: '', translationKey: 'pending_tester_review', icon: 'cil-hourglass' },
+  { value: 'waiting_industor_approval', label: '', translationKey: 'waiting_industor_approval', icon: 'cil-clock' },
+  { value: 'pending_payment', label: '', translationKey: 'pending_payment', icon: 'cil-credit-card' },
+  { value: 'approved_by_tester', label: '', translationKey: 'available', icon: 'cil-check' },
+  { value: 'in_progress', label: '', translationKey: 'in_progress', icon: 'cil-settings' },
+  { value: 'completed', label: '', translationKey: 'completed', icon: 'cil-check-circle' },
 ]
 
 const statusCount = computed(() => {
@@ -75,12 +75,12 @@ onMounted(fetchTickets)
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h3 class="mb-1 fw-bold">
-          <CIcon icon="cil-description" class="me-2 text-primary" />{{ titleByRole }}
+          <CIcon icon="cil-description" class="me-2 text-primary" />{{ $t(translationKey) }}
         </h3>
-        <p class="text-body-secondary mb-0">Track design requests across the workflow.</p>
+        <p class="text-body-secondary mb-0">{{ $t('tickets.desc') }}</p>
       </div>
       <CButton v-if="canCreate" color="primary" class="btn-new-ticket" @click="createTicket">
-        <CIcon icon="cil-plus" class="me-1" /> New Request
+        <CIcon icon="cil-plus" class="me-1" /> {{ $t('tickets.new_request') }}
       </CButton>
     </div>
 
@@ -95,7 +95,7 @@ onMounted(fetchTickets)
             @click="activeStatus = f.value; fetchTickets()"
           >
             <CIcon :icon="f.icon" class="me-1" />
-            {{ f.label }}
+            {{ $t('tickets.' + f.translationKey) }}
             <span v-if="statusCount[f.value]" class="filter-count">{{ statusCount[f.value] }}</span>
           </button>
         </div>
@@ -116,8 +116,8 @@ onMounted(fetchTickets)
       <div class="empty-icon-wrapper mb-3">
         <CIcon icon="cil-file" size="3xl" />
       </div>
-      <h4 class="fw-semibold">No tickets found</h4>
-      <p v-if="canCreate" class="text-body-secondary">Create your first request to get started.</p>
+      <h4 class="fw-semibold">{{ $t('tickets.no_tickets') }}</h4>
+      <p v-if="canCreate" class="text-body-secondary">{{ $t('tickets.no_tickets_desc') }}</p>
     </div>
 
     <CCard v-else class="tickets-card">
@@ -137,7 +137,7 @@ onMounted(fetchTickets)
               <h6 class="ticket-title mb-1">{{ t.title }}</h6>
               <div class="ticket-meta d-flex align-items-center gap-2 flex-wrap">
                 <CBadge :color="statusMeta(t.status).color" class="ticket-badge">{{ statusMeta(t.status).label }}</CBadge>
-                <span v-if="t.is_overdue" class="overdue-badge">Overdue</span>
+                <span v-if="t.is_overdue" class="overdue-badge">{{ $t('tickets.overdue') }}</span>
                 <span class="small text-body-secondary">
                   <CIcon icon="cil-clock" size="sm" class="me-1" />{{ formatDate(t.created_at) }}
                 </span>
@@ -154,7 +154,7 @@ onMounted(fetchTickets)
               <span class="person-name small">{{ t.designer.name }}</span>
             </div>
             <CButton color="primary" variant="outline" size="sm" class="btn-open" @click.stop="openTicket(t.id)">
-              Open <CIcon icon="cil-arrow-right" class="ms-1" />
+              {{ $t('tickets.open') }} <CIcon icon="cil-arrow-right" class="ms-1" />
             </CButton>
           </div>
         </div>

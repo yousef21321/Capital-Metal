@@ -48,11 +48,11 @@ onMounted(fetchQueue)
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">QA Review Queue</h3>
-        <p class="text-body-secondary mb-0">Designs awaiting quality approval.</p>
+        <h3 class="mb-1">{{ $t('qa_queue.title') }}</h3>
+        <p class="text-body-secondary mb-0">{{ $t('qa_queue.desc') }}</p>
       </div>
       <CButton color="secondary" variant="outline" size="sm" @click="fetchQueue">
-        <CIcon icon="cil-reload" class="me-1" /> Refresh
+        <CIcon icon="cil-reload" class="me-1" /> {{ $t('qa_queue.refresh') }}
       </CButton>
     </div>
 
@@ -62,19 +62,19 @@ onMounted(fetchQueue)
 
     <div v-else-if="!tickets.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-check-circle" size="3xl" class="mb-3" />
-      <h4>Queue is empty</h4>
-      <p>No designs awaiting review right now.</p>
+      <h4>{{ $t('qa_queue.empty') }}</h4>
+      <p>{{ $t('qa_queue.empty_desc') }}</p>
     </div>
 
     <CCard v-else class="shadow-sm">
       <CTable hover responsive>
         <CTableHead>
           <CTableRow>
-            <CTableHeaderCell>Ticket</CTableHeaderCell>
-            <CTableHeaderCell>Designer</CTableHeaderCell>
-            <CTableHeaderCell>Industor</CTableHeaderCell>
-            <CTableHeaderCell>Uploaded</CTableHeaderCell>
-            <CTableHeaderCell class="text-end">Action</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('qa_queue.ticket') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('qa_queue.designer') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('qa_queue.industor') }}</CTableHeaderCell>
+            <CTableHeaderCell>{{ $t('qa_queue.uploaded') }}</CTableHeaderCell>
+            <CTableHeaderCell class="text-end">{{ $t('qa_queue.action') }}</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -85,7 +85,7 @@ onMounted(fetchQueue)
             <CTableDataCell class="small text-body-secondary">{{ formatDate(t.uploaded_at) }}</CTableDataCell>
             <CTableDataCell class="text-end">
               <CButton color="success" size="sm" :disabled="claiming === t.id" @click="claim(t.id)">
-                <CSpinner v-if="claiming === t.id" size="sm" class="me-1" /> Review
+                <CSpinner v-if="claiming === t.id" size="sm" class="me-1" /> {{ $t('qa_queue.review') }}
               </CButton>
             </CTableDataCell>
           </CTableRow>

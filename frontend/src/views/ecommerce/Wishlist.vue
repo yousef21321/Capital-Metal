@@ -59,7 +59,7 @@ const formatPrice = (product) => {
     return `${parseFloat(product.price_egp).toFixed(2)} EGP`
   }
   if (parseFloat(product?.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  return 'Free'
+  return $t('products.free')
 }
 
 const productImage = (product) => {
@@ -75,11 +75,11 @@ onMounted(fetchWishlist)
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">My Wishlist</h3>
-        <p class="text-body-secondary mb-0">Products you've saved for later.</p>
+        <h3 class="mb-1">{{ $t('wishlist.title') }}</h3>
+        <p class="text-body-secondary mb-0">{{ $t('wishlist.desc') }}</p>
       </div>
       <CButton color="secondary" variant="outline" size="sm" @click="fetchWishlist">
-        <CIcon icon="cil-reload" class="me-1" /> Refresh
+        <CIcon icon="cil-reload" class="me-1" /> {{ $t('wishlist.refresh') }}
       </CButton>
     </div>
 
@@ -89,9 +89,9 @@ onMounted(fetchWishlist)
 
     <div v-else-if="!items.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-heart" size="3xl" class="mb-3" />
-      <h4>Your wishlist is empty</h4>
-      <p class="mb-3">Save products you like to find them here later.</p>
-      <CButton color="primary" router-link to="/products">Browse Products</CButton>
+      <h4>{{ $t('wishlist.empty') }}</h4>
+      <p class="mb-3">{{ $t('wishlist.empty_desc') }}</p>
+      <CButton color="primary" router-link to="/products">{{ $t('wishlist.browse') }}</CButton>
     </div>
 
     <CRow v-else>
@@ -120,11 +120,11 @@ onMounted(fetchWishlist)
             <CBadge :color="item.product?.product_type === 'digital' ? 'info' : 'success'" class="align-self-start mb-2">
               {{ item.product?.product_type }}
             </CBadge>
-            <p class="card-text text-body-secondary small flex-grow-1">{{ item.product?.description?.slice(0, 60) || 'No description' }}{{ item.product?.description?.length > 60 ? '...' : '' }}</p>
+            <p class="card-text text-body-secondary small flex-grow-1">{{ item.product?.description?.slice(0, 60) || $t('wishlist.no_description') }}{{ item.product?.description?.length > 60 ? '...' : '' }}</p>
             <div class="d-flex justify-content-between align-items-center mt-2">
               <h5 class="text-primary mb-0">{{ formatPrice(item.product) }}</h5>
               <CButton color="primary" size="sm" @click="addToCart(item)">
-                <CIcon icon="cil-cart" class="me-1" />Add
+                <CIcon icon="cil-cart" class="me-1" />{{ $t('wishlist.add') }}
               </CButton>
             </div>
           </CCardBody>

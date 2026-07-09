@@ -2,11 +2,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
+const { t } = useI18n()
 const cart = useCartStore()
 const auth = useAuthStore()
 const toast = useToastStore()
@@ -78,7 +80,7 @@ const formatPrice = (product) => {
     return `${parseFloat(product.price_egp).toFixed(2)} EGP`
   }
   if (parseFloat(product.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  return 'Free'
+  return t('products.free')
 }
 
 const productImage = (product) => {
@@ -113,9 +115,9 @@ onMounted(fetchProducts)
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h3 class="mb-1 fw-bold">
-          <CIcon icon="cil-grid" class="me-2 text-primary" />Products
+          <CIcon icon="cil-grid" class="me-2 text-primary" />{{ $t('products.title') }}
         </h3>
-        <p class="text-body-secondary mb-0">Browse and add products to your cart.</p>
+        <p class="text-body-secondary mb-0">{{ $t('products.desc') }}</p>
       </div>
     </div>
 
@@ -125,36 +127,36 @@ onMounted(fetchProducts)
           <CCol md="5">
             <div class="input-group search-input-group">
               <span class="input-group-text bg-transparent border-end-0"><CIcon icon="cil-search" /></span>
-              <input v-model="search" class="form-control border-start-0 ps-0" placeholder="Search products..." @input="fetchProducts" />
+              <input v-model="search" class="form-control border-start-0 ps-0" :placeholder="$t('products.search')" @input="fetchProducts" />
             </div>
           </CCol>
           <CCol md="7">
             <div class="filter-buttons d-flex align-items-center gap-2 flex-wrap">
-              <span class="filter-label small text-body-secondary fw-semibold me-1">Type:</span>
+              <span class="filter-label small text-body-secondary fw-semibold me-1">{{ $t('products.type') }}</span>
               <button
                 class="filter-btn"
                 :class="{ active: productType === '' }"
                 @click="productType = ''; fetchProducts()"
               >
-                <CIcon icon="cil-grid" class="me-1" />All
+                <CIcon icon="cil-grid" class="me-1" />{{ $t('products.all') }}
               </button>
               <button
                 class="filter-btn"
                 :class="{ active: productType === 'physical' }"
                 @click="productType = 'physical'; fetchProducts()"
               >
-                <CIcon icon="cil-box" class="me-1" />Physical
+                <CIcon icon="cil-box" class="me-1" />{{ $t('products.physical') }}
               </button>
               <button
                 class="filter-btn"
                 :class="{ active: productType === 'digital' }"
                 @click="productType = 'digital'; fetchProducts()"
               >
-                <CIcon icon="cil-cloud-download" class="me-1" />Digital
+                <CIcon icon="cil-cloud-download" class="me-1" />{{ $t('products.digital') }}
               </button>
               <span class="vr mx-2"></span>
               <CButton color="primary" size="sm" class="btn-search" @click="fetchProducts">
-                <CIcon icon="cil-search" class="me-1" />Search
+                <CIcon icon="cil-search" class="me-1" />{{ $t('products.search_btn') }}
               </CButton>
             </div>
           </CCol>
@@ -172,8 +174,8 @@ onMounted(fetchProducts)
       <div class="empty-icon-wrapper mb-3">
         <CIcon icon="cil-cart" size="3xl" />
       </div>
-      <h4 class="fw-semibold">No products found</h4>
-      <p class="text-body-secondary">Try adjusting your search or filter.</p>
+      <h4 class="fw-semibold">{{ $t('products.no_results') }}</h4>
+      <p class="text-body-secondary">{{ $t('products.no_results_desc') }}</p>
     </div>
 
     <CRow v-else class="g-4 products-grid">
@@ -188,14 +190,14 @@ onMounted(fetchProducts)
             />
             <div v-else class="product-img-fallback">
               <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="3xl" class="text-body-secondary" />
-              <span class="small text-body-secondary mt-2">{{ product.product_type === 'digital' ? 'Digital' : 'Physical' }}</span>
+              <span class="small text-body-secondary mt-2">{{ $t('products.' + product.product_type) }}</span>
             </div>
             <div class="product-badges">
               <span v-if="product.product_type === 'digital'" class="badge-type badge-digital">
-                <CIcon icon="cil-cloud-download" size="sm" class="me-1" />Digital
+                <CIcon icon="cil-cloud-download" size="sm" class="me-1" />{{ $t('products.digital') }}
               </span>
               <span v-else class="badge-type badge-physical">
-                <CIcon icon="cil-box" size="sm" class="me-1" />Physical
+                <CIcon icon="cil-box" size="sm" class="me-1" />{{ $t('products.physical') }}
               </span>
             </div>
             <div class="product-actions-overlay">
@@ -234,7 +236,7 @@ onMounted(fetchProducts)
               <span class="small text-body-secondary ms-1">({{ product.reviews_count || 0 }})</span>
             </div>
             <p class="product-desc text-body-secondary small flex-grow-1">
-              {{ product.description?.slice(0, 70) || 'No description available' }}{{ product.description?.length > 70 ? '...' : '' }}
+              {{ product.description?.slice(0, 70) || $t('products.no_description') }}{{ product.description?.length > 70 ? '...' : '' }}
             </p>
             <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
               <div class="product-price-row">
@@ -248,10 +250,10 @@ onMounted(fetchProducts)
     </CRow>
 
     <div v-if="lastPage > 1" class="mt-4">
-      <CPagination align="center" aria-label="Products pagination" class="products-pagination">
-        <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">Previous</CPaginationItem>
+      <CPagination align="center" class="products-pagination">
+        <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">{{ $t('products.previous') }}</CPaginationItem>
         <CPaginationItem v-for="page in lastPage" :key="page" :active="page === currentPage" @click="currentPage = page; fetchProducts()">{{ page }}</CPaginationItem>
-        <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">Next</CPaginationItem>
+        <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">{{ $t('products.next') }}</CPaginationItem>
       </CPagination>
     </div>
   </div>

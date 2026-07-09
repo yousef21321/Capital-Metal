@@ -56,8 +56,8 @@ async function submitContact() {
                     <h6 class="fw-semibold mb-1">
                       <CIcon icon="cil-phone" class="me-1" /> الهاتف
                     </h6>
-                    <p class="mb-0 text-body-secondary">+20 101 234 5678</p>
-                    <p class="text-body-secondary">+20 100 987 6543</p>
+                    <!-- <p class="mb-0 text-body-secondary">+20 101 234 5678</p> -->
+                    <!-- <p class="text-body-secondary">+20 100 987 6543</p> -->
                   </div>
 
                   <div class="mb-3">

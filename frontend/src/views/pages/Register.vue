@@ -1,9 +1,14 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+import { useColorModes } from '@coreui/vue'
 import { useAuthStore } from '@/stores/auth'
+import logoLight from '@/assets/images/logo.png'
+import logoDark from '@/assets/images/logodark.png'
 
 const authStore = useAuthStore()
+const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 const router = useRouter()
 
 const name = ref('')
@@ -47,7 +52,9 @@ async function handleRegister() {
             <CRow class="g-0">
               <CCol md="5" class="auth-brand-panel d-none d-md-flex flex-column align-items-center justify-content-center">
                 <div class="auth-brand-content">
-                  <img src="@/assets/images/logo.png" alt="FLFL Design" class="auth-logo mb-3" />
+                  <RouterLink to="/">
+                    <img :src="logoSrc" alt="FLFL Design" class="auth-logo mb-3" />
+                  </RouterLink>
                   <h3 class="auth-brand-title">FLFL Design</h3>
                   <p class="auth-brand-desc">منصة التصميم والتصنيع</p>
                   <div class="auth-brand-divider"></div>
@@ -60,7 +67,9 @@ async function handleRegister() {
               <CCol md="7">
                 <CCardBody class="auth-form-body p-4 p-lg-5">
                   <div class="text-center d-md-none mb-4">
-                    <img src="@/assets/images/logo.png" alt="FLFL Design" class="auth-logo-sm mb-2" />
+                    <RouterLink to="/">
+                      <img :src="logoSrc" alt="FLFL Design" class="auth-logo-sm mb-2" />
+                    </RouterLink>
                   </div>
                   <div class="auth-form-header">
                     <h3 class="fw-bold mb-1 auth-form-title">إنشاء حساب / Register</h3>

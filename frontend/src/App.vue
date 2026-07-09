@@ -1,5 +1,6 @@
 <script setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useColorModes } from '@coreui/vue'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
@@ -9,8 +10,15 @@ const { isColorModeSet, setColorMode } = useColorModes(
 )
 const currentTheme = useThemeStore()
 const authStore = useAuthStore()
+const { locale } = useI18n()
+
+watch(locale, (val) => {
+  document.documentElement.dir = val === 'ar' ? 'rtl' : 'ltr'
+  localStorage.setItem('locale', val)
+})
 
 onBeforeMount(async () => {
+  document.documentElement.dir = locale.value === 'ar' ? 'rtl' : 'ltr'
   const urlParams = new URLSearchParams(window.location.href.split('?')[1])
   let theme = urlParams.get('theme')
 

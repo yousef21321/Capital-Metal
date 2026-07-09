@@ -63,27 +63,27 @@ onMounted(fetchOrders)
 
 <template>
   <div>
-    <h3 class="mb-4">My Orders</h3>
+    <h3 class="mb-4">{{ $t('orders.title') }}</h3>
 
     <div v-if="loading" class="text-center py-5">
       <CSpinner />
     </div>
 
     <div v-else-if="!auth.isAuthenticated && !orders.length" class="text-center py-5 text-body-secondary">
-      <h4>سجل دخولك / Login to see your orders</h4>
-      <p>قم بتسجيل الدخول لمشاهدة طلباتك أو تتبع طلب جديد.</p>
+      <h4>{{ $t('orders.login_title') }}</h4>
+      <p>{{ $t('orders.login_desc') }}</p>
       <CButton color="primary" class="me-2" @click="router.push('/pages/login')">
-        <CIcon icon="cil-account-login" class="me-1" /> Login
+        <CIcon icon="cil-account-login" class="me-1" /> {{ $t('orders.login_btn') }}
       </CButton>
       <CButton color="outline-primary" @click="router.push('/products')">
-        <CIcon icon="cil-grid" class="me-1" /> Browse Products
+        <CIcon icon="cil-grid" class="me-1" /> {{ $t('orders.browse') }}
       </CButton>
     </div>
 
     <div v-else-if="!orders.length" class="text-center py-5 text-body-secondary">
-      <h4>No orders yet</h4>
-      <p>Start shopping to see your orders here.</p>
-      <CButton color="primary" router-link to="/products">Browse Products</CButton>
+      <h4>{{ $t('orders.empty') }}</h4>
+      <p>{{ $t('orders.empty_desc') }}</p>
+      <CButton color="primary" router-link to="/products">{{ $t('orders.browse') }}</CButton>
     </div>
 
     <div v-else>
@@ -113,7 +113,7 @@ onMounted(fetchOrders)
                 @click="payNow(order)"
               >
                 <CSpinner v-if="paying === order.id" size="sm" class="me-1" />
-                Pay Now
+                {{ $t('orders.pay') }}
               </CButton>
             </div>
           </div>

@@ -4,6 +4,7 @@ export default [
     name: 'Dashboard',
     to: '/dashboard',
     icon: 'cil-speedometer',
+    translationKey: 'nav.dashboard',
     badge: {
       color: 'primary',
       text: 'ACTIVE',
@@ -14,6 +15,7 @@ export default [
     name: 'Notifications',
     to: '/notifications',
     icon: 'cil-bell',
+    translationKey: 'nav.notifications',
   },
   
   {
@@ -21,12 +23,14 @@ export default [
     name: 'Products',
     to: '/products',
     icon: 'cil-grid',
+    translationKey: 'nav.products',
   },
   {
     component: 'CNavItem',
     name: 'Manage Products',
     to: '/admin/products',
     icon: 'cil-list-rich',
+    translationKey: 'nav.manage_products',
     roles: ['admin'],
   },
   {
@@ -34,6 +38,7 @@ export default [
     name: 'Cart',
     to: '/cart',
     icon: 'cil-basket',
+    translationKey: 'nav.cart',
     roles: ['user', 'industor'],
   },
   {
@@ -41,6 +46,7 @@ export default [
     name: 'My Orders',
     to: '/orders',
     icon: 'cil-layers',
+    translationKey: 'nav.my_orders',
     roles: ['user', 'industor', 'admin'],
   },
   {
@@ -48,6 +54,7 @@ export default [
     name: 'Wishlist',
     to: '/wishlist',
     icon: 'cil-heart',
+    translationKey: 'nav.wishlist',
     roles: ['user', 'industor'],
   },
   {
@@ -55,6 +62,7 @@ export default [
     name: 'Payment Methods',
     to: '/saved-cards',
     icon: 'cil-credit-card',
+    translationKey: 'nav.payment_methods',
     roles: ['user', 'industor'],
   },
   {
@@ -62,6 +70,7 @@ export default [
     name: 'Tickets',
     to: '/tickets',
     icon: 'cil-description',
+    translationKey: 'nav.tickets',
     roles: ['industor', 'designer', 'tester', 'admin'],
   },
   {
@@ -69,6 +78,7 @@ export default [
     name: 'New Ticket',
     to: '/tickets/create',
     icon: 'cil-plus',
+    translationKey: 'nav.new_ticket',
     roles: ['industor'],
   },
   {
@@ -76,6 +86,7 @@ export default [
     name: 'Negotiations',
     to: '/tickets/negotiations',
     icon: 'cil-check-circle',
+    translationKey: 'nav.negotiations',
     roles: ['tester', 'admin'],
   },
   {
@@ -83,6 +94,7 @@ export default [
     name: 'Available Jobs',
     to: '/tickets/available',
     icon: 'cil-bullhorn',
+    translationKey: 'nav.available_jobs',
     roles: ['designer', 'admin'],
   },
   {
@@ -90,6 +102,7 @@ export default [
     name: 'QA Queue',
     to: '/tickets/qa-queue',
     icon: 'cil-shield-alt',
+    translationKey: 'nav.qa_queue',
     roles: ['tester', 'admin'],
   },
   {
@@ -97,6 +110,7 @@ export default [
     name: 'Approvals',
     to: '/admin/approvals',
     icon: 'cil-check',
+    translationKey: 'nav.approvals',
     roles: ['admin'],
   },
   {
@@ -104,6 +118,7 @@ export default [
     name: 'Plans',
     to: '/plans',
     icon: 'cil-layers',
+    translationKey: 'nav.plans',
     roles: ['industor', 'admin'],
   },
   {
@@ -111,31 +126,8 @@ export default [
     name: 'Add Product',
     to: '/designer/products/create',
     icon: 'cil-cloud-upload',
+    translationKey: 'nav.add_product',
     roles: ['designer', 'admin'],
   },
   
-  {
-    component: 'CNavItem',
-    name: 'سياسة الخصوصية',
-    to: '/pages/privacy-policy',
-    icon: 'cil-shield-alt',
-  },
-  {
-    component: 'CNavItem',
-    name: 'سياسة الاسترجاع',
-    to: '/pages/refund-policy',
-    icon: 'cil-loop',
-  },
-  {
-    component: 'CNavItem',
-    name: 'سياسة الشحن',
-    to: '/pages/shipping-policy',
-    icon: 'cil-truck',
-  },
-  {
-    component: 'CNavItem',
-    name: 'اتصل بنا',
-    to: '/pages/contact',
-    icon: 'cil-phone',
-  },
 ]

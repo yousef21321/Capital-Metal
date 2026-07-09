@@ -1,5 +1,6 @@
 import { defineComponent, h, onMounted, ref, resolveComponent } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import { cilExternalLink } from '@coreui/icons'
 import { CBadge, CSidebarNav, CNavItem, CNavGroup, CNavTitle } from '@coreui/vue'
@@ -51,6 +52,7 @@ const AppSidebarNav = defineComponent({
   setup() {
     const route = useRoute()
     const auth = useAuthStore()
+    const { t } = useI18n()
     const firstRender = ref(true)
 
     onMounted(() => {
@@ -89,7 +91,7 @@ const AppSidebarNav = defineComponent({
                 customClassName: 'nav-icon',
                 name: item.icon,
               }),
-              item.name,
+              t(item.translationKey || item.name),
             ],
             default: () => visibleChildren,
           },
@@ -112,7 +114,7 @@ const AppSidebarNav = defineComponent({
                     name: item.icon,
                   })
                 : h('span', { class: 'nav-icon' }, h('span', { class: 'nav-icon-bullet' })),
-              item.name,
+              t(item.translationKey || item.name),
               item.external && h(resolveComponent('CIcon'), {
                 class: 'ms-2',
                 name: 'cil-external-link',
@@ -160,7 +162,7 @@ const AppSidebarNav = defineComponent({
                             name: item.icon,
                           })
                         : h('span', { class: 'nav-icon' }, h('span', { class: 'nav-icon-bullet' })),
-                      item.name,
+                      t(item.translationKey || item.name),
                       item.badge &&
                         h(
                           CBadge,
@@ -184,7 +186,7 @@ const AppSidebarNav = defineComponent({
               as: 'div',
             },
             {
-              default: () => item.name,
+              default: () => t(item.translationKey || item.name),
             },
           )
     }

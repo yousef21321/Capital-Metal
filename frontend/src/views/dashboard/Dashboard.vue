@@ -1,11 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useToastStore } from '@/stores/toast'
 import api from '@/api'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
+const { t } = useI18n()
 const router = useRouter()
 const cart = useCartStore()
 const toast = useToastStore()
@@ -15,46 +17,46 @@ const loading = ref(true)
 const error = ref('')
 const featuredProducts = ref([])
 
+const featureKeys = {
+  admin: ['dashboard.feature_user_mgmt', 'dashboard.feature_orders', 'dashboard.feature_revenue', 'dashboard.feature_settings'],
+  user: ['dashboard.feature_my_orders', 'dashboard.feature_wishlist', 'dashboard.feature_downloads', 'dashboard.feature_profile'],
+  tester: ['dashboard.feature_tests', 'dashboard.feature_reports', 'dashboard.feature_bugs', 'dashboard.feature_test_plans'],
+  designer: ['dashboard.feature_projects', 'dashboard.feature_assets', 'dashboard.feature_pending_review', 'dashboard.feature_portfolio'],
+  industor: ['dashboard.feature_factories', 'dashboard.feature_production', 'dashboard.feature_inventory', 'dashboard.feature_supply'],
+}
+
 const roleConfig = {
   admin: {
-    title: 'Admin Dashboard',
     color: 'danger',
     icon: 'cil-shield-alt',
     gradient: 'linear-gradient(135deg, #e55353, #c91e1e)',
-    features: ['User Management', 'Orders', 'Revenue Reports', 'System Settings'],
   },
   user: {
-    title: 'User Dashboard',
     color: 'primary',
     icon: 'cil-user',
     gradient: 'linear-gradient(135deg, #b81300, #7a0d00)',
-    features: ['My Orders', 'Wishlist', 'Downloads', 'Profile Settings'],
   },
   tester: {
-    title: 'Tester Dashboard',
     color: 'warning',
     icon: 'cil-bug',
     gradient: 'linear-gradient(135deg, #f9b115, #d4950c)',
-    features: ['Assigned Tests', 'Test Reports', 'Bug Tracking', 'Test Plans'],
   },
   designer: {
-    title: 'Designer Dashboard',
     color: 'info',
     icon: 'cil-color-border',
     gradient: 'linear-gradient(135deg, #39f, #1a6bcc)',
-    features: ['Projects', 'Design Assets', 'Pending Review', 'Portfolio'],
   },
   industor: {
-    title: 'Industor Dashboard',
     color: 'success',
     icon: 'cil-industry',
     gradient: 'linear-gradient(135deg, #2eb85c, #1a7a3d)',
-    features: ['Factories', 'Production Orders', 'Inventory', 'Supply Chain'],
   },
 }
 
 const role = computed(() => authStore.userRole || 'user')
 const config = computed(() => roleConfig[role.value] || roleConfig.user)
+const dashboardTitle = computed(() => `dashboard.role_${role.value}`)
+const features = computed(() => (featureKeys[role.value] || featureKeys.user).map(k => t(k)))
 
 const productImage = (product) => {
   const img = product.images?.[0]
@@ -75,15 +77,15 @@ const formatPrice = (product) => {
     return `${parseFloat(product.price_egp).toFixed(2)} EGP`
   }
   if (parseFloat(product.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  return 'Free'
+  return t('dashboard.free')
 }
 
 async function addToCart(product) {
   try {
     await cart.addItem(product.id, 1)
-    toast.success(`"${product.name}" added to cart.`)
+    toast.success(t('dashboard.added_to_cart', { name: product.name }))
   } catch (e) {
-    toast.error(e.response?.data?.message || 'Failed to add to cart.')
+    toast.error(e.response?.data?.message || t('dashboard.add_to_cart_failed'))
   }
 }
 
@@ -92,6 +94,7 @@ onMounted(async () => {
     const { data } = await api.get('/api/products', { params: { page: 1 } })
     featuredProducts.value = data.data?.slice(0, 4) || []
   } catch (_) {}
+  notifInterval = setInterval(addDummyPurchase, 10000)
 
   if (!authStore.isAuthenticated) {
     loading.value = false
@@ -102,11 +105,33 @@ onMounted(async () => {
     const { data } = await api.get(endpoint)
     dashboardData.value = data
   } catch (e) {
-    error.value = 'Failed to load dashboard data'
+    error.value = t('dashboard.load_error')
   } finally {
     loading.value = false
   }
 })
+
+onUnmounted(() => {
+  clearInterval(notifInterval)
+})
+
+const dummyUsers = ['Ahmed', 'Mariam', 'Omar', 'Nour', 'Khaled', 'Laila', 'Youssef', 'Sara', 'Adam', 'Huda', 'Ali', 'Rana']
+const dummyProducts = ['Modern Logo Pack', 'Business Card Template', 'Brand Identity Kit', 'Social Media Bundle', 'UI Dashboard Kit', 'Icon Set Pro', 'Mockup Generator', 'Font Pack Premium', 'Animation Reel', '3D Model Pack']
+const notifications = ref([])
+let notifId = 0
+
+function addDummyPurchase() {
+  const user = dummyUsers[Math.floor(Math.random() * dummyUsers.length)]
+  const product = dummyProducts[Math.floor(Math.random() * dummyProducts.length)]
+  const id = ++notifId
+  const amount = (Math.random() * 200 + 10).toFixed(2)
+  notifications.value.push({ id, user, product, amount })
+  setTimeout(() => {
+    notifications.value = notifications.value.filter(n => n.id !== id)
+  }, 5000)
+}
+
+let notifInterval
 </script>
 
 <template>
@@ -124,98 +149,70 @@ onMounted(async () => {
             <CIcon icon="cil-industry" size="5xl" class="hero-icon" />
           </div>
           <h1 class="hero-title display-4 fw-bold mb-3">
-            Welcome to <span class="gradient-text">FLFL_Design</span>
+            {{ $t('dashboard.welcome') }}
           </h1>
           <p class="hero-subtitle lead text-body-secondary mb-4 mx-auto" style="max-width: 600px;">
-            تصفح المنتجات واطلب ما تريد بدون تسجيل دخول
-            <br />
-            <span class="opacity-75">Browse products and place orders without signing up</span>
+            {{ $t('dashboard.browse_products_desc') }}
           </p>
           <div class="hero-actions d-flex justify-content-center gap-3 mb-5 flex-wrap">
-            <CButton color="primary" size="lg" class="btn-hero-primary" router-link to="/products">
-              <CIcon icon="cil-grid" class="me-2" />Browse Products
-            </CButton>
-            <CButton color="outline-primary" size="lg" class="btn-hero-outline" router-link to="/pages/register">
-              <CIcon icon="cil-user-plus" class="me-2" />Sign Up
-            </CButton>
+            <RouterLink to="/products">
+              <CButton color="primary" size="lg" class="btn-hero-primary">
+                <CIcon icon="cil-grid" class="me-2" />{{ $t('dashboard.browse_products') }}
+              </CButton>
+            </RouterLink>
+            <RouterLink to="/pages/register">
+              <CButton color="outline-primary" size="lg" class="btn-hero-outline">
+                <CIcon icon="cil-user-plus" class="me-2" />{{ $t('dashboard.sign_up') }}
+              </CButton>
+            </RouterLink>
           </div>
         </div>
       </div>
 
-      <CRow class="g-4 info-cards">
-        <CCol sm="6" lg="4">
-          <CCard class="info-card h-100" data-delay="0">
-            <CCardBody class="text-center">
-              <div class="info-icon-wrapper">
-                <CIcon icon="cil-basket" size="3xl" class="info-icon text-primary" />
-              </div>
-              <h5 class="info-title">تصفح المنتجات</h5>
-              <p class="text-body-secondary small mb-0">استعرض جميع المنتجات المتاحة واختر ما يناسبك</p>
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol sm="6" lg="4">
-          <CCard class="info-card h-100" data-delay="100">
-            <CCardBody class="text-center">
-              <div class="info-icon-wrapper">
-                <CIcon icon="cil-cart" size="3xl" class="info-icon text-success" />
-              </div>
-              <h5 class="info-title">أضف إلى السلة</h5>
-              <p class="text-body-secondary small mb-0">أضف المنتجات إلى سلة التسوق بسهولة</p>
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol sm="6" lg="4">
-          <CCard class="info-card h-100" data-delay="200">
-            <CCardBody class="text-center">
-              <div class="info-icon-wrapper">
-                <CIcon icon="cil-credit-card" size="3xl" class="info-icon text-info" />
-              </div>
-              <h5 class="info-title">اطلب بدون حساب</h5>
-              <p class="text-body-secondary small mb-0">أكمل عملية الشراء وأدخل بياناتك مباشرة بدون تسجيل</p>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-
       <div v-if="featuredProducts.length" class="featured-products mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h4 class="fw-bold mb-0">
-            <CIcon icon="cil-star" class="me-2 text-primary" />Featured Products
+            <CIcon icon="cil-star" class="me-2 text-primary" />{{ $t('dashboard.featured_products') }}
           </h4>
-          <CButton color="primary" variant="outline" size="sm" router-link to="/products" class="rounded-pill">
-            View All <CIcon icon="cil-arrow-right" class="ms-1" />
-          </CButton>
+          <RouterLink to="/products">
+            <CButton color="primary" variant="outline" size="sm" class="rounded-pill">
+              {{ $t('dashboard.view_all') }} <CIcon icon="cil-arrow-right" class="ms-1" />
+            </CButton>
+          </RouterLink>
         </div>
         <CRow class="g-3">
           <CCol v-for="product in featuredProducts" :key="product.id" sm="6" lg="3">
             <CCard class="featured-product-card h-100">
-              <div class="product-img-wrapper" @click="router.push('/products')">
-                <img
-                  v-if="productImage(product)"
-                  :src="productImage(product)"
-                  :alt="product.name"
-                  class="product-img"
-                />
-                <div v-else class="product-img-fallback">
-                  <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="2xl" class="text-body-secondary" />
+              <RouterLink to="/products">
+                <div class="product-img-wrapper">
+                  <img
+                    v-if="productImage(product)"
+                    :src="productImage(product)"
+                    :alt="product.name"
+                    class="product-img"
+                  />
+                  <div v-else class="product-img-fallback">
+                    <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="2xl" class="text-body-secondary" />
+                  </div>
+                  <div class="product-badges">
+                    <span class="badge-type" :class="'badge-' + (product.product_type || 'physical')">
+                      {{ $t('products.' + (product.product_type || 'physical')) }}
+                    </span>
+                  </div>
+                  <div class="product-overlay">
+                    <CButton color="light" size="sm" class="overlay-btn">
+                      <CIcon icon="cil-zoom-in" class="me-1" />{{ $t('products.view') }}
+                    </CButton>
+                    <CButton color="primary" size="sm" class="overlay-btn" @click.stop="addToCart(product)">
+                      <CIcon icon="cil-cart" class="me-1" />{{ $t('products.add_to_cart') }}
+                    </CButton>
+                  </div>
                 </div>
-                <div class="product-badges">
-                  <span class="badge-type" :class="'badge-' + (product.product_type || 'physical')">
-                    {{ product.product_type || 'Physical' }}
-                  </span>
-                </div>
-                <div class="product-overlay">
-                  <CButton color="light" size="sm" class="overlay-btn" @click.stop="router.push('/products')">
-                    <CIcon icon="cil-zoom-in" class="me-1" />View
-                  </CButton>
-                  <CButton color="primary" size="sm" class="overlay-btn" @click.stop="addToCart(product)">
-                    <CIcon icon="cil-cart" class="me-1" />Add
-                  </CButton>
-                </div>
-              </div>
+              </RouterLink>
               <CCardBody class="d-flex flex-column">
-                <h6 class="product-name mb-1" @click="router.push('/products')">{{ product.name }}</h6>
+                <RouterLink to="/products">
+                  <h6 class="product-name mb-1">{{ product.name }}</h6>
+                </RouterLink>
                 <p class="product-desc text-body-secondary small flex-grow-1 mb-2">
                   {{ product.description?.slice(0, 60) || '' }}{{ product.description?.length > 60 ? '...' : '' }}
                 </p>
@@ -238,9 +235,9 @@ onMounted(async () => {
             <CIcon :icon="config.icon" size="xl" />
           </div>
           <div>
-            <h3 class="mb-1 fw-bold">{{ config.title }}</h3>
+            <h3 class="mb-1 fw-bold">{{ $t(dashboardTitle) }}</h3>
             <p class="text-body-secondary mb-0">
-              Welcome back, <strong>{{ authStore.userName }}</strong>
+              {{ $t('dashboard.welcome_back') }}, <strong>{{ authStore.userName }}</strong>
               <span class="mx-2">|</span>
               <span class="small">{{ authStore.userEmail }}</span>
             </p>
@@ -249,14 +246,14 @@ onMounted(async () => {
       </div>
 
       <CRow class="g-4 mb-4">
-        <CCol v-for="(feature, idx) in config.features" :key="idx" sm="6" lg="3">
+        <CCol v-for="(feature, idx) in features" :key="idx" sm="6" lg="3">
           <CCard class="feature-card h-100" :style="{ '--card-delay': idx * 100 + 'ms' }">
             <CCardBody class="text-center d-flex flex-column align-items-center justify-content-center py-4">
               <div class="feature-icon-wrapper mb-3" :style="{ background: config.gradient }">
                 <CIcon icon="cil-star" size="lg" />
               </div>
               <h5 class="fw-semibold">{{ feature }}</h5>
-              <p class="small text-body-secondary mb-0 text-capitalize">{{ role }} role</p>
+              <p class="small text-body-secondary mb-0 text-capitalize">{{ $t('dashboard.role_label', { role }) }}</p>
             </CCardBody>
           </CCard>
         </CCol>
@@ -280,14 +277,47 @@ onMounted(async () => {
 
       <CCard v-if="!loading && !dashboardData" class="mb-4">
         <CCardBody>
-          <p class="text-body-secondary mb-0">{{ error || 'No dashboard data available.' }}</p>
+          <p class="text-body-secondary mb-0">{{ error || $t('dashboard.no_data') }}</p>
         </CCardBody>
       </CCard>
 
       <div v-if="loading" class="text-center py-5">
         <CSpinner color="primary" />
-        <p class="mt-2 text-body-secondary">Loading dashboard...</p>
+        <p class="mt-2 text-body-secondary">{{ $t('dashboard.loading') }}</p>
       </div>
     </template>
+
+    <!-- WhatsApp floating button -->
+    <a
+      href="https://wa.me/201109055371"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="whatsapp-float"
+      aria-label="WhatsApp"
+    >
+      <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </a>
+
+    <!-- Purchase notifications -->
+    <div class="notification-stack">
+      <TransitionGroup name="notif">
+        <div
+          v-for="n in notifications"
+          :key="n.id"
+          class="purchase-notif"
+        >
+          <div class="notif-avatar">{{ n.user[0] }}</div>
+          <div class="notif-body">
+            <p class="notif-text">
+              <strong>{{ n.user }}</strong> {{ $t('dashboard.purchased') }}
+              <strong>{{ n.product }}</strong>
+            </p>
+            <span class="notif-amount">${{ n.amount }}</span>
+          </div>
+        </div>
+      </TransitionGroup>
+    </div>
   </div>
 </template>

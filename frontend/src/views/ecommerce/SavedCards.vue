@@ -82,48 +82,48 @@ onMounted(load)
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h3 class="mb-1">Payment Methods</h3>
-        <p class="text-body-secondary mb-0">Save a card once and it will be charged automatically at checkout or when subscribing to a plan.</p>
+        <h3 class="mb-1">{{ $t('saved_cards.title') }}</h3>
+        <p class="text-body-secondary mb-0">{{ $t('saved_cards.desc') }}</p>
       </div>
       <CButton color="primary" size="sm" @click="toggleForm">
-        <CIcon icon="cil-plus" class="me-1" /> {{ showForm ? 'Cancel' : 'Add Card' }}
+        <CIcon icon="cil-plus" class="me-1" /> {{ showForm ? $t('saved_cards.cancel') : $t('saved_cards.add_card') }}
       </CButton>
     </div>
 
     <CCollapse :visible="showForm">
       <CCard class="mb-4 shadow-sm">
-        <CCardHeader class="bg-body"><h5 class="mb-0">Add New Card</h5></CCardHeader>
+        <CCardHeader class="bg-body"><h5 class="mb-0">{{ $t('saved_cards.add_new') }}</h5></CCardHeader>
         <CCardBody>
           <CRow>
             <CCol :sm="12" class="mb-2">
-              <CFormLabel class="small">Cardholder Name</CFormLabel>
-              <CFormInput v-model="form.holder_name" placeholder="Name on card" />
+              <CFormLabel class="small">{{ $t('saved_cards.cardholder') }}</CFormLabel>
+              <CFormInput v-model="form.holder_name" :placeholder="$t('saved_cards.cardholder_placeholder')" />
             </CCol>
             <CCol :sm="12" class="mb-2">
-              <CFormLabel class="small">Card Number</CFormLabel>
-              <CFormInput v-model="form.card_number" placeholder="0000 0000 0000 0000" maxlength="23" />
+              <CFormLabel class="small">{{ $t('saved_cards.card_number') }}</CFormLabel>
+              <CFormInput v-model="form.card_number" :placeholder="$t('saved_cards.card_number_placeholder')" maxlength="23" />
             </CCol>
             <CCol :sm="4" class="mb-2">
-              <CFormLabel class="small">Expiry Month</CFormLabel>
-              <CFormInput v-model="form.expiry_month" placeholder="MM" maxlength="2" />
+              <CFormLabel class="small">{{ $t('saved_cards.expiry_month') }}</CFormLabel>
+              <CFormInput v-model="form.expiry_month" :placeholder="$t('saved_cards.expiry_month_placeholder')" maxlength="2" />
             </CCol>
             <CCol :sm="4" class="mb-2">
-              <CFormLabel class="small">Expiry Year</CFormLabel>
-              <CFormInput v-model="form.expiry_year" placeholder="YY" maxlength="2" />
+              <CFormLabel class="small">{{ $t('saved_cards.expiry_year') }}</CFormLabel>
+              <CFormInput v-model="form.expiry_year" :placeholder="$t('saved_cards.expiry_year_placeholder')" maxlength="2" />
             </CCol>
             <CCol :sm="4" class="mb-2">
-              <CFormLabel class="small">CVV</CFormLabel>
-              <CFormInput v-model="form.cvv" placeholder="123" maxlength="3" />
+              <CFormLabel class="small">{{ $t('saved_cards.cvv') }}</CFormLabel>
+              <CFormInput v-model="form.cvv" :placeholder="$t('saved_cards.cvv_placeholder')" maxlength="3" />
             </CCol>
             <CCol :sm="12" class="mb-3">
-              <CFormCheck v-model="form.is_default" label="Set as default card" />
+              <CFormCheck v-model="form.is_default" :label="$t('saved_cards.set_default')" />
             </CCol>
           </CRow>
           <div class="d-flex gap-2">
             <CButton color="primary" :disabled="saving || !form.holder_name || !form.card_number || !form.expiry_month || !form.expiry_year || !form.cvv" @click="saveCard">
-              <CSpinner v-if="saving" size="sm" class="me-1" /> Save Card
+              <CSpinner v-if="saving" size="sm" class="me-1" /> {{ $t('saved_cards.save') }}
             </CButton>
-            <CButton color="secondary" variant="outline" @click="toggleForm">Cancel</CButton>
+            <CButton color="secondary" variant="outline" @click="toggleForm">{{ $t('saved_cards.cancel') }}</CButton>
           </div>
         </CCardBody>
       </CCard>
@@ -133,8 +133,8 @@ onMounted(load)
 
     <div v-else-if="!cards.length" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-credit-card" size="3xl" class="mb-3" />
-      <h4>No saved cards</h4>
-      <p class="mb-3">Add a card to enable quick payments.</p>
+      <h4>{{ $t('saved_cards.empty') }}</h4>
+      <p class="mb-3">{{ $t('saved_cards.empty_desc') }}</p>
     </div>
 
     <CRow v-else>
@@ -143,7 +143,7 @@ onMounted(load)
           <CCardBody>
             <div class="d-flex justify-content-between align-items-start">
               <CIcon icon="cil-credit-card" size="xl" class="text-primary" />
-              <CBadge v-if="card.is_default" color="primary">Default</CBadge>
+              <CBadge v-if="card.is_default" color="primary">{{ $t('saved_cards.default_badge') }}</CBadge>
             </div>
             <h5 class="mt-3 mb-1">{{ card.masked_pan || '•••• •••• ••••' }}</h5>
             <div class="d-flex justify-content-between small text-body-secondary">
@@ -153,10 +153,10 @@ onMounted(load)
           </CCardBody>
           <CCardFooter class="bg-body d-flex gap-2">
             <CButton v-if="!card.is_default" color="secondary" variant="outline" size="sm" @click="setDefault(card)">
-              Set Default
+              {{ $t('saved_cards.set_default_btn') }}
             </CButton>
             <CButton color="danger" variant="ghost" size="sm" class="ms-auto" @click="removeCard(card)">
-              <CIcon icon="cil-trash" /> Remove
+              <CIcon icon="cil-trash" /> {{ $t('saved_cards.remove') }}
             </CButton>
           </CCardFooter>
         </CCard>
