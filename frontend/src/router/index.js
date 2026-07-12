@@ -33,6 +33,12 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/admin/domain-verification',
+        name: 'DomainVerification',
+        component: () => import('@/views/pages/DomainVerification.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/admin/hero-images',
         name: 'AdminHeroImages',
         component: () => import('@/views/ecommerce/AdminHeroImages.vue'),

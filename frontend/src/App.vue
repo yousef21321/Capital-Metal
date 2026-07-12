@@ -41,6 +41,7 @@ onBeforeMount(async () => {
     await authStore.fetchUser()
   }
 
+  await authStore.detectAndSetCurrency()
   authStore.fetchExchangeRate()
 })
 </script>

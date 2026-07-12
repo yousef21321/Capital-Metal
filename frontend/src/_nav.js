@@ -115,6 +115,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Domain Verification',
+    to: '/admin/domain-verification',
+    icon: 'cil-shield-alt',
+    translationKey: 'nav.domain_verification',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Approvals',
     to: '/admin/approvals',
     icon: 'cil-check',

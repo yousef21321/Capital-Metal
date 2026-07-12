@@ -1,0 +1,1429 @@
+
+> @coreui/coreui-free-vue-admin-template@5.5.0 dev
+> vite --force --host 127.0.0.1
+
+Port 5173 is in use, trying another one...
+12:48:30 AM [vite] (client) Forced re-optimization of dependencies
+
+  VITE v8.1.0  ready in 449 ms
+
+  ➜  Local:   http://127.0.0.1:5174/
+Killed
+
+> @coreui/coreui-free-vue-admin-template@5.5.0 dev
+> vite --force --host 127.0.0.1
+
+12:53:48 AM [vite] (client) Forced re-optimization of dependencies
+
+  VITE v8.1.0  ready in 363 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+1:12:13 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+1:12:13 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+1:12:14 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:12:14 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:12:14 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/components/AppHeader.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/components/AppHeader.vue:3:25
+  1  |  import { computed, onMounted, ref } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import logoLight from '@/assets/images/logo.png'
+1:12:14 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/components/AppSidebarNav.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/components/AppSidebarNav.js:3:25
+  1  |  import { defineComponent, h, onMounted, ref, resolveComponent } from 'vue'
+  2  |  import { RouterLink, useRoute } from 'vue-router'
+  3  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  4  |  
+  5  |  import { cilExternalLink } from '@coreui/icons'
+1:12:20 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:12:20 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+
+Could not open index.js in the editor.
+The editor process exited with an error: spawn vi ENOENT ('vi' command does not exist in 'PATH').
+
+1:13:51 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:13:51 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:02 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:02 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:26 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:26 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:47 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:47 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:48 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:14:48 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:15:10 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:15:10 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:15:19 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:15:19 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:21 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:21 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:25 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:25 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:26 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:26 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:28 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:28 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:16:28 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:12 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:12 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:13 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:13 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:13 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:13 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:14 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:14 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:14 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:14 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:15 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:15 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:15 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:15 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:16 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:16 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:16 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:16 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:17 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:17 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:53 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:53 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:58 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:17:58 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:11 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:11 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:13 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:13 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:19 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:19 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:40 AM [vite] (client) page reload .vite.config.mjs.swp
+1:18:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+1:18:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+1:18:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/components/AppHeader.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/components/AppHeader.vue:3:25
+  1  |  import { computed, onMounted, ref } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import logoLight from '@/assets/images/logo.png'
+1:18:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/components/AppSidebarNav.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/components/AppSidebarNav.js:3:25
+  1  |  import { defineComponent, h, onMounted, ref, resolveComponent } from 'vue'
+  2  |  import { RouterLink, useRoute } from 'vue-router'
+  3  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  4  |  
+  5  |  import { cilExternalLink } from '@coreui/icons'
+1:18:41 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:41 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:41 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:18:41 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:40 AM [vite] vite.config.mjs changed, restarting server...
+1:19:40 AM [vite] (client) Forced re-optimization of dependencies
+1:19:40 AM [vite] server restarted.
+1:19:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+1:19:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+1:19:40 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:40 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:40 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/components/AppHeader.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/components/AppHeader.vue:3:25
+  1  |  import { computed, onMounted, ref } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import logoLight from '@/assets/images/logo.png'
+1:19:41 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:41 AM [vite] (client) Pre-transform error: Failed to resolve import "vue-i18n" from "src/components/AppSidebarNav.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/components/AppSidebarNav.js:3:25
+  1  |  import { defineComponent, h, onMounted, ref, resolveComponent } from 'vue'
+  2  |  import { RouterLink, useRoute } from 'vue-router'
+  3  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  4  |  
+  5  |  import { cilExternalLink } from '@coreui/icons'
+1:19:41 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:45 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:45 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:47 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:47 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:50 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:50 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:59 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:19:59 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:20:03 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:20:03 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:20:06 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:20:06 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:21:21 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/App.vue". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/App.vue:3:25
+  1  |  import { onBeforeMount, watch } from 'vue'
+  2  |  import { useI18n } from 'vue-i18n'
+     |                           ^
+  3  |  import { useColorModes } from '@coreui/vue'
+  4  |  import { useThemeStore } from '@/stores/theme.js'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+1:21:21 AM [vite] Internal server error: Failed to resolve import "vue-i18n" from "src/i18n/index.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/ubuntu/FLFL-Design/frontend/src/i18n/index.js:1:28
+  1  |  import { createI18n } from 'vue-i18n'
+     |                              ^
+  2  |  import en from '@/locales/en.json'
+  3  |  import ar from '@/locales/ar.json'
+      at TransformPluginContext._formatLog (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29914:39)
+      at TransformPluginContext.error (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29911:14)
+      at normalizeUrl (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:26975:18)
+      at async file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27038:30
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:27006:4)
+      at async EnvironmentPluginContainer.transform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:29699:14)
+      at async loadAndTransform (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:19725:26)
+      at async viteTransformMiddleware (file:///home/ubuntu/FLFL-Design/frontend/node_modules/vite/dist/node/chunks/node.js:24149:20)
+Killed

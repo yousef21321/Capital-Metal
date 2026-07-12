@@ -10,34 +10,32 @@ function loadUser() {
   }
 }
 
+function generateUUID() {
+  if (typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+    (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+  )
+}
+
 function generateGuestToken() {
   let token = localStorage.getItem('guest-token')
   if (!token) {
-    token = 'guest_' + crypto.randomUUID()
+    token = 'guest_' + generateUUID()
     localStorage.setItem('guest-token', token)
   }
   return token
 }
 
 export async function detectCurrency() {
-  const cached = localStorage.getItem('detected-v2')
-  if (cached) return cached
   try {
-    const pos = await new Promise((res, rej) =>
-      navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
-    )
-    const { latitude, longitude } = pos.coords
-    const geo = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-    ).then(r => r.json())
-    const countryCode = geo?.address?.country_code?.toLowerCase()
-    const currency = countryCode === 'eg' ? 'EGP' : 'USD'
-    localStorage.setItem('detected-v2', currency)
-    return currency
+    const res = await fetch('https://ip-api.com/json/')
+    const data = await res.json()
+    const countryCode = data?.countryCode?.toLowerCase()
+    return countryCode === 'eg' ? 'EGP' : 'USD'
   } catch {
-    const fallback = 'EGP'
-    localStorage.setItem('detected-v2', fallback)
-    return fallback
+    return 'EGP'
   }
 }
 
@@ -47,6 +45,7 @@ export const useAuthStore = defineStore('auth', {
     token: localStorage.getItem('auth-token') || null,
     loading: false,
     exchangeRate: null,
+    detectedCurrency: null,
     guestToken: generateGuestToken(),
   }),
 
@@ -55,7 +54,7 @@ export const useAuthStore = defineStore('auth', {
     userRole: (state) => state.user?.role?.name || null,
     userName: (state) => state.user?.name || '',
     userEmail: (state) => state.user?.email || '',
-    userCurrency: (state) => state.user?.currency_preference || 'EGP',
+    userCurrency: (state) => state.user?.currency_preference || state.detectedCurrency || 'EGP',
   },
 
   actions: {
@@ -76,6 +75,7 @@ export const useAuthStore = defineStore('auth', {
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
         const detected = await detectCurrency()
+        this.detectedCurrency = detected
         if (detected !== (data.user?.currency_preference || 'EGP')) {
           try { await this.updateCurrency(detected) } catch {}
         }
@@ -126,6 +126,14 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.put('/api/me/currency', { currency_preference: currency })
       this.persistUser(data)
       return data
+    },
+
+    async detectAndSetCurrency() {
+      const currency = await detectCurrency()
+      this.detectedCurrency = currency
+      if (this.user && currency !== this.user.currency_preference) {
+        try { await this.updateCurrency(currency) } catch {}
+      }
     },
 
     async fetchUser() {
