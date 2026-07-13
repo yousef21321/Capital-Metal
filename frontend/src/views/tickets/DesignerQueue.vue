@@ -52,6 +52,18 @@ async function accept(id) {
   }
 }
 
+const isAdmin = computed(() => auth.userRole === 'admin')
+
+async function cancelTicket(id) {
+  if (!confirm('Delete this ticket? This cannot be undone.')) return
+  try {
+    await api.post(`/api/tickets/${id}/cancel`)
+    await fetchAvailable()
+  } catch (e) {
+    error.value = e.response?.data?.message || 'Failed to delete ticket.'
+  }
+}
+
 function openTicket(id) {
   router.push(`/tickets/${id}`)
 }
@@ -216,6 +228,9 @@ onMounted(fetchAvailable)
               </CButton>
               <CButton color="secondary" variant="outline" class="btn-details" @click="openTicket(t.id)">
                 {{ $t('designer_queue.details') }} <CIcon icon="cil-arrow-right" class="ms-1" />
+              </CButton>
+              <CButton v-if="isAdmin" color="danger" variant="ghost" size="sm" class="ms-1" @click.stop="cancelTicket(t.id)">
+                <CIcon icon="cil-trash" class="me-1" />{{ $t('admin_products.delete') }}
               </CButton>
             </div>
           </CCardBody>

@@ -300,6 +300,8 @@ let notifInterval
       </svg>
     </a>
 
+
+
     <!-- Purchase notifications -->
     <div class="notification-stack">
       <TransitionGroup name="notif">
@@ -314,7 +316,7 @@ let notifInterval
               <strong>{{ n.user }}</strong> {{ $t('dashboard.purchased') }}
               <strong>{{ n.product }}</strong>
             </p>
-            <span class="notif-amount">${{ n.amount }}</span>
+            <span class="notif-price">${{ n.amount }}</span>
           </div>
         </div>
       </TransitionGroup>

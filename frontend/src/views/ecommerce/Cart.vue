@@ -91,7 +91,7 @@ onMounted(fetchCart)
       <CIcon icon="cil-basket" size="3xl" class="mb-3" />
       <h4>{{ $t('cart.empty') }}</h4>
       <p>{{ $t('cart.empty_desc') }}</p>
-      <CButton color="primary" router-link to="/products">{{ $t('cart.browse') }}</CButton>
+      <RouterLink to="/products" class="btn btn-primary">{{ $t('cart.browse') }}</RouterLink>
     </div>
 
     <CRow v-else>
@@ -132,6 +132,8 @@ onMounted(fetchCart)
             <CButton color="primary" class="w-100 mt-2" size="lg" @click="goToCheckout">
               {{ $t('cart.checkout') }}
             </CButton>
+      <RouterLink to="/products" class="btn btn-primary">{{ $t('orders.browse') }}</RouterLink>
+            
           </CCardBody>
         </CCard>
       </CCol>

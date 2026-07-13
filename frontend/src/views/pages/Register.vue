@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useColorModes } from '@coreui/vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore, detectCurrency } from '@/stores/auth'
 import logoLight from '@/assets/images/logo.png'
 import logoDark from '@/assets/images/logodark.png'
 
@@ -16,6 +16,8 @@ const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const currency = ref('EGP')
+
+detectCurrency().then(c => currency.value = c)
 const error = ref('')
 const loading = ref(false)
 
@@ -114,27 +116,9 @@ async function handleRegister() {
 
                     <div class="mb-4">
                       <label class="form-label small fw-semibold" style="color: rgba(255,255,255,0.7);">عملة العرض / Display Currency</label>
-                      <div class="d-flex gap-2 currency-group">
-                        <CFormCheck
-                          id="currency-egp"
-                          :button="{ color: currency === 'EGP' ? 'primary' : 'outline-secondary' }"
-                          type="radio"
-                          name="currency"
-                          value="EGP"
-                          v-model="currency"
-                          label="EGP  جنيه مصري"
-                          class="currency-option"
-                        />
-                        <CFormCheck
-                          id="currency-usd"
-                          :button="{ color: currency === 'USD' ? 'primary' : 'outline-secondary' }"
-                          type="radio"
-                          name="currency"
-                          value="USD"
-                          v-model="currency"
-                          label="USD  دولار أمريكي"
-                          class="currency-option"
-                        />
+                      <div class="d-flex align-items-center gap-2">
+                        <CIcon icon="cil-globe-alt" class="text-primary" />
+                        <span class="text-white-50 small">{{ $t('register.auto_currency', { currency }) }}</span>
                       </div>
                     </div>
 
