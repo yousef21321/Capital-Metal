@@ -94,7 +94,7 @@ function onTagKeydown(e) {
 }
 
 function onImagesSelected(e) {
-  const files = Array.from(e.target.files).slice(0, 2)
+  const files = Array.from(e.target.files)
   images.value = files
   imagePreviews.value = files.map(f => URL.createObjectURL(f))
 }

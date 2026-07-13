@@ -371,7 +371,7 @@
   "designer_product.slug_placeholder": "auto-generated",
   "designer_product.description": "Description",
   "designer_product.description_placeholder": "Describe your digital product...",
-  "designer_product.images": "Product Images (up to 2)",
+  "designer_product.images": "Product Images",
   "designer_product.design_file": "Design File (hidden until purchase)",
   "designer_product.remove": "Remove",
   "designer_product.design_file_help": "Customers will receive this file after purchase.",

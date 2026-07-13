@@ -355,7 +355,7 @@
   "designer_product.slug_placeholder": "auto-generated",
   "designer_product.description": "الوصف",
   "designer_product.description_placeholder": "صف منتجك الرقمي...",
-  "designer_product.images": "صور المنتج (حد أقصى 2)",
+  "designer_product.images": "صور المنتج",
   "designer_product.design_file": "ملف التصميم (مخفي حتى الشراء)",
   "designer_product.remove": "إزالة",
   "designer_product.design_file_help": "سيحصل العملاء على هذا الملف بعد الشراء.",
