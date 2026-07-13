@@ -21,28 +21,33 @@ const form = ref({
 const submitting = ref(false)
 const error = ref('')
 const success = ref('')
-const priceApplied = ref(false)
 const tagInput = ref('')
 const images = ref([])
 const imagePreviews = ref([])
 const designFiles = ref([])
 const designFilePreviews = ref([])
 
-const commission = computed(() => {
-  if (!priceApplied.value || !form.value.price_egp) return 0
-  return form.value.price_egp * 0.1
+const commissionPct = 0.15
+
+const commissionEGP = computed(() => {
+  if (!form.value.price_egp || form.value.price_egp <= 0) return 0
+  return form.value.price_egp * commissionPct
 })
 
-const netProfit = computed(() => {
-  if (!priceApplied.value || !form.value.price_egp) return 0
-  return form.value.price_egp - commission.value
+const designerPriceEGP = computed(() => {
+  if (!form.value.price_egp || form.value.price_egp <= 0) return 0
+  return form.value.price_egp - commissionEGP.value
 })
 
-function applyPrice() {
-  if (form.value.price_egp > 0) {
-    priceApplied.value = true
-  }
-}
+const commissionUSD = computed(() => {
+  if (!form.value.price_usd || form.value.price_usd <= 0) return 0
+  return form.value.price_usd * commissionPct
+})
+
+const designerPriceUSD = computed(() => {
+  if (!form.value.price_usd || form.value.price_usd <= 0) return 0
+  return form.value.price_usd - commissionUSD.value
+})
 
 let converting = false
 
@@ -134,6 +139,10 @@ async function submit() {
   if (form.value.description) fd.append('description', form.value.description)
   fd.append('price_egp', form.value.price_egp)
   fd.append('price_usd', form.value.price_usd)
+  fd.append('platform_commission_egp', commissionEGP.value.toFixed(2))
+  fd.append('platform_commission_usd', commissionUSD.value.toFixed(2))
+  fd.append('designer_price_egp', designerPriceEGP.value.toFixed(2))
+  fd.append('designer_price_usd', designerPriceUSD.value.toFixed(2))
   let material = form.value.material
   if (material === 'other') material = form.value.material_other || 'other'
   let method = form.value.manufacturing_method
@@ -184,11 +193,35 @@ async function submit() {
             </div>
 
             <div class="mb-3">
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: 'EGP' }) }}</CFormLabel>
+              <CFormInput v-model.number="form.price_egp" type="text" inputmode="decimal" :placeholder="$t('designer_product.price_placeholder')" />
+              <small v-if="form.price_egp > 0" class="text-body-secondary">
+                ≈ {{ (form.price_egp / (auth.exchangeRate || 30)).toFixed(2) }} USD
+              </small>
+            </div>
+
+            <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.price_usd') }}</CFormLabel>
-              <CFormInput v-model.number="form.price_usd" type="text" :placeholder="$t('designer_product.price_usd_placeholder')" inputmode="decimal" />
+              <CFormInput v-model.number="form.price_usd" type="text" inputmode="decimal" :placeholder="$t('designer_product.price_usd_placeholder')" />
               <small v-if="form.price_usd > 0" class="text-body-secondary">
                 ≈ {{ (form.price_usd * (auth.exchangeRate || 30)).toFixed(2) }} EGP
               </small>
+            </div>
+
+            <div v-if="form.price_egp > 0 || form.price_usd > 0" class="mb-3 p-3 rounded" style="background: #f8f9fa;">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-body-secondary">{{ $t('designer_product.price_label') }}</span>
+                <strong>{{ form.price_egp > 0 ? formatPrice(form.price_egp) + ' EGP' : '' }}<span v-if="form.price_egp > 0 && form.price_usd > 0"> / </span>{{ form.price_usd > 0 ? formatPrice(form.price_usd) + ' USD' : '' }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-body-secondary">{{ $t('designer_product.commission') }}</span>
+                <span class="text-danger">- {{ form.price_egp > 0 ? formatPrice(commissionEGP) + ' EGP' : '' }}<span v-if="form.price_egp > 0 && form.price_usd > 0"> / </span>{{ form.price_usd > 0 ? formatPrice(commissionUSD) + ' USD' : '' }}</span>
+              </div>
+              <hr class="my-1" />
+              <div class="d-flex justify-content-between">
+                <span class="fw-semibold">{{ $t('designer_product.designer_price') }}</span>
+                <strong class="text-success">{{ form.price_egp > 0 ? formatPrice(designerPriceEGP) + ' EGP' : '' }}<span v-if="form.price_egp > 0 && form.price_usd > 0"> / </span>{{ form.price_usd > 0 ? formatPrice(designerPriceUSD) + ' USD' : '' }}</strong>
+              </div>
             </div>
 
             <div class="mb-3">
@@ -220,34 +253,6 @@ async function submit() {
                 </div>
               </div>
               <small class="text-body-secondary">{{ $t('designer_product.design_file_help') }}</small>
-            </div>
-
-            <div class="mb-3">
-              <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: auth.userCurrency }) }}</CFormLabel>
-              <div class="d-flex gap-2">
-                <CFormInput v-model.number="form.price_egp" type="text" class="flex-grow-1" :placeholder="$t('designer_product.price_placeholder')" inputmode="decimal" />
-                <CButton color="primary" variant="outline" @click="applyPrice" :disabled="!form.price_egp || form.price_egp <= 0">
-                  {{ $t('designer_product.apply') }}
-                </CButton>
-              </div>
-              <small v-if="form.price_egp > 0" class="text-body-secondary">
-                ≈ {{ (form.price_egp / (auth.exchangeRate || 30)).toFixed(2) }} USD
-              </small>
-              <div v-if="priceApplied && form.price_egp > 0" class="mt-2 p-3 rounded" style="background: #f8f9fa;">
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-body-secondary">{{ $t('designer_product.price_label') }}</span>
-                  <strong>{{ formatPrice(form.price_egp) }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-body-secondary">{{ $t('designer_product.commission') }}</span>
-                  <span class="text-danger">- {{ formatPrice(commission) }}</span>
-                </div>
-                <hr class="my-1" />
-                <div class="d-flex justify-content-between">
-                  <span class="fw-semibold">{{ $t('designer_product.net_profit') }}</span>
-                  <strong class="text-success">{{ formatPrice(netProfit) }}</strong>
-                </div>
-              </div>
             </div>
 
             <div class="mb-3">

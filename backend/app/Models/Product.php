@@ -8,6 +8,8 @@ class Product extends Model
 {
     protected $fillable = [
         'name', 'slug', 'description', 'product_type', 'price_egp', 'price_usd',
+        'platform_commission_egp', 'platform_commission_usd',
+        'designer_price_egp', 'designer_price_usd',
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
     ];
@@ -17,6 +19,10 @@ class Product extends Model
         return [
             'price_egp' => 'decimal:2',
             'price_usd' => 'decimal:2',
+            'platform_commission_egp' => 'decimal:2',
+            'platform_commission_usd' => 'decimal:2',
+            'designer_price_egp' => 'decimal:2',
+            'designer_price_usd' => 'decimal:2',
             'cost' => 'decimal:2',
             'publish_date' => 'datetime',
             'tags' => 'array',
