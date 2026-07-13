@@ -10,7 +10,9 @@ const form = ref({ title: '', description: '', single_purchase: false, expected_
 const submitting = ref(false)
 const error = ref('')
 const hasSubscription = ref(false)
+const subscriptionData = ref(null)
 const loadingStatus = ref(true)
+const imagePreviews = ref([])
 
 const expectedDeadlineLocal = computed({
   get: () => form.value.expected_deadline,
@@ -21,27 +23,51 @@ async function checkSubscription() {
   loadingStatus.value = true
   try {
     const res = await api.get('/api/subscriptions/me')
+    subscriptionData.value = res.data
     hasSubscription.value = res?.data?.approval_status === 'approved' && (res?.data?.tickets_remaining > 0)
   } catch {
     hasSubscription.value = false
+    subscriptionData.value = null
   } finally {
     loadingStatus.value = false
   }
 }
 
+const discountPercent = computed(() => {
+  if (!hasSubscription.value) return 0
+  return subscriptionData.value?.subscription?.plan?.discount_percent || 0
+})
+
+const discountedPrice = computed(() => {
+  if (form.value.single_purchase) return null
+  const price = parseFloat(form.value.expected_price)
+  if (!price || !discountPercent.value) return null
+  return price - (price * discountPercent.value / 100)
+})
+
 function onFilesChange(e) {
-  form.value.files = Array.from(e.target.files || [])
+  const files = Array.from(e.target.files || []).slice(0, 2)
+  form.value.files = files
+  imagePreviews.value = files.map(f => URL.createObjectURL(f))
+}
+
+function removeFile(i) {
+  URL.revokeObjectURL(imagePreviews.value[i])
+  imagePreviews.value.splice(i, 1)
+  form.value.files.splice(i, 1)
 }
 
 async function submit() {
   submitting.value = true
   error.value = ''
   try {
+    const rawPrice = parseFloat(form.value.expected_price)
+    const finalPrice = discountedPrice.value ? discountedPrice.value : rawPrice
     const payload = {
       title: form.value.title,
       description: form.value.description,
       expected_deadline: new Date(form.value.expected_deadline).toISOString(),
-      expected_price: parseFloat(form.value.expected_price),
+      expected_price: finalPrice,
     }
     if (!hasSubscription.value) {
       payload.single_purchase = true
@@ -113,13 +139,26 @@ onMounted(checkSubscription)
 
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('ticket_create.expected_price') }} ({{ auth.userCurrency }})</CFormLabel>
-              <CFormInput v-model.number="form.expected_price" type="number" min="0" step="0.01" :placeholder="$t('ticket_create.expected_price_placeholder')" />
+              <div class="position-relative">
+                <CFormInput v-model.number="form.expected_price" type="number" min="0" step="0.01" :placeholder="$t('ticket_create.expected_price_placeholder')" />
+                <div v-if="discountedPrice" class="mt-1 small">
+                  <span class="text-decoration-line-through text-body-secondary">{{ form.expected_price }} {{ auth.userCurrency }}</span>
+                  <span class="ms-2 fw-bold text-danger">{{ discountedPrice.toFixed(2) }} {{ auth.userCurrency }}</span>
+                  <CBadge color="danger" class="ms-1">-{{ discountPercent }}%</CBadge>
+                </div>
+              </div>
               <div class="form-text">{{ $t('ticket_create.expected_price_help') }}</div>
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">{{ $t('ticket_create.attachments') }}</CFormLabel>
-              <CFormInput type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.zip" @change="onFilesChange" />
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.attachments') }} <span class="text-body-secondary fw-normal">({{ $t('ticket_create.up_to_2') }})</span></CFormLabel>
+              <CFormInput type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" @change="onFilesChange" />
+              <div v-if="imagePreviews.length" class="d-flex gap-2 mt-2">
+                <div v-for="(preview, i) in imagePreviews" :key="i" class="position-relative" style="width: 120px; height: 120px;">
+                  <img :src="preview" class="rounded border w-100 h-100" style="object-fit: cover;" />
+                  <span role="button" class="position-absolute top-0 end-0 badge bg-danger rounded-circle" style="cursor: pointer; transform: translate(25%, -25%);" @click="removeFile(i)">&times;</span>
+                </div>
+              </div>
               <div class="form-text">{{ $t('ticket_create.attachments_help') }}</div>
             </div>
 
