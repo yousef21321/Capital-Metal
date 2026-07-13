@@ -10,6 +10,11 @@ const search = ref('')
 const currentPage = ref(1)
 const lastPage = ref(1)
 
+const showArchived = ref(false)
+
+const activeProducts = computed(() => products.value.filter(p => p.status !== 'archived'))
+const archivedProducts = computed(() => products.value.filter(p => p.status === 'archived'))
+
 const modalVisible = ref(false)
 const editing = ref(false)
 const saving = ref(false)
@@ -208,57 +213,121 @@ onMounted(fetchProducts)
       <CButton color="primary" @click="openCreate">{{ $t('admin_products.create_first') }}</CButton>
     </div>
 
-    <CCard v-else class="shadow-sm">
-      <CTable hover responsive align="middle">
-        <CTableHead>
-          <CTableRow>
-            <CTableHeaderCell style="width: 60px">{{ $t('admin_products.image') }}</CTableHeaderCell>
-            <CTableHeaderCell>{{ $t('admin_products.name') }}</CTableHeaderCell>
-            <CTableHeaderCell>{{ $t('admin_products.type') }}</CTableHeaderCell>
-            <CTableHeaderCell>{{ $t('admin_products.price') }}</CTableHeaderCell>
-            <CTableHeaderCell>{{ $t('admin_products.status') }}</CTableHeaderCell>
-            <CTableHeaderCell class="text-end">{{ $t('admin_products.actions') }}</CTableHeaderCell>
-          </CTableRow>
-        </CTableHead>
-        <CTableBody>
-          <CTableRow v-for="p in products" :key="p.id">
-            <CTableDataCell>
-              <img v-if="productImage(p)" :src="productImage(p)" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
-              <CIcon v-else icon="cil-image" class="text-body-secondary" />
-            </CTableDataCell>
-            <CTableDataCell class="fw-semibold">{{ p.name }}</CTableDataCell>
-            <CTableDataCell>
-              <CBadge :color="p.product_type === 'digital' ? 'info' : 'success'">{{ $t('products.' + p.product_type) }}</CBadge>
-            </CTableDataCell>
-            <CTableDataCell>{{ formatPrice(p) }}</CTableDataCell>
-            <CTableDataCell>
-              <CBadge :color="p.status === 'published' ? 'success' : 'secondary'">{{ $t('admin_products.' + p.status) }}</CBadge>
-            </CTableDataCell>
-            <CTableDataCell class="text-end">
-              <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
-                <CIcon icon="cil-image-plus" />
-              </CButton>
-              <CButton color="primary" variant="ghost" size="sm" class="me-1" @click="openDetail(p)">
-                <CIcon icon="cil-eye" />
-              </CButton>
-              <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEdit(p)">
-                <CIcon icon="cil-pencil" />
-              </CButton>
-              <CButton color="danger" variant="ghost" size="sm" @click="remove(p)">
-                <CIcon icon="cil-trash" />
-              </CButton>
-            </CTableDataCell>
-          </CTableRow>
-        </CTableBody>
-      </CTable>
-    </CCard>
+    <div v-else>
+      <!-- Archived Toggle -->
+      <div class="mb-3">
+        <CButton
+          color="dark"
+          variant="ghost"
+          class="w-100 d-flex justify-content-between align-items-center archived-toggle"
+          @click="showArchived = !showArchived"
+        >
+          <span>
+            <CIcon icon="cil-archive" class="me-2" />
+            Archived ({{ archivedProducts.length }})
+          </span>
+          <CIcon :icon="showArchived ? 'cil-chevron-up' : 'cil-chevron-down'" />
+        </CButton>
+        <CCard v-if="showArchived && archivedProducts.length" class="shadow-sm mt-1 mb-4">
+          <CTable hover responsive align="middle">
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell style="width: 60px">{{ $t('admin_products.image') }}</CTableHeaderCell>
+                <CTableHeaderCell>{{ $t('admin_products.name') }}</CTableHeaderCell>
+                <CTableHeaderCell>{{ $t('admin_products.type') }}</CTableHeaderCell>
+                <CTableHeaderCell>{{ $t('admin_products.price') }}</CTableHeaderCell>
+                <CTableHeaderCell>{{ $t('admin_products.status') }}</CTableHeaderCell>
+                <CTableHeaderCell class="text-end">{{ $t('admin_products.actions') }}</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              <CTableRow v-for="p in archivedProducts" :key="p.id">
+                <CTableDataCell>
+                  <img v-if="productImage(p)" :src="productImage(p)" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
+                  <CIcon v-else icon="cil-image" class="text-body-secondary" />
+                </CTableDataCell>
+                <CTableDataCell class="fw-semibold">{{ p.name }}</CTableDataCell>
+                <CTableDataCell>
+                  <CBadge :color="p.product_type === 'digital' ? 'info' : 'success'">{{ $t('products.' + p.product_type) }}</CBadge>
+                </CTableDataCell>
+                <CTableDataCell>{{ formatPrice(p) }}</CTableDataCell>
+                <CTableDataCell>
+                  <CBadge :color="p.status === 'published' ? 'success' : 'secondary'">{{ $t('admin_products.' + p.status) }}</CBadge>
+                </CTableDataCell>
+                <CTableDataCell class="text-end">
+                  <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
+                    <CIcon icon="cil-image-plus" />
+                  </CButton>
+                  <CButton color="primary" variant="ghost" size="sm" class="me-1" @click="openDetail(p)">
+                    <CIcon icon="cil-eye" />
+                  </CButton>
+                  <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEdit(p)">
+                    <CIcon icon="cil-pencil" />
+                  </CButton>
+                  <CButton color="danger" variant="ghost" size="sm" @click="remove(p)">
+                    <CIcon icon="cil-trash" />
+                  </CButton>
+                </CTableDataCell>
+              </CTableRow>
+            </CTableBody>
+          </CTable>
+        </CCard>
+      </div>
 
-    <div v-if="lastPage > 1" class="mt-4">
-      <CPagination align="center">
-        <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">{{ $t('admin_products.previous') }}</CPaginationItem>
-        <CPaginationItem v-for="page in lastPage" :key="page" :active="page === currentPage" @click="currentPage = page; fetchProducts()">{{ page }}</CPaginationItem>
-        <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">{{ $t('admin_products.next') }}</CPaginationItem>
-      </CPagination>
+      <!-- Active Products -->
+      <CCard class="shadow-sm">
+        <CTable hover responsive align="middle">
+          <CTableHead>
+            <CTableRow>
+              <CTableHeaderCell style="width: 60px">{{ $t('admin_products.image') }}</CTableHeaderCell>
+              <CTableHeaderCell>{{ $t('admin_products.name') }}</CTableHeaderCell>
+              <CTableHeaderCell>{{ $t('admin_products.type') }}</CTableHeaderCell>
+              <CTableHeaderCell>{{ $t('admin_products.price') }}</CTableHeaderCell>
+              <CTableHeaderCell>{{ $t('admin_products.status') }}</CTableHeaderCell>
+              <CTableHeaderCell class="text-end">{{ $t('admin_products.actions') }}</CTableHeaderCell>
+            </CTableRow>
+          </CTableHead>
+          <CTableBody>
+            <CTableRow v-for="p in activeProducts" :key="p.id">
+              <CTableDataCell>
+                <img v-if="productImage(p)" :src="productImage(p)" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
+                <CIcon v-else icon="cil-image" class="text-body-secondary" />
+              </CTableDataCell>
+              <CTableDataCell class="fw-semibold">{{ p.name }}</CTableDataCell>
+              <CTableDataCell>
+                <CBadge :color="p.product_type === 'digital' ? 'info' : 'success'">{{ $t('products.' + p.product_type) }}</CBadge>
+              </CTableDataCell>
+              <CTableDataCell>{{ formatPrice(p) }}</CTableDataCell>
+              <CTableDataCell>
+                <CBadge :color="p.status === 'published' ? 'success' : 'secondary'">{{ $t('admin_products.' + p.status) }}</CBadge>
+              </CTableDataCell>
+              <CTableDataCell class="text-end">
+                <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
+                  <CIcon icon="cil-image-plus" />
+                </CButton>
+                <CButton color="primary" variant="ghost" size="sm" class="me-1" @click="openDetail(p)">
+                  <CIcon icon="cil-eye" />
+                </CButton>
+                <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEdit(p)">
+                  <CIcon icon="cil-pencil" />
+                </CButton>
+                <CButton color="danger" variant="ghost" size="sm" @click="remove(p)">
+                  <CIcon icon="cil-trash" />
+                </CButton>
+              </CTableDataCell>
+            </CTableRow>
+          </CTableBody>
+        </CTable>
+      </CCard>
+
+      <div v-if="lastPage > 1" class="mt-4">
+        <CPagination align="center">
+          <CPaginationItem :disabled="currentPage === 1" @click="currentPage--; fetchProducts()">{{ $t('admin_products.previous') }}</CPaginationItem>
+          <CPaginationItem v-for="page in lastPage" :key="page" :active="page === currentPage" @click="currentPage = page; fetchProducts()">{{ page }}</CPaginationItem>
+          <CPaginationItem :disabled="currentPage === lastPage" @click="currentPage++; fetchProducts()">{{ $t('admin_products.next') }}</CPaginationItem>
+        </CPagination>
+      </div>
+
     </div>
 
     <!-- Create/Edit Modal -->
@@ -389,3 +458,25 @@ onMounted(fetchProducts)
     </CModal>
   </div>
 </template>
+
+<style scoped>
+.archived-toggle {
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  border-radius: 12px;
+  padding: 0.85rem 1.25rem;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  background: transparent;
+  color: var(--cui-body-color, inherit);
+}
+.archived-toggle:hover {
+  background: rgba(128, 128, 128, 0.06);
+  border-color: var(--cui-primary, #b81300);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.archived-toggle:active {
+  transform: translateY(0);
+}
+</style>

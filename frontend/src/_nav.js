@@ -107,6 +107,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Hero Images',
+    to: '/admin/hero-images',
+    icon: 'cil-image',
+    translationKey: 'nav.hero_images',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Approvals',
     to: '/admin/approvals',
     icon: 'cil-check',

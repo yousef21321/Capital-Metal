@@ -19,6 +19,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\PayMobController;
 use App\Http\Controllers\SavedCardController;
 use App\Http\Controllers\ExchangeRateController;
+use App\Http\Controllers\HeroController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -35,6 +36,9 @@ Route::put('/plans/{id}', [SubscriptionController::class, 'updatePlan'])->middle
 Route::delete('/plans/{id}', [SubscriptionController::class, 'destroyPlan'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/store', [StoreController::class, 'index']);
 Route::get('/store/{id}', [StoreController::class, 'show']);
+
+// Hero images (public read)
+Route::get('/hero-images', [HeroController::class, 'index']);
 
 // Contact form (no auth)
 Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store']);
@@ -74,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/products/{id}/images/{imageId}', [ProductController::class, 'destroyImage']);
         Route::put('/products/{id}/inventory', [ProductController::class, 'updateInventory']);
         Route::post('/products/{id}/digital-files', [ProductController::class, 'addDigitalFile']);
+        Route::post('/hero-images', [HeroController::class, 'store']);
+        Route::delete('/hero-images/{id}', [HeroController::class, 'destroy']);
     });
 
     // Addresses

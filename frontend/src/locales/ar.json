@@ -15,6 +15,7 @@
   "nav.approvals": "الموافقات",
   "nav.plans": "الخطط",
   "nav.add_product": "إضافة منتج",
+  "nav.hero_images": "صور الهيرو",
 
   "header.login": "تسجيل الدخول",
   "header.sign_up": "إنشاء حساب",
@@ -36,7 +37,7 @@
   "footer.shipping_policy": "سياسة الشحن",
   "footer.contact_us": "اتصل بنا",
 
-  "dashboard.welcome": "مرحباً بك في FLFL_Design",
+  "dashboard.welcome": "مرحباً بك في FLFL Design",
   "dashboard.browse_products": "تصفح المنتجات",
   "dashboard.browse_products_desc": "تصفح المنتجات واطلب ما تريد بدون تسجيل دخول",
   "dashboard.sign_up": "إنشاء حساب",

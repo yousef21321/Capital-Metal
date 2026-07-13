@@ -737,7 +737,8 @@ body {
 
 .hero-section {
   position: relative;
-  padding: 4rem 0;
+  padding: 6rem 0;
+  height: 600px;
   isolation: isolate;
 }
 
@@ -747,6 +748,14 @@ body {
   overflow: hidden;
   z-index: 0;
   pointer-events: none;
+
+  .hero-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 
   .shape {
     position: absolute;
@@ -854,9 +863,15 @@ body {
 }
 
 .btn-hero-outline {
+  background: #fff;
+  color: var(--cui-primary, #b81300);
+  border-color: var(--cui-primary, #b81300);
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 30px rgba(184, 19, 0, 0.15);
+    background: #fff;
+    color: var(--cui-primary, #b81300);
   }
 }
 

@@ -15,6 +15,7 @@
   "nav.approvals": "Approvals",
   "nav.plans": "Plans",
   "nav.add_product": "Add Product",
+  "nav.hero_images": "Hero Images",
 
   "header.login": "Login",
   "header.sign_up": "Sign Up",
@@ -36,7 +37,7 @@
   "footer.shipping_policy": "Shipping Policy",
   "footer.contact_us": "Contact Us",
 
-  "dashboard.welcome": "Welcome to FLFL_Design",
+  "dashboard.welcome": "Welcome to FLFL Design",
   "dashboard.browse_products": "Browse Products",
   "dashboard.browse_products_desc": "Browse products and place orders without signing up",
   "dashboard.sign_up": "Sign Up",
@@ -347,7 +348,7 @@
   "plans.tickets_left": "Tickets Left",
   "plans.yes": "Yes",
   "plans.no": "No",
-  "plans.store_publishing": "Store Publishing",
+  "plans.store_publishing": "Private Designs",
   "plans.tickets": "tickets",
   "plans.days": "days",
   "plans.subscribe": "Subscribe",

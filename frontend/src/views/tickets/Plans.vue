@@ -170,7 +170,7 @@ onMounted(load)
             <CTableHeaderCell>Price</CTableHeaderCell>
             <CTableHeaderCell>Duration</CTableHeaderCell>
             <CTableHeaderCell>Tickets</CTableHeaderCell>
-            <CTableHeaderCell>Store Publishing</CTableHeaderCell>
+            <CTableHeaderCell>Private Designs</CTableHeaderCell>
             <CTableHeaderCell class="text-end">Actions</CTableHeaderCell>
           </CTableRow>
         </CTableHead>

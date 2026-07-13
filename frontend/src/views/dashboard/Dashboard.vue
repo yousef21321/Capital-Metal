@@ -16,6 +16,7 @@ const dashboardData = ref(null)
 const loading = ref(true)
 const error = ref('')
 const featuredProducts = ref([])
+const heroImages = ref([])
 
 const featureKeys = {
   admin: ['dashboard.feature_user_mgmt', 'dashboard.feature_orders', 'dashboard.feature_revenue', 'dashboard.feature_settings'],
@@ -94,6 +95,10 @@ onMounted(async () => {
     const { data } = await api.get('/api/products', { params: { page: 1 } })
     featuredProducts.value = data.data?.slice(0, 4) || []
   } catch (_) {}
+  try {
+    const { data } = await api.get('/api/hero-images')
+    heroImages.value = data
+  } catch (_) {}
   notifInterval = setInterval(addDummyPurchase, 10000)
 
   if (!authStore.isAuthenticated) {
@@ -140,20 +145,26 @@ let notifInterval
     <div v-if="!authStore.isAuthenticated" class="guest-welcome">
       <div class="hero-section text-center py-5">
         <div class="hero-bg-shapes">
+          <img
+            v-for="img in heroImages"
+            :key="img.id"
+            :src="`/storage/${img.image_url}`"
+            class="hero-bg-img"
+          />
           <span class="shape shape-1"></span>
           <span class="shape shape-2"></span>
           <span class="shape shape-3"></span>
         </div>
         <div class="hero-content">
           <div class="hero-icon-wrapper mb-4">
-            <CIcon icon="cil-industry" size="5xl" class="hero-icon" />
+            <!-- <CIcon icon="cil-industry" size="5xl" class="hero-icon" /> -->
           </div>
           <h1 class="hero-title display-4 fw-bold mb-3">
             {{ $t('dashboard.welcome') }}
           </h1>
-          <p class="hero-subtitle lead text-body-secondary mb-4 mx-auto" style="max-width: 600px;">
+          <!-- <p class="hero-subtitle lead text-body-secondary mb-4 mx-auto" style="max-width: 600px;">
             {{ $t('dashboard.browse_products_desc') }}
-          </p>
+          </p> -->
           <div class="hero-actions d-flex justify-content-center gap-3 mb-5 flex-wrap">
             <RouterLink to="/products">
               <CButton color="primary" size="lg" class="btn-hero-primary">

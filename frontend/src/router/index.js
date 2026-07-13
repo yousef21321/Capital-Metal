@@ -33,6 +33,12 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/admin/hero-images',
+        name: 'AdminHeroImages',
+        component: () => import('@/views/ecommerce/AdminHeroImages.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/cart',
         name: 'Cart',
         component: () => import('@/views/ecommerce/Cart.vue'),
@@ -423,7 +429,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ path: '/pages/login' })
   } else if (to.meta.guest && authStore.isAuthenticated) {
-    next({ path: '/dashboard' })
+    next({ path: '/products' })
   } else {
     next()
   }
