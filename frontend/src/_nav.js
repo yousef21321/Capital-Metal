@@ -91,6 +91,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Product Review',
+    to: '/tester/products',
+    icon: 'cil-cart',
+    translationKey: 'nav.product_review',
+    roles: ['tester', 'admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Available Jobs',
     to: '/tickets/available',
     icon: 'cil-bullhorn',

@@ -187,7 +187,7 @@ async function submit() {
     const { data } = await api.post('/api/designer/products', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
-    success.value = 'Product created successfully.'
+    success.value = 'Product submitted for review. A tester will review it shortly.'
     setTimeout(() => router.push('/products'), 1200)
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to create product.'

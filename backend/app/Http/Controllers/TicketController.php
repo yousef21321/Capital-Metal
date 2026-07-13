@@ -904,7 +904,7 @@ class TicketController extends Controller
         $product = Product::create(array_merge($data, [
             'designer_id'   => $user->id,
             'product_type'  => 'digital',
-            'status'        => $data['status'] ?? 'published',
+            'status'        => $data['status'] ?? 'pending_tester_review',
             'publish_date'  => now(),
         ]));
 
@@ -1145,5 +1145,75 @@ class TicketController extends Controller
     {
         User::whereHas('role', fn ($q) => $q->where('name', $roleName))->get(['id'])
             ->each(fn ($u) => $this->notify($u->id, $type, $title, $data));
+    }
+
+    public function myDesignerProducts()
+    {
+        $products = Product::with('images')
+            ->where('designer_id', request()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($products);
+    }
+
+    public function showDesignerProduct($id)
+    {
+        $product = Product::with('images')
+            ->where('designer_id', request()->user()->id)
+            ->findOrFail($id);
+
+        return response()->json($product);
+    }
+
+    public function updateDesignerProduct(Request $request, $id)
+    {
+        $user = $request->user();
+        $product = Product::where('designer_id', $user->id)->findOrFail($id);
+
+        abort_unless($product->status === 'modification_requested', 422,
+            'Only products returned for modification can be resubmitted.');
+
+        $data = $request->validate([
+            'name'                => 'sometimes|string|max:255',
+            'slug'                => 'sometimes|string|max:255|unique:products,slug,' . $id,
+            'description'         => 'nullable|string',
+            'price_egp'           => 'nullable|numeric|min:0',
+            'price_usd'           => 'nullable|numeric|min:0',
+            'platform_commission_egp' => 'nullable|numeric|min:0',
+            'platform_commission_usd' => 'nullable|numeric|min:0',
+            'designer_price_egp'      => 'nullable|numeric|min:0',
+            'designer_price_usd'      => 'nullable|numeric|min:0',
+            'material'            => 'nullable|string|max:100',
+            'manufacturing_method'=> 'nullable|string|max:100',
+            'tags'                => 'nullable|array',
+            'tags.*'              => 'string|max:50',
+            'images'              => 'nullable|array',
+            'images.*'            => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'design_file'         => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
+        ]);
+
+        $product->update(array_merge($data, [
+            'status' => 'pending_tester_review',
+        ]));
+
+        if ($request->hasFile('images')) {
+            $request->validate(['images' => 'nullable|array|max:2']);
+            $product->images()->delete();
+            foreach ($request->file('images') as $i => $image) {
+                $path = $image->store("products/{$product->id}", 'public');
+                $product->images()->create([
+                    'image_url'  => $path,
+                    'sort_order' => $i,
+                ]);
+            }
+        }
+
+        if ($request->hasFile('design_file')) {
+            $path = $request->file('design_file')->store("products/{$product->id}/design", 'public');
+            $product->update(['design_file_path' => $path]);
+        }
+
+        return response()->json($product->fresh()->load('images'));
     }
 }

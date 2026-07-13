@@ -10,6 +10,8 @@ class Product extends Model
         'name', 'slug', 'description', 'product_type', 'price_egp', 'price_usd',
         'platform_commission_egp', 'platform_commission_usd',
         'designer_price_egp', 'designer_price_usd',
+        'tester_suggested_price_egp', 'tester_suggested_price_usd',
+        'tester_comment', 'tested_by', 'tested_at',
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
     ];

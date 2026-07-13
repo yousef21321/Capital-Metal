@@ -190,6 +190,10 @@ Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::cla
         Route::post('/tickets/{id}/qa/claim', [TicketController::class, 'qaClaim']);
         Route::post('/tickets/{id}/qa/approve', [TicketController::class, 'qaApprove']);
         Route::post('/tickets/{id}/qa/reject', [TicketController::class, 'qaReject']);
+        Route::get('/tester/products/pending', [TesterProductController::class, 'index']);
+        Route::get('/tester/products/pending-count', [TesterProductController::class, 'pendingCount']);
+        Route::post('/tester/products/{id}/approve', [TesterProductController::class, 'approve']);
+        Route::post('/tester/products/{id}/return', [TesterProductController::class, 'returnWithFeedback']);
     });
 
     Route::middleware('role:industor')->group(function () {
@@ -209,6 +213,9 @@ Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::cla
         Route::post('/tickets/{id}/deadline', [TicketController::class, 'setDeadline']);
         Route::post('/tickets/{id}/upload', [TicketController::class, 'upload']);
         Route::post('/designer/products', [TicketController::class, 'storeDesignerProduct']);
+        Route::get('/designer/products', [TicketController::class, 'myDesignerProducts']);
+        Route::get('/designer/products/{id}', [TicketController::class, 'showDesignerProduct']);
+        Route::post('/designer/products/{id}', [TicketController::class, 'updateDesignerProduct']);
     });
 
     // Notifications
