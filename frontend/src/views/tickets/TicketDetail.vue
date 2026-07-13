@@ -44,6 +44,7 @@ const form = ref({
   cancel_reason: '',
   req_file: null,
 })
+const deliverablePreviews = ref([])
 
 const deadlineLocal = computed({
   get: () => {
@@ -101,7 +102,18 @@ async function action(endpoint, payload = {}) {
 }
 
 function onFileChange(e) {
-  form.value.selectedFiles = Array.from(e.target.files || [])
+  const files = Array.from(e.target.files || [])
+  for (const f of files) {
+    form.value.selectedFiles.push(f)
+    deliverablePreviews.value.push(URL.createObjectURL(f))
+  }
+  e.target.value = ''
+}
+
+function removeDeliverable(i) {
+  URL.revokeObjectURL(deliverablePreviews.value[i])
+  deliverablePreviews.value.splice(i, 1)
+  form.value.selectedFiles.splice(i, 1)
 }
 
 async function uploadDeliverable() {
@@ -336,7 +348,13 @@ onMounted(fetchTicket)
                   <CFormInput :model-value="ticket.deadline ? formatDate(ticket.deadline) : '-'" readonly class="mb-2" />
                   <label class="form-label small fw-semibold">Upload deliverables</label>
                   <CFormInput type="file" multiple accept=".pdf,.png,.jpg,.jpeg" class="mb-2" @change="onFileChange" />
-                  <div v-if="form.selectedFiles.length" class="small text-body-secondary mb-2">{{ form.selectedFiles.length }} file(s) selected</div>
+                  <div v-if="deliverablePreviews.length" class="d-flex gap-2 mb-2 flex-wrap">
+                    <div v-for="(preview, i) in deliverablePreviews" :key="i" class="position-relative d-inline-flex align-items-center gap-1 rounded border px-2 py-1" style="height: 36px;">
+                      <CIcon icon="cil-file" class="text-body-secondary" />
+                      <span class="small">{{ form.selectedFiles[i]?.name }}</span>
+                      <span role="button" class="badge bg-danger rounded-circle" style="cursor: pointer; width: 18px; height: 18px; line-height: 1; padding: 0;" @click="removeDeliverable(i)">&times;</span>
+                    </div>
+                  </div>
                   <CFormTextarea v-model="form.uploadNotes" rows="2" placeholder="Add notes (optional)" class="mb-2" />
                   <CButton color="primary" class="w-100" :disabled="submitting || !form.selectedFiles.length" @click="uploadDeliverable">
                     <CSpinner v-if="submitting" size="sm" class="me-1" /> Send
@@ -346,7 +364,13 @@ onMounted(fetchTicket)
                 <div v-if="['in_progress','rejected_qa'].includes(ticket.status)" class="mt-3 border-top pt-3">
                   <label class="form-label small fw-semibold">Upload deliverables</label>
                   <CFormInput type="file" multiple accept=".pdf,.png,.jpg,.jpeg" class="mb-2" @change="onFileChange" />
-                  <div v-if="form.selectedFiles.length" class="small text-body-secondary mb-2">{{ form.selectedFiles.length }} file(s) selected</div>
+                  <div v-if="deliverablePreviews.length" class="d-flex gap-2 mb-2 flex-wrap">
+                    <div v-for="(preview, i) in deliverablePreviews" :key="i" class="position-relative d-inline-flex align-items-center gap-1 rounded border px-2 py-1" style="height: 36px;">
+                      <CIcon icon="cil-file" class="text-body-secondary" />
+                      <span class="small">{{ form.selectedFiles[i]?.name }}</span>
+                      <span role="button" class="badge bg-danger rounded-circle" style="cursor: pointer; width: 18px; height: 18px; line-height: 1; padding: 0;" @click="removeDeliverable(i)">&times;</span>
+                    </div>
+                  </div>
                   <CFormTextarea v-model="form.uploadNotes" rows="2" placeholder="Add notes (optional)" class="mb-2" />
                   <CButton color="primary" class="w-100" :disabled="submitting || !form.selectedFiles.length" @click="uploadDeliverable">
                     <CSpinner v-if="submitting" size="sm" class="me-1" /> Send
