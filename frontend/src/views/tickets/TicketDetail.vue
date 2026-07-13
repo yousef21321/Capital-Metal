@@ -458,7 +458,7 @@ onMounted(fetchTicket)
                         <CButton color="primary" variant="ghost" size="sm" @click="downloadAttachment(att)">
                           <CIcon icon="cil-cloud-download" />
                         </CButton>
-                        <CButton v-if="att.uploaded_by === auth.user?.id" color="danger" variant="ghost" size="sm" @click="deleteProjectFile(att)">
+                        <CButton color="danger" variant="ghost" size="sm" @click="deleteProjectFile(att)">
                           <CIcon icon="cil-trash" />
                         </CButton>
                       </div>
