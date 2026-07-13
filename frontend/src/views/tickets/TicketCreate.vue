@@ -46,7 +46,7 @@ const discountedPrice = computed(() => {
 })
 
 function onFilesChange(e) {
-  const files = Array.from(e.target.files || []).slice(0, 2)
+  const files = Array.from(e.target.files || [])
   form.value.files = files
   imagePreviews.value = files.map(f => URL.createObjectURL(f))
 }
@@ -151,7 +151,7 @@ onMounted(checkSubscription)
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">{{ $t('ticket_create.attachments') }} <span class="text-body-secondary fw-normal">({{ $t('ticket_create.up_to_2') }})</span></CFormLabel>
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.attachments') }}</CFormLabel>
               <CFormInput type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" @change="onFilesChange" />
               <div v-if="imagePreviews.length" class="d-flex gap-2 mt-2">
                 <div v-for="(preview, i) in imagePreviews" :key="i" class="position-relative" style="width: 120px; height: 120px;">
