@@ -13,8 +13,8 @@ const hasSubscription = ref(false)
 const subscriptionData = ref(null)
 const loadingStatus = ref(true)
 const imagePreviews = ref([])
-const designFile = ref(null)
-const designFileName = ref('')
+const designFiles = ref([])
+const designFilePreviews = ref([])
 
 const expectedDeadlineLocal = computed({
   get: () => form.value.expected_deadline,
@@ -63,16 +63,18 @@ function removeFile(i) {
 }
 
 function onDesignFileSelected(e) {
-  const file = e.target.files[0]
-  if (file) {
-    designFile.value = file
-    designFileName.value = file.name
+  const files = Array.from(e.target.files || [])
+  for (const f of files) {
+    designFiles.value.push(f)
+    designFilePreviews.value.push(URL.createObjectURL(f))
   }
+  e.target.value = ''
 }
 
-function removeDesignFile() {
-  designFile.value = null
-  designFileName.value = ''
+function removeDesignFile(i) {
+  URL.revokeObjectURL(designFilePreviews.value[i])
+  designFilePreviews.value.splice(i, 1)
+  designFiles.value.splice(i, 1)
 }
 
 async function submit() {
@@ -110,9 +112,9 @@ async function submit() {
       error.value = `Ticket created, but some attachments failed: ${uploadErrors.join(', ')}`
     }
 
-    if (designFile.value) {
+    for (const file of designFiles.value) {
       const fd = new FormData()
-      fd.append('file', designFile.value)
+      fd.append('file', file)
       fd.append('kind', 'design_file')
       try {
         await api.post(`/api/tickets/${data.id}/attachments`, fd, {
@@ -195,12 +197,14 @@ onMounted(checkSubscription)
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('ticket_create.design_file') }}</CFormLabel>
               <div class="d-flex gap-2 align-items-center">
-                <CFormInput type="file" accept=".pdf,.zip,.ai,.eps,.svg,.dxf,.psd,image/png,image/jpeg" @change="onDesignFileSelected" />
+                <CFormInput type="file" multiple accept=".pdf,.zip,.ai,.eps,.svg,.dxf,.psd,image/png,image/jpeg" @change="onDesignFileSelected" />
               </div>
-              <div v-if="designFileName" class="d-flex align-items-center gap-2 mt-2">
-                <CIcon icon="cil-file" class="text-body-secondary" />
-                <span class="small">{{ designFileName }}</span>
-                <span role="button" class="badge bg-danger" style="cursor: pointer;" @click="removeDesignFile">{{ $t('ticket_create.remove') }}</span>
+              <div v-if="designFilePreviews.length" class="d-flex gap-2 mt-2 flex-wrap">
+                <div v-for="(preview, i) in designFilePreviews" :key="i" class="position-relative d-inline-flex align-items-center gap-1 rounded border px-2 py-1" style="height: 36px;">
+                  <CIcon icon="cil-file" class="text-body-secondary" />
+                  <span class="small">{{ designFiles[i]?.name }}</span>
+                  <span role="button" class="badge bg-danger rounded-circle" style="cursor: pointer; width: 18px; height: 18px; line-height: 1; padding: 0;" @click="removeDesignFile(i)">&times;</span>
+                </div>
               </div>
               <small class="text-body-secondary">{{ $t('ticket_create.design_file_help') }}</small>
             </div>
