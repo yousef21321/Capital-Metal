@@ -385,14 +385,14 @@ onMounted(() => {
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_egp') }}</CFormLabel>
-            <CFormInput v-model.number="form.price_egp" type="number" min="0" step="0.01" />
+            <CFormInput v-model.number="form.price_egp" type="number" min="0" />
             <small v-if="form.price_egp > 0" class="text-body-secondary">
               ≈ {{ (form.price_egp / (authStore.exchangeRate || 30)).toFixed(2) }} USD
             </small>
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_usd') }}</CFormLabel>
-            <CFormInput v-model.number="form.price_usd" type="number" min="0" step="0.01" />
+            <CFormInput v-model.number="form.price_usd" type="number" min="0" />
             <small v-if="form.price_usd > 0" class="text-body-secondary">
               ≈ {{ (form.price_usd * (authStore.exchangeRate || 30)).toFixed(2) }} EGP
             </small>
