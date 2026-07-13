@@ -9,7 +9,7 @@ class Product extends Model
     protected $fillable = [
         'name', 'slug', 'description', 'product_type', 'price_egp', 'price_usd',
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
-        'material', 'manufacturing_method', 'tags', 'design_file_path',
+        'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
     ];
 
     protected function casts(): array
@@ -30,7 +30,7 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
     public function inventory()

@@ -14,6 +14,8 @@ const form = ref({
   price_usd: 0,
   material: '',
   manufacturing_method: '',
+  material_other: '',
+  manufacturing_method_other: '',
   tags: [],
 })
 const submitting = ref(false)
@@ -127,8 +129,12 @@ async function submit() {
   if (form.value.description) fd.append('description', form.value.description)
   fd.append('price_egp', form.value.price_egp)
   fd.append('price_usd', form.value.price_usd)
-  if (form.value.material) fd.append('material', form.value.material)
-  if (form.value.manufacturing_method) fd.append('manufacturing_method', form.value.manufacturing_method)
+  let material = form.value.material
+  if (material === 'other') material = form.value.material_other || 'other'
+  let method = form.value.manufacturing_method
+  if (method === 'other') method = form.value.manufacturing_method_other || 'other'
+  if (material) fd.append('material', material)
+  if (method) fd.append('manufacturing_method', method)
   form.value.tags.forEach(t => fd.append('tags[]', t))
 
   for (const img of images.value) {
@@ -253,11 +259,12 @@ async function submit() {
                   <option value="rayon">{{ $t('product_type.rayon') }}</option>
                   <option value="velvet">{{ $t('product_type.velvet') }}</option>
                   <option value="lace">{{ $t('product_type.lace') }}</option>
-                  <option value="other">{{ $t('product_type.other') }}</option>
-                </CFormSelect>
-            </div>
+                <option value="other">{{ $t('product_type.other') }}</option>
+              </CFormSelect>
+              <CFormInput v-if="form.material === 'other'" v-model="form.material_other" class="mt-2" :placeholder="$t('designer_product.material_other_placeholder')" />
+          </div>
 
-            <div class="mb-3">
+          <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.method') }}</CFormLabel>
               <CFormSelect v-model="form.manufacturing_method">
                 <option value="">{{ $t('designer_product.select_method') }}</option>
@@ -272,7 +279,8 @@ async function submit() {
                 <option value="molded">{{ $t('product_type.molded') }}</option>
                 <option value="other">{{ $t('product_type.other') }}</option>
               </CFormSelect>
-            </div>
+              <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" :placeholder="$t('designer_product.method_other_placeholder')" />
+          </div>
 
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.tags') }}</CFormLabel>

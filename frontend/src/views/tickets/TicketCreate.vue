@@ -13,6 +13,8 @@ const hasSubscription = ref(false)
 const subscriptionData = ref(null)
 const loadingStatus = ref(true)
 const imagePreviews = ref([])
+const designFile = ref(null)
+const designFileName = ref('')
 
 const expectedDeadlineLocal = computed({
   get: () => form.value.expected_deadline,
@@ -57,6 +59,19 @@ function removeFile(i) {
   form.value.files.splice(i, 1)
 }
 
+function onDesignFileSelected(e) {
+  const file = e.target.files[0]
+  if (file) {
+    designFile.value = file
+    designFileName.value = file.name
+  }
+}
+
+function removeDesignFile() {
+  designFile.value = null
+  designFileName.value = ''
+}
+
 async function submit() {
   submitting.value = true
   error.value = ''
@@ -91,6 +106,18 @@ async function submit() {
     if (uploadErrors.length) {
       error.value = `Ticket created, but some attachments failed: ${uploadErrors.join(', ')}`
     }
+
+    if (designFile.value) {
+      const fd = new FormData()
+      fd.append('file', designFile.value)
+      fd.append('kind', 'design_file')
+      try {
+        await api.post(`/api/tickets/${data.id}/attachments`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+      } catch {}
+    }
+
     router.push(`/tickets/${data.id}`)
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to create ticket.'
@@ -160,6 +187,19 @@ onMounted(checkSubscription)
                 </div>
               </div>
               <div class="form-text">{{ $t('ticket_create.attachments_help') }}</div>
+            </div>
+
+            <div class="mb-3">
+              <CFormLabel class="fw-semibold">{{ $t('ticket_create.design_file') }}</CFormLabel>
+              <div class="d-flex gap-2 align-items-center">
+                <CFormInput type="file" accept=".pdf,.zip,.ai,.eps,.svg,.dxf,.psd,image/png,image/jpeg" @change="onDesignFileSelected" />
+              </div>
+              <div v-if="designFileName" class="d-flex align-items-center gap-2 mt-2">
+                <CIcon icon="cil-file" class="text-body-secondary" />
+                <span class="small">{{ designFileName }}</span>
+                <span role="button" class="badge bg-danger" style="cursor: pointer;" @click="removeDesignFile">{{ $t('ticket_create.remove') }}</span>
+              </div>
+              <small class="text-body-secondary">{{ $t('ticket_create.design_file_help') }}</small>
             </div>
 
             <div v-if="hasSubscription" class="mb-3">

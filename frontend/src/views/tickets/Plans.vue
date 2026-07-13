@@ -19,10 +19,10 @@ const isAdmin = computed(() => auth.userRole === 'admin')
 const planModal = ref(false)
 const editingPlan = ref(false)
 const savingPlan = ref(false)
-const planForm = ref({ name: '', price: 0, currency: 'EGP', duration_days: 30, ticket_limit: 1, can_publish_to_store: false })
+const planForm = ref({ name: '', price: 0, currency: 'EGP', duration_days: 30, ticket_limit: 1, can_publish_to_store: false, discount_percent: null })
 
 function emptyPlan() {
-  return { name: '', price: 0, currency: 'EGP', duration_days: 30, ticket_limit: 1, can_publish_to_store: false }
+  return { name: '', price: 0, currency: 'EGP', duration_days: 30, ticket_limit: 1, can_publish_to_store: false, discount_percent: null }
 }
 
 function openCreatePlan() {
@@ -171,6 +171,7 @@ onMounted(load)
             <CTableHeaderCell>Duration</CTableHeaderCell>
             <CTableHeaderCell>Tickets</CTableHeaderCell>
             <CTableHeaderCell>Private Designs</CTableHeaderCell>
+            <CTableHeaderCell>Discount</CTableHeaderCell>
             <CTableHeaderCell class="text-end">Actions</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
@@ -182,6 +183,10 @@ onMounted(load)
             <CTableDataCell>{{ plan.ticket_limit }}</CTableDataCell>
             <CTableDataCell>
               <CIcon :icon="plan.can_publish_to_store ? 'cil-check' : 'cil-x'" :color="plan.can_publish_to_store ? 'success' : 'danger'" />
+            </CTableDataCell>
+            <CTableDataCell>
+              <CBadge v-if="plan.discount_percent" color="danger">{{ plan.discount_percent }}%</CBadge>
+              <span v-else class="text-body-secondary">-</span>
             </CTableDataCell>
             <CTableDataCell class="text-end">
               <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEditPlan(plan)">
@@ -211,6 +216,10 @@ onMounted(load)
               <CListGroupItem>
                 <CIcon :icon="plan.can_publish_to_store ? 'cil-check' : 'cil-x'" :class="plan.can_publish_to_store ? 'me-2 text-success' : 'me-2 text-danger'" />
                 {{ $t('plans.store_publishing') }}
+              </CListGroupItem>
+              <CListGroupItem v-if="plan.discount_percent">
+                <CIcon icon="cil-tags" class="me-2 text-danger" />
+                <span class="text-danger fw-semibold">{{ plan.discount_percent }}% discount</span>
               </CListGroupItem>
             </CListGroup>
             <CButton
@@ -256,6 +265,11 @@ onMounted(load)
         </div>
         <div class="mb-3">
           <CFormCheck v-model="planForm.can_publish_to_store" label="Can publish to store" />
+        </div>
+        <div class="mb-3">
+          <CFormLabel class="fw-semibold">Discount (%)</CFormLabel>
+          <CFormInput v-model.number="planForm.discount_percent" type="number" min="0" max="100" step="0.5" placeholder="0" />
+          <small class="text-body-secondary">Percentage discount applied to each ticket's expected price</small>
         </div>
       </CModalBody>
       <CModalFooter>

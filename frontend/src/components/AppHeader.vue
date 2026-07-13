@@ -131,6 +131,20 @@ onMounted(() => {
             </CNavLink>
           </RouterLink>
         </CNavItem>
+        <CNavItem v-if="auth.userRole === 'admin'">
+          <RouterLink custom to="/admin/orders" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive">
+              <CIcon icon="cil-layers" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="auth.userRole === 'admin'">
+          <RouterLink custom to="/admin/coupons" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive">
+              <CIcon icon="cil-tag" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
 
         <CNavItem v-if="auth.isAuthenticated">
           <CDropdown placement="bottom-end" variant="nav-item" @show="notif.fetchNotifications()">

@@ -76,6 +76,9 @@ class ProductController extends Controller
             'status' => 'nullable|string|max:50',
             'publish_date' => 'nullable|date',
             'country_availability' => 'nullable|string',
+            'material' => 'nullable|string|max:100',
+            'manufacturing_method' => 'nullable|string|max:100',
+            'type_sample' => 'nullable|string|max:100',
         ]);
 
         $product = Product::create($validated);
@@ -98,6 +101,9 @@ class ProductController extends Controller
             'status' => 'nullable|string|max:50',
             'publish_date' => 'nullable|date',
             'country_availability' => 'nullable|string',
+            'material' => 'nullable|string|max:100',
+            'manufacturing_method' => 'nullable|string|max:100',
+            'type_sample' => 'nullable|string|max:100',
         ]);
 
         $product->update($validated);
@@ -129,6 +135,24 @@ class ProductController extends Controller
         ]);
 
         return response()->json($image, 201);
+    }
+
+    public function reorderImages(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $request->validate([
+            'image_ids' => 'required|array',
+            'image_ids.*' => 'integer|exists:product_images,id',
+        ]);
+
+        foreach ($request->image_ids as $index => $imageId) {
+            ProductImage::where('id', $imageId)
+                ->where('product_id', $product->id)
+                ->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['message' => 'Images reordered.']);
     }
 
     public function destroyImage($id, $imageId)

@@ -132,6 +132,10 @@ onMounted(fetchCart)
             <CButton color="primary" class="w-100 mt-2" size="lg" @click="goToCheckout">
               {{ $t('cart.checkout') }}
             </CButton>
+            <br/>
+                        <br/>
+            <br/>
+
       <RouterLink to="/products" class="btn btn-primary">{{ $t('orders.browse') }}</RouterLink>
             
           </CCardBody>

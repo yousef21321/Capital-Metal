@@ -229,6 +229,7 @@ onMounted(fetchProducts)
             <div class="product-type-row d-flex align-items-center gap-2 mb-1">
               <span class="type-dot" :class="product.product_type"></span>
               <span class="small text-body-secondary text-capitalize">{{ product.product_type || 'physical' }}</span>
+              <span v-if="product.type_sample" class="badge bg-info ms-1">{{ product.type_sample }}</span>
             </div>
             <CCardTitle class="product-name mb-1" @click="viewProduct(product.id)">{{ product.name }}</CCardTitle>
             <div class="product-rating d-flex align-items-center gap-1 mb-1">

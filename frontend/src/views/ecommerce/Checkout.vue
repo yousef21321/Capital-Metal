@@ -15,10 +15,54 @@ const submitting = ref(false)
 const error = ref('')
 const success = ref('')
 
+const governorates = [
+  { en: 'Cairo', ar: 'القاهرة' },
+  { en: 'Giza', ar: 'الجيزة' },
+  { en: 'Alexandria', ar: 'الإسكندرية' },
+  { en: 'Qalyubia', ar: 'القليوبية' },
+  { en: 'Sharqia', ar: 'الشرقية' },
+  { en: 'Gharbia', ar: 'الغربية' },
+  { en: 'Menofia', ar: 'المنوفية' },
+  { en: 'Kafr El Sheikh', ar: 'كفر الشيخ' },
+  { en: 'Beheira', ar: 'البحيرة' },
+  { en: 'Dakahlia', ar: 'الدقهلية' },
+  { en: 'Damietta', ar: 'دمياط' },
+  { en: 'Ismailia', ar: 'الإسماعيلية' },
+  { en: 'Port Said', ar: 'بورسعيد' },
+  { en: 'Suez', ar: 'السويس' },
+  { en: 'Beni Suef', ar: 'بني سويف' },
+  { en: 'Fayoum', ar: 'الفيوم' },
+  { en: 'Minya', ar: 'المنيا' },
+  { en: 'Assiut', ar: 'أسيوط' },
+  { en: 'Sohag', ar: 'سوهاج' },
+  { en: 'Qena', ar: 'قنا' },
+  { en: 'Luxor', ar: 'الأقصر' },
+  { en: 'Aswan', ar: 'أسوان' },
+  { en: 'Red Sea', ar: 'البحر الأحمر' },
+  { en: 'New Valley', ar: 'الوادي الجديد' },
+  { en: 'Matrouh', ar: 'مطروح' },
+  { en: 'North Sinai', ar: 'شمال سيناء' },
+  { en: 'South Sinai', ar: 'جنوب سيناء' },
+]
+
+const paymentMethods = ref([])
+
+async function fetchPaymentMethods() {
+  try {
+    const { data } = await api.get('/api/payment-methods')
+    paymentMethods.value = data
+    const cod = data.find(p => p.name === 'Cash on Delivery')
+    if (cod) form.value.payment_method_id = cod.id
+  } catch (e) {
+    console.error('Failed to load payment methods', e)
+  }
+}
+
 const form = ref({
   address_id: null,
   currency: auth.userCurrency,
   shipping_cost: 50,
+  payment_method_id: null,
   notes: '',
   guest_name: '',
   guest_phone: '',
@@ -117,7 +161,14 @@ const checkoutItemPrice = (item, currency) => {
   return parseFloat(item.product?.price_egp || 0)
 }
 
-const shippingCost = computed(() => parseFloat(form.value.shipping_cost || 0))
+const shippingCost = computed(() => {
+  const cost = parseFloat(form.value.shipping_cost || 0)
+  if (form.value.currency === 'USD') {
+    const rate = auth.exchangeRate || 30
+    return parseFloat((cost / rate).toFixed(4))
+  }
+  return cost
+})
 
 const discount = computed(() => {
   if (!appliedCoupon.value) return 0
@@ -174,10 +225,13 @@ async function placeOrder() {
   try {
     const payload = {
       currency: form.value.currency,
-      shipping_cost: form.value.shipping_cost,
+      shipping_cost: form.value.currency === 'USD'
+        ? parseFloat((form.value.shipping_cost / (auth.exchangeRate || 30)).toFixed(4))
+        : form.value.shipping_cost,
       notes: form.value.notes,
       address_id: form.value.address_id || undefined,
       coupon_code: appliedCoupon.value?.code || undefined,
+      payment_method_id: form.value.payment_method_id || undefined,
     }
 
     if (!auth.isAuthenticated) {
@@ -193,6 +247,13 @@ async function placeOrder() {
 
     const orderId = data.id
     const orderNumber = data.order_number
+    const isCod = form.value.payment_method_id && paymentMethods.value.find(p => p.id === form.value.payment_method_id)?.name === 'Cash on Delivery'
+
+    if (isCod) {
+      success.value = `Order #${orderNumber} created! Will be delivered with cash on delivery.`
+      setTimeout(() => router.push('/orders'), 1500)
+      return
+    }
 
     try {
       const payRes = await api.post('/api/paymob/intent', { order_id: orderId })
@@ -222,7 +283,10 @@ async function placeOrder() {
   }
 }
 
-onMounted(loadData)
+onMounted(() => {
+  loadData()
+  fetchPaymentMethods()
+})
 </script>
 
 <template>
@@ -289,14 +353,17 @@ onMounted(loadData)
               <CRow>
                 <CCol :sm="6" class="mb-3">
                   <CFormLabel class="small fw-semibold">المحافظة / Governorate <span class="text-danger">*</span></CFormLabel>
-                  <CFormInput v-model="form.guest_governorate" placeholder="e.g. Cairo" />
+                  <CFormSelect v-model="form.guest_governorate">
+                    <option value="">-- اختر / Select --</option>
+                    <option v-for="g in governorates" :key="g.en" :value="g.en">{{ g.ar }} / {{ g.en }}</option>
+                  </CFormSelect>
                 </CCol>
                 <CCol :sm="6" class="mb-3">
                   <CFormLabel class="small fw-semibold">المدينة / City <span class="text-danger">*</span></CFormLabel>
                   <CFormInput v-model="form.guest_city" placeholder="e.g. New Cairo" />
                 </CCol>
                 <CCol :sm="8" class="mb-3">
-                  <CFormLabel class="small fw-semibold">العنوان بالتفصيل / Address Line</CFormLabel>
+                  <CFormLabel class="small fw-semibold">العنوان بالتفصيل / Address Line <span class="text-danger">*</span></CFormLabel>
                   <CFormInput v-model="form.guest_address_line" placeholder="Street, building, apartment" />
                 </CCol>
                 <CCol :sm="4" class="mb-3">
@@ -348,14 +415,17 @@ onMounted(loadData)
                   </CCol>
                   <CCol :sm="4" class="mb-2">
                     <CFormLabel class="small">Governorate</CFormLabel>
-                    <CFormInput v-model="addressForm.governorate" size="sm" placeholder="e.g. Cairo" />
+                    <CFormSelect v-model="addressForm.governorate" size="sm">
+                      <option value="">-- Select --</option>
+                      <option v-for="g in governorates" :key="g.en" :value="g.en">{{ g.en }}</option>
+                    </CFormSelect>
                   </CCol>
                   <CCol :sm="4" class="mb-2">
                     <CFormLabel class="small">City</CFormLabel>
                     <CFormInput v-model="addressForm.city" size="sm" placeholder="e.g. New Cairo" />
                   </CCol>
                   <CCol :sm="8" class="mb-2">
-                    <CFormLabel class="small">Address Line</CFormLabel>
+                    <CFormLabel class="small">Address Line <span class="text-danger">*</span></CFormLabel>
                     <CFormInput v-model="addressForm.address_line" size="sm" placeholder="Street, building, apartment" />
                   </CCol>
                   <CCol :sm="4" class="mb-2">
@@ -440,6 +510,15 @@ onMounted(loadData)
               <span class="fw-bold fs-4 text-primary">{{ money(totalAmount) }} {{ currencySymbol }}</span>
             </div>
 
+            <!-- Payment Method -->
+            <div class="mb-3">
+              <label class="form-label small fw-semibold mb-2">طريقة الدفع / Payment Method</label>
+              <div v-for="pm in paymentMethods" :key="pm.id" class="form-check mb-1">
+                <input type="radio" class="form-check-input" :value="pm.id" v-model="form.payment_method_id" :id="'pm-' + pm.id" />
+                <label class="form-check-label small" :for="'pm-' + pm.id">{{ pm.name }}</label>
+              </div>
+            </div>
+
             <!-- Coupon -->
             <div class="mb-3">
               <label class="form-label small fw-semibold mb-2">Promo Code</label>
@@ -484,7 +563,7 @@ onMounted(loadData)
               color="primary"
               class="w-100"
               size="lg"
-              :disabled="submitting || (!auth.isAuthenticated && (!form.guest_name || !form.guest_phone || !form.guest_governorate || !form.guest_city))"
+              :disabled="submitting || (!auth.isAuthenticated && (!form.guest_name || !form.guest_phone || !form.guest_governorate || !form.guest_city || !form.guest_address_line))"
               @click="placeOrder"
             >
               <CSpinner v-if="submitting" size="sm" class="me-2" />

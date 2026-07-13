@@ -144,6 +144,7 @@ class SubscriptionController extends Controller
             'duration_days' => 'required|integer|min:1',
             'ticket_limit' => 'required|integer|min:1',
             'can_publish_to_store' => 'boolean',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
         ]);
         $plan = SubscriptionPlan::create($data);
         return response()->json($plan, 201);
@@ -160,6 +161,7 @@ class SubscriptionController extends Controller
             'duration_days' => 'sometimes|integer|min:1',
             'ticket_limit' => 'sometimes|integer|min:1',
             'can_publish_to_store' => 'boolean',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
         ]);
         $plan->update($data);
         return response()->json($plan);

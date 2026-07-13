@@ -19,7 +19,7 @@ class AddressController extends Controller
             'country' => 'nullable|string|max:100',
             'governorate' => 'nullable|string|max:100',
             'city' => 'nullable|string|max:100',
-            'address_line' => 'nullable|string',
+            'address_line' => 'required|string',
             'postal_code' => 'nullable|string|max:20',
             'is_default' => 'nullable|boolean',
         ]);
@@ -43,7 +43,7 @@ class AddressController extends Controller
             'country' => 'nullable|string|max:100',
             'governorate' => 'nullable|string|max:100',
             'city' => 'nullable|string|max:100',
-            'address_line' => 'nullable|string',
+            'address_line' => 'required|string',
             'postal_code' => 'nullable|string|max:20',
             'is_default' => 'nullable|boolean',
         ]);

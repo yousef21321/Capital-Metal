@@ -496,6 +496,10 @@ class TicketController extends Controller
             Ticket::STATUS_PENDING_TESTER_REVIEW,
             Ticket::STATUS_WAITING_INDUSTOR_APPROVAL,
             Ticket::STATUS_WAITING_TESTER_REVIEW,
+            Ticket::STATUS_ACCEPTED,
+            Ticket::STATUS_IN_PROGRESS,
+            Ticket::STATUS_AWAITING_QA,
+            Ticket::STATUS_REJECTED_QA,
         ]), 422, 'Project files can only be attached during negotiation.');
 
         $attachment = $this->storeAttachment($ticket, $user, $request->file('file'), 'requirement');
@@ -643,7 +647,9 @@ class TicketController extends Controller
         abort_unless($user->hasRole('designer'), 403, 'Only designers can upload deliverables.');
 
         $request->validate([
-            'file' => 'required|file|mimes:pdf,png,jpg,jpeg|max:20480',
+            'files'   => 'required|array|min:1|max:10',
+            'files.*' => 'required|file|mimes:pdf,png,jpg,jpeg|max:20480',
+            'notes'   => 'nullable|string|max:1000',
         ]);
 
         $ticket = Ticket::where('id', $id)->where('designer_id', $user->id)->firstOrFail();
@@ -659,20 +665,24 @@ class TicketController extends Controller
                 $t->is_late = $t->is_late || $isLate;
             }, changedBy: $user);
 
-            $attachment = $this->storeAttachment($ticket, $user, $request->file('file'));
+            $attachments = [];
+            foreach ($request->file('files') as $file) {
+                $attachments[] = $this->storeAttachment($ticket, $user, $file);
+            }
+
+            $note = $request->notes ?: ($isLate
+                ? 'Deliverable uploaded after deadline; awaiting QA'
+                : 'Deliverable uploaded; awaiting QA');
 
             $ticket->histories()->create([
                 'from_status' => $from,
                 'to_status'   => Ticket::STATUS_AWAITING_QA,
                 'changed_by'  => $user->id,
-                'note'        => $isLate
-                    ? 'Deliverable uploaded after deadline; awaiting QA'
-                    : 'Deliverable uploaded; awaiting QA',
+                'note'        => $note,
             ]);
 
-            $this->notify($ticket->industor_id, 'ticket.uploaded', 'Deliverable uploaded - awaiting QA', [
-                'ticket_id'     => $ticket->id,
-                'attachment_id' => $attachment->id,
+            $this->notify($ticket->industor_id, 'ticket.uploaded', 'New deliverables have been uploaded', [
+                'ticket_id' => $ticket->id,
             ]);
             $this->notifyRole('tester', 'ticket.awaiting_qa', 'New design awaiting review', [
                 'ticket_id' => $ticket->id,
@@ -759,6 +769,15 @@ class TicketController extends Controller
         $isOwner = $ticket->industor_id === $user->id;
         abort_unless($isOwner || $user->hasRole('admin'), 403, 'You may only cancel your own tickets.');
 
+        // Industors can only cancel within first 10% of deadline
+        if ($isOwner && $ticket->deadline && $ticket->created_at) {
+            $total = $ticket->deadline->diffInSeconds($ticket->created_at);
+            $elapsed = now()->diffInSeconds($ticket->created_at);
+            if ($total > 0 && ($elapsed / $total) > 0.10) {
+                abort(422, 'Cancellation is only allowed within the first 10% of the deadline period.');
+            }
+        }
+
         return DB::transaction(function () use ($ticket, $user) {
             $from = $ticket->status;
             $ticket = $this->transition($ticket, 'cancel', changedBy: $user);
@@ -834,6 +853,27 @@ class TicketController extends Controller
         abort_unless(Storage::disk('public')->exists($attachment->file_path), 404, 'File not found.');
 
         return response()->download(Storage::disk('public')->path($attachment->file_path), $attachment->file_name);
+    }
+
+    public function destroyAttachment(Request $request, $id, $attachmentId)
+    {
+        $user = $request->user();
+        $ticket = Ticket::findOrFail($id);
+        $this->authorizeView($user, $ticket);
+
+        $attachment = $ticket->attachments()->findOrFail($attachmentId);
+
+        if ($attachment->uploaded_by !== $user->id && !$user->hasRole('admin')) {
+            abort(403, 'You can only delete your own files.');
+        }
+
+        if (Storage::disk('public')->exists($attachment->file_path)) {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
+
+        $attachment->delete();
+
+        return response()->json(['message' => 'File deleted.']);
     }
 
     public function storeDesignerProduct(Request $request)

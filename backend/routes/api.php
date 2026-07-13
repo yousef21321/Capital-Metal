@@ -20,6 +20,7 @@ use App\Http\Controllers\PayMobController;
 use App\Http\Controllers\SavedCardController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\HeroController;
+use App\Http\Controllers\PaymentMethodController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -45,6 +46,7 @@ Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store']
 
 // Exchange rate (public)
 Route::get('/exchange-rate', [ExchangeRateController::class, 'show']);
+Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
 
 // PayMob webhook (no auth)
 Route::post('/paymob/callback', [PayMobController::class, 'callback']);
@@ -59,9 +61,10 @@ Route::delete('/cart', [CartController::class, 'clear']);
 // Checkout & orders (public — supports guest checkout)
 Route::post('/checkout', [OrderController::class, 'checkout']);
 Route::get('/orders', [OrderController::class, 'index']);
-Route::get('/orders/my', [OrderController::class, 'myOrders']);
+Route::get('/orders/my', [OrderController::class, 'myOrders'])->middleware('auth:sanctum');
 Route::get('/orders/{id}', [OrderController::class, 'show']);
-Route::middleware('role:admin')->put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+Route::middleware(['auth:sanctum', 'role:admin'])->put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+Route::middleware(['auth:sanctum', 'role:admin'])->delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -76,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
         Route::post('/products/{id}/images', [ProductController::class, 'uploadImage']);
+        Route::put('/products/{id}/images/reorder', [ProductController::class, 'reorderImages']);
         Route::delete('/products/{id}/images/{imageId}', [ProductController::class, 'destroyImage']);
         Route::put('/products/{id}/inventory', [ProductController::class, 'updateInventory']);
         Route::post('/products/{id}/digital-files', [ProductController::class, 'addDigitalFile']);
@@ -115,6 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/coupons', [CouponController::class, 'index']);
         Route::post('/coupons', [CouponController::class, 'store']);
+        Route::put('/coupons/{id}', [CouponController::class, 'update']);
         Route::delete('/coupons/{id}', [CouponController::class, 'destroy']);
     });
 
@@ -174,6 +179,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tickets/{id}', [TicketController::class, 'show']);
     Route::put('/tickets/{id}', [TicketController::class, 'update'])->middleware('role:industor');
     Route::get('/tickets/{id}/attachments/{attachmentId}/download', [TicketController::class, 'downloadAttachment']);
+Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::class, 'destroyAttachment']);
     Route::post('/tickets/{id}/cancel', [TicketController::class, 'cancel']);
 
     Route::middleware('role:tester')->group(function () {

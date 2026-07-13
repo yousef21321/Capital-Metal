@@ -63,6 +63,24 @@ class CouponController extends Controller
         ]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $coupon = Coupon::findOrFail($id);
+
+        $validated = $request->validate([
+            'code' => 'required|string|max:100|unique:coupons,code,' . $id,
+            'discount_type' => 'required|in:percentage,fixed',
+            'discount_value' => 'required|numeric|min:0',
+            'min_order_amount' => 'nullable|numeric|min:0',
+            'expiry_date' => 'nullable|date',
+            'usage_limit' => 'nullable|integer|min:1',
+        ]);
+
+        $coupon->update($validated);
+
+        return response()->json($coupon);
+    }
+
     public function destroy($id)
     {
         Coupon::findOrFail($id)->delete();

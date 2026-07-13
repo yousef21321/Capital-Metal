@@ -42,6 +42,11 @@ function emptyForm() {
     status: 'published',
     publish_date: '',
     country_availability: '',
+    type_sample: '',
+    material: '',
+    manufacturing_method: '',
+    material_other: '',
+    manufacturing_method_other: '',
   }
 }
 
@@ -109,6 +114,10 @@ async function save() {
   saving.value = true
   try {
     const payload = { ...form.value }
+    if (payload.material === 'other') payload.material = payload.material_other || 'other'
+    if (payload.manufacturing_method === 'other') payload.manufacturing_method = payload.manufacturing_method_other || 'other'
+    delete payload.material_other
+    delete payload.manufacturing_method_other
     if (editing.value) {
       await api.put(`/api/products/${form.value.id}`, payload)
       toast.success('Product updated.')
@@ -190,6 +199,22 @@ async function removeImage(productId, imageId) {
     await fetchProducts()
   } catch (e) {
     toast.error('Failed to remove image.')
+  }
+}
+
+async function moveImage(productId, index, direction) {
+  const images = [...detailProduct.value.images]
+  const target = index + direction
+  if (target < 0 || target >= images.length) return
+  ;[images[index], images[target]] = [images[target], images[index]]
+  try {
+    await api.put(`/api/products/${productId}/images/reorder`, {
+      image_ids: images.map(i => i.id),
+    })
+    detailProduct.value = { ...detailProduct.value, images }
+    await fetchProducts()
+  } catch (e) {
+    toast.error('Failed to reorder images.')
   }
 }
 
@@ -379,6 +404,10 @@ onMounted(() => {
               <option value="digital">{{ $t('products.digital') }}</option>
             </CFormSelect>
           </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Type Sample</CFormLabel>
+            <CFormInput v-model="form.type_sample" placeholder="e.g. sample type" />
+          </CCol>
           <CCol :sm="12" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.description') }}</CFormLabel>
             <CFormTextarea v-model="form.description" rows="3" :placeholder="$t('admin_products.description_placeholder')" />
@@ -412,6 +441,43 @@ onMounted(() => {
           <CCol :sm="6" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.country') }}</CFormLabel>
             <CFormInput v-model="form.country_availability" :placeholder="$t('admin_products.country_placeholder')" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">{{ $t('designer_product.material') }}</CFormLabel>
+            <CFormSelect v-model="form.material">
+              <option value="">{{ $t('designer_product.select_material') }}</option>
+              <option value="cotton">{{ $t('product_type.cotton') }}</option>
+              <option value="polyester">{{ $t('product_type.polyester') }}</option>
+              <option value="silk">{{ $t('product_type.silk') }}</option>
+              <option value="wool">{{ $t('product_type.wool') }}</option>
+              <option value="linen">{{ $t('product_type.linen') }}</option>
+              <option value="denim">{{ $t('product_type.denim') }}</option>
+              <option value="leather">{{ $t('product_type.leather') }}</option>
+              <option value="spandex">{{ $t('product_type.spandex') }}</option>
+              <option value="nylon">{{ $t('product_type.nylon') }}</option>
+              <option value="rayon">{{ $t('product_type.rayon') }}</option>
+              <option value="velvet">{{ $t('product_type.velvet') }}</option>
+              <option value="lace">{{ $t('product_type.lace') }}</option>
+              <option value="other">{{ $t('product_type.other') }}</option>
+            </CFormSelect>
+            <CFormInput v-if="form.material === 'other'" v-model="form.material_other" class="mt-2" :placeholder="$t('designer_product.material_other_placeholder')" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">{{ $t('designer_product.method') }}</CFormLabel>
+            <CFormSelect v-model="form.manufacturing_method">
+              <option value="">{{ $t('designer_product.select_method') }}</option>
+              <option value="knitted">{{ $t('product_type.knitted') }}</option>
+              <option value="woven">{{ $t('product_type.woven') }}</option>
+              <option value="embroidered">{{ $t('product_type.embroidered') }}</option>
+              <option value="printed">{{ $t('product_type.printed') }}</option>
+              <option value="embellished">{{ $t('product_type.embellished') }}</option>
+              <option value="handmade">{{ $t('product_type.handmade') }}</option>
+              <option value="machine_made">{{ $t('product_type.machine_made') }}</option>
+              <option value="cut_and_sew">{{ $t('product_type.cut_sew') }}</option>
+              <option value="molded">{{ $t('product_type.molded') }}</option>
+              <option value="other">{{ $t('product_type.other') }}</option>
+            </CFormSelect>
+            <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" :placeholder="$t('designer_product.method_other_placeholder')" />
           </CCol>
         </CRow>
       </CModalBody>
@@ -471,9 +537,16 @@ onMounted(() => {
         <hr />
         <h6>{{ $t('admin_products.images', { count: detailProduct.images?.length || 0 }) }}</h6>
         <CRow v-if="detailProduct.images?.length">
-          <CCol v-for="img in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
+          <CCol v-for="(img, idx) in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
             <div class="position-relative">
               <img :src="`/storage/${img.image_url}`" class="w-100 rounded" style="height: 120px; object-fit: cover;" />
+              <div v-if="idx === 0" class="position-absolute top-0 start-0 m-1">
+                <span class="badge bg-dark">Main</span>
+              </div>
+              <div class="image-arrows">
+                <button class="arrow-btn" :disabled="idx === 0" @click="moveImage(detailProduct.id, idx, -1)">&#9650;</button>
+                <button class="arrow-btn" :disabled="idx === detailProduct.images.length - 1" @click="moveImage(detailProduct.id, idx, 1)">&#9660;</button>
+              </div>
               <CButton color="danger" size="sm" class="position-absolute top-0 end-0 m-1" @click="removeImage(detailProduct.id, img.id)">
                 {{ $t('admin_products.delete') }}
               </CButton>
@@ -502,6 +575,36 @@ onMounted(() => {
   letter-spacing: 0.3px;
   background: transparent;
   color: var(--cui-body-color, inherit);
+}
+.image-arrows {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+.arrow-btn {
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 28px;
+  height: 24px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.arrow-btn:hover:not(:disabled) {
+  background: rgba(0,0,0,0.8);
+}
+.arrow-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 .archived-toggle:hover {
   background: rgba(128, 128, 128, 0.06);

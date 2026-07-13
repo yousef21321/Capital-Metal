@@ -29,6 +29,8 @@ api.interceptors.response.use(
       const isAuthRoute = error.config?.url?.includes('/api/me')
         || error.config?.url?.includes('/api/logout')
         || error.config?.url?.includes('/api/wishlist')
+        || error.config?.url?.includes('/api/checkout')
+        || error.config?.url?.includes('/api/orders')
       if (isAuthRoute) {
         localStorage.removeItem('auth-token')
         window.location.hash = '#/pages/login'

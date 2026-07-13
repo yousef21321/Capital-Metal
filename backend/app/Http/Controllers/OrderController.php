@@ -97,13 +97,20 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
             'address_id' => 'nullable|exists:addresses,id',
             'coupon_code' => 'nullable|string|max:100',
+            'payment_method_id' => 'nullable|exists:payment_methods,id',
             'guest_name' => 'nullable|string|max:255',
             'guest_phone' => 'nullable|string|max:50',
             'guest_governorate' => 'nullable|string|max:100',
             'guest_city' => 'nullable|string|max:100',
-            'guest_address_line' => 'nullable|string|max:255',
+            'guest_address_line' => 'required_with:guest_name|string|max:255',
             'guest_postal_code' => 'nullable|string|max:20',
         ]);
+
+        $userId = $this->resolveUser($request);
+
+        if (!$userId && !$this->guestToken($request)) {
+            return response()->json(['message' => 'Authentication required. Please login or provide guest details.'], 401);
+        }
 
         $identifier = $this->cartIdentifier($request);
 
@@ -117,12 +124,6 @@ class OrderController extends Controller
 
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty.'], 400);
-        }
-
-        $userId = $this->resolveUser($request);
-
-        if (!$userId && empty($validated['guest_name'])) {
-            return response()->json(['message' => 'Guest name is required for guest checkout.'], 422);
         }
 
         $orderNumber = 'ORD-' . strtoupper(uniqid());
@@ -169,7 +170,7 @@ class OrderController extends Controller
 
             // Guest fields
             if (!$userId) {
-                $orderData['guest_name'] = $validated['guest_name'];
+                $orderData['guest_name'] = $validated['guest_name'] ?? null;
                 $orderData['guest_phone'] = $validated['guest_phone'] ?? null;
                 $orderData['guest_governorate'] = $validated['guest_governorate'] ?? null;
                 $orderData['guest_city'] = $validated['guest_city'] ?? null;
@@ -181,6 +182,16 @@ class OrderController extends Controller
 
             foreach ($orderItems as $item) {
                 $order->items()->create($item);
+            }
+
+            if (($validated['payment_method_id'] ?? null) == 2) {
+                $order->payments()->create([
+                    'payment_method_id' => 2,
+                    'amount' => $totalAmount,
+                    'currency' => $validated['currency'],
+                    'payment_status' => 'pending',
+                ]);
+                $order->update(['payment_status' => 'pending']);
             }
 
             if ($couponId) {
@@ -228,6 +239,16 @@ class OrderController extends Controller
         $discount = min($discount, $subtotal);
 
         return [round($discount, 2), $coupon->id];
+    }
+
+    public function destroy($id)
+    {
+        $order = Order::with('items', 'payments')->findOrFail($id);
+        $order->items()->delete();
+        $order->payments()->delete();
+        $order->delete();
+
+        return response()->json(['message' => 'Order deleted.']);
     }
 
     public function updateStatus(Request $request, $id)

@@ -45,6 +45,18 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/admin/coupons',
+        name: 'AdminCoupons',
+        component: () => import('@/views/ecommerce/AdminCoupons.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/admin/orders',
+        name: 'AdminOrders',
+        component: () => import('@/views/ecommerce/AdminOrders.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/cart',
         name: 'Cart',
         component: () => import('@/views/ecommerce/Cart.vue'),
