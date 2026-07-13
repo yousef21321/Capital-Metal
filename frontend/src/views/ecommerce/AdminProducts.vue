@@ -1,9 +1,11 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import api from '@/api'
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
 
 const toast = useToastStore()
+const authStore = useAuthStore()
 const products = ref([])
 const loading = ref(true)
 const search = ref('')
@@ -26,6 +28,7 @@ const detailProduct = ref(null)
 const detailVisible = ref(false)
 const uploadTargetId = ref(null)
 const uploadingImage = ref(false)
+const priceFieldFocused = ref(null)
 
 function emptyForm() {
   return {
@@ -79,6 +82,40 @@ function onNameInput() {
   if (!editing.value) {
     form.value.slug = slugify(form.value.name)
   }
+}
+
+let converting = false
+
+watch(() => form.value.price_egp, (val) => {
+  if (converting || !val || val <= 0) return
+  converting = true
+  const rate = authStore.exchangeRate || 30
+  if (rate > 0) {
+    form.value.price_usd = parseFloat((val / rate).toFixed(4))
+  }
+  converting = false
+})
+
+watch(() => form.value.price_usd, (val) => {
+  if (converting || !val || val <= 0) return
+  converting = true
+  const rate = authStore.exchangeRate || 30
+  if (rate > 0) {
+    form.value.price_egp = parseFloat((val * rate).toFixed(4))
+  }
+  converting = false
+})
+
+function onPriceEgpFocus() {
+  priceFieldFocused.value = 'egp'
+}
+
+function onPriceUsdFocus() {
+  priceFieldFocused.value = 'usd'
+}
+
+function onPriceBlur() {
+  priceFieldFocused.value = null
 }
 
 async function save() {
@@ -181,7 +218,10 @@ const formatPrice = (p) => {
   return $t('admin_products.free')
 }
 
-onMounted(fetchProducts)
+onMounted(() => {
+  fetchProducts()
+  if (!authStore.exchangeRate) authStore.fetchExchangeRate()
+})
 </script>
 
 <template>
@@ -256,16 +296,16 @@ onMounted(fetchProducts)
                 </CTableDataCell>
                 <CTableDataCell class="text-end">
                   <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
-                    <CIcon icon="cil-image-plus" />
+                    {{ $t('admin_products.upload') }}
                   </CButton>
                   <CButton color="primary" variant="ghost" size="sm" class="me-1" @click="openDetail(p)">
-                    <CIcon icon="cil-eye" />
+                    {{ $t('admin_products.view') }}
                   </CButton>
                   <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEdit(p)">
-                    <CIcon icon="cil-pencil" />
+                    {{ $t('admin_products.edit') }}
                   </CButton>
                   <CButton color="danger" variant="ghost" size="sm" @click="remove(p)">
-                    <CIcon icon="cil-trash" />
+                    {{ $t('admin_products.delete') }}
                   </CButton>
                 </CTableDataCell>
               </CTableRow>
@@ -303,16 +343,16 @@ onMounted(fetchProducts)
               </CTableDataCell>
               <CTableDataCell class="text-end">
                 <CButton color="info" variant="ghost" size="sm" class="me-1" @click="openImageUpload(p)">
-                  <CIcon icon="cil-image-plus" />
+                  {{ $t('admin_products.upload') }}
                 </CButton>
                 <CButton color="primary" variant="ghost" size="sm" class="me-1" @click="openDetail(p)">
-                  <CIcon icon="cil-eye" />
+                  {{ $t('admin_products.view') }}
                 </CButton>
                 <CButton color="warning" variant="ghost" size="sm" class="me-1" @click="openEdit(p)">
-                  <CIcon icon="cil-pencil" />
+                  {{ $t('admin_products.edit') }}
                 </CButton>
                 <CButton color="danger" variant="ghost" size="sm" @click="remove(p)">
-                  <CIcon icon="cil-trash" />
+                  {{ $t('admin_products.delete') }}
                 </CButton>
               </CTableDataCell>
             </CTableRow>
@@ -358,11 +398,17 @@ onMounted(fetchProducts)
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_egp') }}</CFormLabel>
-            <CFormInput v-model.number="form.price_egp" type="number" min="0" step="0.01" />
+            <CFormInput v-model.number="form.price_egp" type="number" min="0" step="0.01" @focus="onPriceEgpFocus" @blur="onPriceBlur" :readonly="priceFieldFocused === 'usd'" />
+            <small v-if="form.price_egp > 0" class="text-body-secondary">
+              ≈ {{ (form.price_egp / (authStore.exchangeRate || 30)).toFixed(2) }} USD
+            </small>
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_usd') }}</CFormLabel>
-            <CFormInput v-model.number="form.price_usd" type="number" min="0" step="0.01" />
+            <CFormInput v-model.number="form.price_usd" type="number" min="0" step="0.01" @focus="onPriceUsdFocus" @blur="onPriceBlur" :readonly="priceFieldFocused === 'egp'" />
+            <small v-if="form.price_usd > 0" class="text-body-secondary">
+              ≈ {{ (form.price_usd * (authStore.exchangeRate || 30)).toFixed(2) }} EGP
+            </small>
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.cost') }}</CFormLabel>
@@ -442,7 +488,7 @@ onMounted(fetchProducts)
             <div class="position-relative">
               <img :src="`/storage/${img.image_url}`" class="w-100 rounded" style="height: 120px; object-fit: cover;" />
               <CButton color="danger" size="sm" class="position-absolute top-0 end-0 m-1" @click="removeImage(detailProduct.id, img.id)">
-                <CIcon icon="cil-x" />
+                {{ $t('admin_products.delete') }}
               </CButton>
             </div>
           </CCol>

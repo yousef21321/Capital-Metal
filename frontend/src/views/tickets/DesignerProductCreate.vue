@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -25,6 +25,7 @@ const images = ref([])
 const imagePreviews = ref([])
 const designFile = ref(null)
 const designFileName = ref('')
+const priceFieldFocused = ref(null)
 
 const commission = computed(() => {
   if (!priceApplied.value || !form.value.price_egp) return 0
@@ -40,6 +41,40 @@ function applyPrice() {
   if (form.value.price_egp > 0) {
     priceApplied.value = true
   }
+}
+
+let converting = false
+
+watch(() => form.value.price_egp, (val) => {
+  if (converting || !val || val <= 0) return
+  converting = true
+  const rate = auth.exchangeRate || 30
+  if (rate > 0) {
+    form.value.price_usd = parseFloat((val / rate).toFixed(4))
+  }
+  converting = false
+})
+
+watch(() => form.value.price_usd, (val) => {
+  if (converting || !val || val <= 0) return
+  converting = true
+  const rate = auth.exchangeRate || 30
+  if (rate > 0) {
+    form.value.price_egp = parseFloat((val * rate).toFixed(4))
+  }
+  converting = false
+})
+
+function onPriceEgpFocus() {
+  priceFieldFocused.value = 'egp'
+}
+
+function onPriceUsdFocus() {
+  priceFieldFocused.value = 'usd'
+}
+
+function onPriceBlur() {
+  priceFieldFocused.value = null
 }
 
 function slugify(value) {
@@ -151,8 +186,11 @@ async function submit() {
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">{{ $t('designer_product.slug') }}</CFormLabel>
-              <CFormInput v-model="form.slug" :placeholder="$t('designer_product.slug_placeholder')" />
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.price_usd') }}</CFormLabel>
+              <CFormInput v-model.number="form.price_usd" type="number" min="0" :placeholder="$t('designer_product.price_usd_placeholder')" @focus="onPriceUsdFocus" @blur="onPriceBlur" :readonly="priceFieldFocused === 'egp'" />
+              <small v-if="form.price_usd > 0" class="text-body-secondary">
+                ≈ {{ (form.price_usd * (auth.exchangeRate || 30)).toFixed(2) }} EGP
+              </small>
             </div>
 
             <div class="mb-3">
@@ -187,11 +225,14 @@ async function submit() {
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: auth.userCurrency }) }}</CFormLabel>
               <div class="d-flex gap-2">
-                <CFormInput v-model.number="form.price_egp" type="number" min="0" class="flex-grow-1" :placeholder="$t('designer_product.price_placeholder')" />
+                <CFormInput v-model.number="form.price_egp" type="number" min="0" class="flex-grow-1" :placeholder="$t('designer_product.price_placeholder')" @focus="onPriceEgpFocus" @blur="onPriceBlur" :readonly="priceFieldFocused === 'usd'" />
                 <CButton color="primary" variant="outline" @click="applyPrice" :disabled="!form.price_egp || form.price_egp <= 0">
                   {{ $t('designer_product.apply') }}
                 </CButton>
               </div>
+              <small v-if="form.price_egp > 0" class="text-body-secondary">
+                ≈ {{ (form.price_egp / (auth.exchangeRate || 30)).toFixed(2) }} USD
+              </small>
               <div v-if="priceApplied && form.price_egp > 0" class="mt-2 p-3 rounded" style="background: #f8f9fa;">
                 <div class="d-flex justify-content-between mb-1">
                   <span class="text-body-secondary">{{ $t('designer_product.price_label') }}</span>
