@@ -21,6 +21,7 @@ use App\Http\Controllers\SavedCardController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\TesterProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -214,14 +215,14 @@ Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::cla
         Route::post('/tickets/{id}/upload', [TicketController::class, 'upload']);
         Route::post('/designer/products', [TicketController::class, 'storeDesignerProduct']);
         Route::get('/designer/products', [TicketController::class, 'myDesignerProducts']);
-        Route::get('/designer/products/{id}', [TicketController::class, 'showDesignerProduct']);
-        Route::post('/designer/products/{id}', [TicketController::class, 'updateDesignerProduct']);
         Route::get('/designer/products/modification-count', function (\Illuminate\Http\Request $r) {
             return response()->json([
                 'count' => \App\Models\Product::where('designer_id', $r->user()->id)
                     ->where('status', 'modification_requested')->count(),
             ]);
         });
+        Route::get('/designer/products/{id}', [TicketController::class, 'showDesignerProduct']);
+        Route::post('/designer/products/{id}', [TicketController::class, 'updateDesignerProduct']);
     });
 
     // Notifications
