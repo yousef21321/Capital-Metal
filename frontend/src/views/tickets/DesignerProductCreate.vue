@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
+import { formatPrice } from '@/utils/price'
 
 const router = useRouter()
 const auth = useAuthStore()
