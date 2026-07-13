@@ -459,7 +459,7 @@ onMounted(fetchTicket)
                           <CIcon icon="cil-cloud-download" />
                         </CButton>
                         <CButton color="danger" variant="ghost" size="sm" @click="deleteProjectFile(att)">
-                          <CIcon icon="cil-trash" />
+                          <CIcon icon="cil-trash" class="me-1" /> Delete
                         </CButton>
                       </div>
                     </CListGroupItem>
