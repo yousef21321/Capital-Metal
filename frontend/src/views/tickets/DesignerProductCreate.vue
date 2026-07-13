@@ -174,7 +174,7 @@ async function submit() {
 
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.price_usd') }}</CFormLabel>
-              <CFormInput v-model.number="form.price_usd" type="number" min="0" :placeholder="$t('designer_product.price_usd_placeholder')" inputmode="decimal" />
+              <CFormInput v-model.number="form.price_usd" type="text" :placeholder="$t('designer_product.price_usd_placeholder')" inputmode="decimal" />
               <small v-if="form.price_usd > 0" class="text-body-secondary">
                 ≈ {{ (form.price_usd * (auth.exchangeRate || 30)).toFixed(2) }} EGP
               </small>
@@ -212,7 +212,7 @@ async function submit() {
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: auth.userCurrency }) }}</CFormLabel>
               <div class="d-flex gap-2">
-                <CFormInput v-model.number="form.price_egp" type="number" min="0" class="flex-grow-1" :placeholder="$t('designer_product.price_placeholder')" inputmode="decimal" />
+                <CFormInput v-model.number="form.price_egp" type="text" class="flex-grow-1" :placeholder="$t('designer_product.price_placeholder')" inputmode="decimal" />
                 <CButton color="primary" variant="outline" @click="applyPrice" :disabled="!form.price_egp || form.price_egp <= 0">
                   {{ $t('designer_product.apply') }}
                 </CButton>
