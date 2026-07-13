@@ -12,6 +12,7 @@ import { useSidebarStore } from '@/stores/sidebar.js'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
+import api from '@/api'
 import nav from '@/_nav.js'
 
 function timeAgo(date) {
@@ -37,6 +38,22 @@ const cart = useCartStore()
 const auth = useAuthStore()
 const notif = useNotificationStore()
 const route = useRoute()
+const testerPendingCount = ref(0)
+const designerModificationCount = ref(0)
+
+async function fetchTesterCount() {
+  try {
+    const { data } = await api.get('/api/tester/products/pending-count')
+    testerPendingCount.value = data.count
+  } catch {}
+}
+
+async function fetchDesignerModificationCount() {
+  try {
+    const { data } = await api.get('/api/designer/products/modification-count')
+    designerModificationCount.value = data.count
+  } catch {}
+}
 
 const canSee = (item) => {
   const role = auth.userRole
@@ -80,6 +97,14 @@ onMounted(() => {
 
   if (auth.isAuthenticated) {
     notif.startPolling(30000)
+    if (['tester', 'admin'].includes(auth.userRole)) {
+      fetchTesterCount()
+      setInterval(fetchTesterCount, 30000)
+    }
+    if (['designer', 'admin'].includes(auth.userRole)) {
+      fetchDesignerModificationCount()
+      setInterval(fetchDesignerModificationCount, 30000)
+    }
   }
 })
 </script>
@@ -121,6 +146,38 @@ onMounted(() => {
           <RouterLink custom to="/tickets" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive">
               <CIcon icon="cil-description" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="['tester','admin'].includes(auth.userRole)">
+          <RouterLink custom to="/tester/products" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative">
+              <CIcon icon="cil-cart" size="lg" />
+              <CBadge
+                v-if="testerPendingCount > 0"
+                color="warning"
+                shape="rounded-pill"
+                class="position-absolute top-0 start-100 translate-middle"
+                style="font-size: 0.65rem"
+              >
+                {{ testerPendingCount }}
+              </CBadge>
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="['designer','admin'].includes(auth.userRole)">
+          <RouterLink custom to="/designer/products/create" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative">
+              <CIcon icon="cil-grid" size="lg" />
+              <CBadge
+                v-if="designerModificationCount > 0"
+                color="danger"
+                shape="rounded-pill"
+                class="position-absolute top-0 start-100 translate-middle"
+                style="font-size: 0.65rem"
+              >
+                {{ designerModificationCount }}
+              </CBadge>
             </CNavLink>
           </RouterLink>
         </CNavItem>

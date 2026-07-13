@@ -216,6 +216,12 @@ Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::cla
         Route::get('/designer/products', [TicketController::class, 'myDesignerProducts']);
         Route::get('/designer/products/{id}', [TicketController::class, 'showDesignerProduct']);
         Route::post('/designer/products/{id}', [TicketController::class, 'updateDesignerProduct']);
+        Route::get('/designer/products/modification-count', function (\Illuminate\Http\Request $r) {
+            return response()->json([
+                'count' => \App\Models\Product::where('designer_id', $r->user()->id)
+                    ->where('status', 'modification_requested')->count(),
+            ]);
+        });
     });
 
     // Notifications
