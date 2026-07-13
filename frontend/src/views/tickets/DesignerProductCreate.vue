@@ -95,8 +95,11 @@ function onTagKeydown(e) {
 
 function onImagesSelected(e) {
   const files = Array.from(e.target.files)
-  images.value = files
-  imagePreviews.value = files.map(f => URL.createObjectURL(f))
+  for (const f of files) {
+    images.value.push(f)
+    imagePreviews.value.push(URL.createObjectURL(f))
+  }
+  e.target.value = ''
 }
 
 function removeImage(index) {

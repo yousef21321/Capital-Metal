@@ -49,8 +49,11 @@ const discountedPrice = computed(() => {
 
 function onFilesChange(e) {
   const files = Array.from(e.target.files || [])
-  form.value.files = files
-  imagePreviews.value = files.map(f => URL.createObjectURL(f))
+  for (const f of files) {
+    form.value.files.push(f)
+    imagePreviews.value.push(URL.createObjectURL(f))
+  }
+  e.target.value = ''
 }
 
 function removeFile(i) {
