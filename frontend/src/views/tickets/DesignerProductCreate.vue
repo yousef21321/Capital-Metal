@@ -29,6 +29,29 @@ const designFilePreviews = ref([])
 
 const commissionPct = 0.15
 
+const activeCurrency = computed(() => auth.userCurrency || 'EGP')
+const otherCurrency = computed(() => activeCurrency.value === 'EGP' ? 'USD' : 'EGP')
+
+const primaryPrice = computed({
+  get: () => activeCurrency.value === 'EGP' ? form.value.price_egp : form.value.price_usd,
+  set: (val) => {
+    const n = parseFloat(val) || 0
+    if (activeCurrency.value === 'EGP') {
+      form.value.price_egp = n
+    } else {
+      form.value.price_usd = n
+    }
+  },
+})
+
+const convertedPrice = computed(() => {
+  const rate = auth.exchangeRate || 30
+  if (activeCurrency.value === 'EGP') {
+    return form.value.price_egp > 0 ? (form.value.price_egp / rate).toFixed(2) : 0
+  }
+  return form.value.price_usd > 0 ? (form.value.price_usd * rate).toFixed(2) : 0
+})
+
 const commissionEGP = computed(() => {
   if (!form.value.price_egp || form.value.price_egp <= 0) return 0
   return form.value.price_egp * commissionPct
@@ -193,18 +216,10 @@ async function submit() {
             </div>
 
             <div class="mb-3">
-              <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: 'EGP' }) }}</CFormLabel>
-              <CFormInput v-model.number="form.price_egp" type="text" inputmode="decimal" :placeholder="$t('designer_product.price_placeholder')" />
-              <small v-if="form.price_egp > 0" class="text-body-secondary">
-                ≈ {{ (form.price_egp / (auth.exchangeRate || 30)).toFixed(2) }} USD
-              </small>
-            </div>
-
-            <div class="mb-3">
-              <CFormLabel class="fw-semibold">{{ $t('designer_product.price_usd') }}</CFormLabel>
-              <CFormInput v-model.number="form.price_usd" type="text" inputmode="decimal" :placeholder="$t('designer_product.price_usd_placeholder')" />
-              <small v-if="form.price_usd > 0" class="text-body-secondary">
-                ≈ {{ (form.price_usd * (auth.exchangeRate || 30)).toFixed(2) }} EGP
+              <CFormLabel class="fw-semibold">{{ $t('designer_product.price', { currency: activeCurrency }) }}</CFormLabel>
+              <CFormInput v-model.number="primaryPrice" type="text" inputmode="decimal" :placeholder="$t('designer_product.price_placeholder')" />
+              <small v-if="primaryPrice > 0" class="text-body-secondary">
+                ≈ {{ convertedPrice }} {{ otherCurrency }}
               </small>
             </div>
 
