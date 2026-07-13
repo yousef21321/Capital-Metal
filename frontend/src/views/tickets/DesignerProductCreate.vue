@@ -208,19 +208,19 @@ async function submit() {
               </small>
             </div>
 
-            <div v-if="form.price_egp > 0 || form.price_usd > 0" class="mb-3 p-3 rounded" style="background: #f8f9fa;">
+            <div class="mb-3 p-3 rounded" style="background: #f8f9fa;">
               <div class="d-flex justify-content-between mb-1">
                 <span class="text-body-secondary">{{ $t('designer_product.price_label') }}</span>
-                <strong>{{ form.price_egp > 0 ? formatPrice(form.price_egp) + ' EGP' : '' }}<span v-if="form.price_egp > 0 && form.price_usd > 0"> / </span>{{ form.price_usd > 0 ? formatPrice(form.price_usd) + ' USD' : '' }}</strong>
+                <strong>{{ formatPrice(form.price_egp) }} EGP<span v-if="form.price_egp > 0 || form.price_usd > 0"> / </span>{{ formatPrice(form.price_usd) }} USD</strong>
               </div>
               <div class="d-flex justify-content-between mb-1">
                 <span class="text-body-secondary">{{ $t('designer_product.commission') }}</span>
-                <span class="text-danger">- {{ form.price_egp > 0 ? formatPrice(commissionEGP) + ' EGP' : '' }}<span v-if="form.price_egp > 0 && form.price_usd > 0"> / </span>{{ form.price_usd > 0 ? formatPrice(commissionUSD) + ' USD' : '' }}</span>
+                <span class="text-danger">- {{ formatPrice(commissionEGP) }} EGP<span v-if="form.price_egp > 0 || form.price_usd > 0"> / </span>{{ formatPrice(commissionUSD) }} USD</span>
               </div>
               <hr class="my-1" />
               <div class="d-flex justify-content-between">
                 <span class="fw-semibold">{{ $t('designer_product.designer_price') }}</span>
-                <strong class="text-success">{{ form.price_egp > 0 ? formatPrice(designerPriceEGP) + ' EGP' : '' }}<span v-if="form.price_egp > 0 && form.price_usd > 0"> / </span>{{ form.price_usd > 0 ? formatPrice(designerPriceUSD) + ' USD' : '' }}</strong>
+                <strong class="text-success">{{ formatPrice(designerPriceEGP) }} EGP<span v-if="form.price_egp > 0 || form.price_usd > 0"> / </span>{{ formatPrice(designerPriceUSD) }} USD</strong>
               </div>
             </div>
 
