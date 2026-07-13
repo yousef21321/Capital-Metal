@@ -19,8 +19,13 @@ class ProductController extends Controller
             $query->where('product_type', $request->product_type);
         }
 
-        if ($request->status) {
+        if ($request->status === 'all') {
+            // Admin: no status filter
+        } elseif ($request->status) {
             $query->where('status', $request->status);
+        } else {
+            // Public: only show published products
+            $query->where('status', 'published');
         }
 
         if ($request->search) {

@@ -41,7 +41,7 @@ function emptyForm() {
 async function fetchProducts() {
   loading.value = true
   try {
-    const params = { page: currentPage.value }
+    const params = { page: currentPage.value, status: 'all' }
     if (search.value) params.search = search.value
     const { data } = await api.get('/api/products', { params })
     products.value = data.data
