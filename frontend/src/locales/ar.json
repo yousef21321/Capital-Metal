@@ -371,5 +371,28 @@
   "designer_product.create": "إنشاء منتج",
   "designer_product.cancel": "إلغاء",
   "designer_product.sidebar_title": "المنتجات الرقمية",
-  "designer_product.sidebar_desc": "المنتجات التي تنشئها تظهر في المتجر العام. ارفع صوراً لعرض عملك. يبقى ملف التصميم مخفياً ويتم تسليمه للعملاء بعد الشراء."
+  "designer_product.sidebar_desc": "المنتجات التي تنشئها تظهر في المتجر العام. ارفع صوراً لعرض عملك. يبقى ملف التصميم مخفياً ويتم تسليمه للعملاء بعد الشراء.",
+
+  "profile.name": "الاسم",
+  "profile.email": "البريد الإلكتروني",
+  "profile.role": "الدور",
+  "profile.save": "حفظ التغييرات",
+  "profile.updated": "تم تحديث الملف الشخصي بنجاح.",
+  "profile.update_failed": "فشل تحديث الملف الشخصي.",
+  "profile.currency_updated": "تم تحديث العملة المفضلة.",
+  "profile.egyptian_pound": "الجنيه المصري",
+  "profile.us_dollar": "الدولار الأمريكي",
+
+  "settings.currency": "إعدادات العملة",
+  "settings.auto_detect_label": "الكشف التلقائي عن العملة عبر GPS",
+  "settings.auto_detect_help": "اكتشاف العملة تلقائياً بناءً على موقعك",
+  "settings.auto_detect_active": "الكشف التلقائي نشط — يتم تعيين العملة بناءً على موقعك",
+  "settings.auto_detected": "تم الكشف عن العملة تلقائياً: {currency}",
+  "settings.select_currency": "اختر العملة",
+  "settings.egyptian_pound": "الجنيه المصري",
+  "settings.us_dollar": "الدولار الأمريكي",
+  "settings.currency_updated": "تم تحديث العملة بنجاح.",
+  "settings.update_failed": "فشل تحديث العملة.",
+  "settings.current": "الإعدادات الحالية",
+  "settings.display_currency": "عملة العرض"
 }

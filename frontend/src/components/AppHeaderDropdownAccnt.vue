@@ -38,10 +38,10 @@ async function handleLogout() {
           </CBadge>
         </div>
       </CDropdownHeader>
-      <CDropdownItem class="dropdown-item-custom">
+      <CDropdownItem @click="router.push('/profile')" style="cursor: pointer" class="dropdown-item-custom">
         <CIcon icon="cil-user" class="dropdown-item-icon" />{{ $t('account.profile') }}
       </CDropdownItem>
-      <CDropdownItem class="dropdown-item-custom">
+      <CDropdownItem @click="router.push('/settings')" style="cursor: pointer" class="dropdown-item-custom">
         <CIcon icon="cil-settings" class="dropdown-item-icon" />{{ $t('account.settings') }}
       </CDropdownItem>
       <CDropdownDivider class="my-1" />

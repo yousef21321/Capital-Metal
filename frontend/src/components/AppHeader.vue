@@ -46,6 +46,14 @@ const canSee = (item) => {
   return item.roles.includes(role)
 }
 
+function setCurrency(currency) {
+  if (auth.isAuthenticated) {
+    auth.updateCurrency(currency).catch(() => {})
+  } else {
+    auth.detectedCurrency = currency
+  }
+}
+
 const visibleNav = computed(() => {
   const result = []
   nav.forEach((item) => {
@@ -225,6 +233,24 @@ onMounted(() => {
             {{ locale === 'ar' ? 'EN' : 'AR' }}
           </CNavLink>
         </CNavItem>
+        <CNavItem class="currency-switcher">
+          <CButtonGroup size="sm" class="currency-group-header">
+            <CButton
+              :color="auth.userCurrency === 'EGP' ? 'primary' : 'outline-primary'"
+              @click="setCurrency('EGP')"
+              class="px-2"
+            >
+              EGP
+            </CButton>
+            <CButton
+              :color="auth.userCurrency === 'USD' ? 'primary' : 'outline-primary'"
+              @click="setCurrency('USD')"
+              class="px-2"
+            >
+              USD
+            </CButton>
+          </CButtonGroup>
+        </CNavItem>
         <li class="nav-item py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-25"></div>
         </li>
@@ -342,5 +368,25 @@ onMounted(() => {
 .notif-view-all {
   border-top: 1px solid var(--cui-border-color, rgba(0,0,0,.125));
   color: var(--cui-primary, #b81300);
+}
+
+.currency-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.currency-group-header .btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--cui-border-color, rgba(0,0,0,.125));
+}
+.currency-group-header .btn:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.currency-group-header .btn:last-child {
+  border-radius: 0 6px 6px 0;
 }
 </style>

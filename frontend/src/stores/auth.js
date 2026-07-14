@@ -28,7 +28,35 @@ function generateGuestToken() {
   return token
 }
 
+async function detectViaGPS() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject('no geolocation')
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const res = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`
+          )
+          const data = await res.json()
+          const countryCode = data?.countryCode?.toLowerCase()
+          resolve(countryCode === 'eg' ? 'EGP' : 'USD')
+        } catch {
+          reject('reverse-geocode failed')
+        }
+      },
+      () => reject('permission denied or timeout'),
+      { enableHighAccuracy: true, timeout: 5000 }
+    )
+  })
+}
+
 export async function detectCurrency() {
+  try {
+    const currency = await detectViaGPS()
+    return currency
+  } catch {
+    // fallback to IP-based detection
+  }
   try {
     const res = await fetch('https://ip-api.com/json/')
     const data = await res.json()

@@ -65,6 +65,7 @@ Route::middleware('role:admin')->put('/orders/{id}/status', [OrderController::cl
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me', [AuthController::class, 'updateProfile']);
     Route::put('/me/currency', [AuthController::class, 'updateCurrency']);
     Route::post('/logout', [AuthController::class, 'logout']);
 

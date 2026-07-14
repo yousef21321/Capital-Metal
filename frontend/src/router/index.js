@@ -126,6 +126,18 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('@/views/pages/Profile.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/settings',
+        name: 'Settings',
+        component: () => import('@/views/pages/Settings.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/theme',
         name: 'Theme',
         redirect: '/theme/typography',

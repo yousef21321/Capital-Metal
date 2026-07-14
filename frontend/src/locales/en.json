@@ -412,5 +412,28 @@
   "product_type.handmade": "Handmade",
   "product_type.machine_made": "Machine Made",
   "product_type.cut_sew": "Cut & Sew",
-  "product_type.molded": "Molded"
+  "product_type.molded": "Molded",
+
+  "profile.name": "Name",
+  "profile.email": "Email",
+  "profile.role": "Role",
+  "profile.save": "Save Changes",
+  "profile.updated": "Profile updated successfully.",
+  "profile.update_failed": "Failed to update profile.",
+  "profile.currency_updated": "Currency preference updated.",
+  "profile.egyptian_pound": "Egyptian Pound",
+  "profile.us_dollar": "US Dollar",
+
+  "settings.currency": "Currency Settings",
+  "settings.auto_detect_label": "Auto-detect currency via GPS",
+  "settings.auto_detect_help": "Automatically detect your currency based on your location",
+  "settings.auto_detect_active": "Auto-detect is active — currency is set based on your location",
+  "settings.auto_detected": "Currency auto-detected as {currency}",
+  "settings.select_currency": "Select Currency",
+  "settings.egyptian_pound": "Egyptian Pound",
+  "settings.us_dollar": "US Dollar",
+  "settings.currency_updated": "Currency updated successfully.",
+  "settings.update_failed": "Failed to update currency.",
+  "settings.current": "Current Settings",
+  "settings.display_currency": "Display Currency"
 }

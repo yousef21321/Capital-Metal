@@ -84,6 +84,19 @@ class AuthController extends Controller
         return response()->json($user->load('role'));
     }
 
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:150',
+        ]);
+
+        $user = $request->user();
+        $user->name = $request->name;
+        $user->save();
+
+        return response()->json($user->load('role'));
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
