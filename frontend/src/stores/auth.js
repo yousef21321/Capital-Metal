@@ -20,6 +20,18 @@ function generateUUID() {
 }
 
 function generateGuestToken() {
+  if (localStorage.getItem('auth-token')) {
+    return null
+  }
+  let token = localStorage.getItem('guest-token')
+  if (!token) {
+    token = 'guest_' + generateUUID()
+    localStorage.setItem('guest-token', token)
+  }
+  return token
+}
+
+function ensureGuestToken() {
   let token = localStorage.getItem('guest-token')
   if (!token) {
     token = 'guest_' + generateUUID()
@@ -187,6 +199,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.persistUser(null)
       localStorage.removeItem('auth-token')
+      this.guestToken = ensureGuestToken()
     },
   },
 })
