@@ -163,9 +163,17 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'My Products',
+    to: '/designer/products',
+    icon: 'cil-grid',
+    translationKey: 'nav.my_products',
+    roles: ['designer', 'admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Add Degital Product',
     to: '/designer/products/create',
-    icon: 'cil-grid',
+    icon: 'cil-plus',
     translationKey: 'nav.add_product',
     roles: ['designer', 'admin'],
   },

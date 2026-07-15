@@ -126,9 +126,21 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/designer/products',
+        name: 'DesignerProducts',
+        component: () => import('@/views/tickets/DesignerProducts.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/designer/products/create',
         name: 'DesignerProductCreate',
         component: () => import('@/views/tickets/DesignerProductCreate.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/designer/products/:id/edit',
+        name: 'DesignerProductEdit',
+        component: () => import('@/views/tickets/DesignerProductEdit.vue'),
         meta: { requiresAuth: true },
       },
       {
