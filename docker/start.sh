@@ -19,7 +19,6 @@ fi
 
 echo "[4] Publishing Sanctum config..."
 php artisan vendor:publish --tag=sanctum-config --force 2>/dev/null || true
-php artisan vendor:publish --tag=sanctum-migrations --force 2>/dev/null || true
 
 echo "[5] Generating app key..."
 php artisan key:generate --force 2>/dev/null || true
