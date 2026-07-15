@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -30,6 +31,8 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'currency_preference' => $request->currency_preference ?? 'EGP',
         ]);
+
+        $this->mergeGuestCart($request, $user);
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
@@ -60,10 +63,49 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
+        $this->mergeGuestCart($request, $user);
+
         return response()->json([
             'user' => $user->load('role'),
             'token' => $token,
         ]);
+    }
+
+    protected function mergeGuestCart(Request $request, User $user): void
+    {
+        $guestToken = $request->header('X-Guest-Token');
+
+        if (!$guestToken) {
+            return;
+        }
+
+        $guestCart = Cart::where('guest_token', $guestToken)->first();
+
+        if (!$guestCart || $guestCart->items->isEmpty()) {
+            return;
+        }
+
+        $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
+
+        foreach ($guestCart->items as $item) {
+            $existing = $userCart->items()
+                ->where('product_id', $item->product_id)
+                ->where('license_type', $item->license_type)
+                ->first();
+
+            if ($existing) {
+                $existing->increment('quantity', $item->quantity);
+            } else {
+                $userCart->items()->create([
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'license_type' => $item->license_type,
+                ]);
+            }
+        }
+
+        $guestCart->items()->delete();
+        $guestCart->delete();
     }
 
     public function me(Request $request)
