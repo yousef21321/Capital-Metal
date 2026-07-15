@@ -69,21 +69,17 @@ onMounted(fetchOrders)
       <CSpinner />
     </div>
 
-    <div v-else-if="!auth.isAuthenticated && !orders.length" class="text-center py-5 text-body-secondary">
-      <h4>{{ $t('orders.login_title') }}</h4>
-      <p>{{ $t('orders.login_desc') }}</p>
-      <CButton color="primary" class="me-2" @click="router.push('/pages/login')">
+    <div v-else-if="!orders.length" class="text-center py-5 text-body-secondary">
+      <h4 v-if="auth.isAuthenticated">{{ $t('orders.empty') }}</h4>
+      <h4 v-else>{{ $t('orders.login_title') }}</h4>
+      <p v-if="auth.isAuthenticated">{{ $t('orders.empty_desc') }}</p>
+      <p v-else>{{ $t('orders.login_desc') }}</p>
+      <CButton v-if="!auth.isAuthenticated" color="primary" class="me-2" @click="router.push('/pages/login')">
         <CIcon icon="cil-account-login" class="me-1" /> {{ $t('orders.login_btn') }}
       </CButton>
-      <CButton color="outline-primary" @click="router.push('/products')">
+      <RouterLink to="/products" class="btn btn-primary">
         <CIcon icon="cil-grid" class="me-1" /> {{ $t('orders.browse') }}
-      </CButton>
-    </div>
-
-    <div v-else-if="!orders.length" class="text-center py-5 text-body-secondary">
-      <h4>{{ $t('orders.empty') }}</h4>
-      <p>{{ $t('orders.empty_desc') }}</p>
-      <RouterLink to="/products" class="btn btn-primary">{{ $t('orders.browse') }}</RouterLink>
+      </RouterLink>
     </div>
 
     <div v-else>

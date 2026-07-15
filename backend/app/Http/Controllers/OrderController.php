@@ -154,8 +154,11 @@ class OrderController extends Controller
             $request, $validated, $userId, $orderNumber, $subtotal,
             $shippingCost, $discount, $couponId, $totalAmount, $orderItems, $cart
         ) {
+            $guestToken = $this->guestToken($request);
+
             $orderData = [
                 'user_id' => $userId,
+                'guest_token' => $guestToken,
                 'order_number' => $orderNumber,
                 'currency' => $validated['currency'],
                 'subtotal' => $subtotal,
@@ -268,13 +271,12 @@ class OrderController extends Controller
     public function myOrders(Request $request)
     {
         $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['data' => [], 'meta' => ['current_page' => 1, 'last_page' => 1]]);
-        }
+        $guestToken = $this->guestToken($request);
 
         $orders = Order::with(['items.product.images', 'payments'])
-            ->where('user_id', $user->id)
+            ->when($user, fn($q) => $q->where('user_id', $user->id))
+            ->when(!$user && $guestToken, fn($q) => $q->where('guest_token', $guestToken))
+            ->when(!$user && !$guestToken, fn($q) => $q->whereRaw('1 = 0'))
             ->latest()
             ->paginate($request->per_page ?? 20);
 
