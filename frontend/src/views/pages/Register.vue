@@ -3,8 +3,8 @@ import { computed, ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useColorModes } from '@coreui/vue'
 import { useAuthStore, detectCurrency } from '@/stores/auth'
-import logoLight from '@/assets/images/logo.png'
-import logoDark from '@/assets/images/logodark.png'
+import logoLight from '@/assets/images/logo.webp'
+import logoDark from '@/assets/images/logodark.webp'
 
 const authStore = useAuthStore()
 const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
@@ -55,7 +55,7 @@ async function handleRegister() {
               <CCol md="5" class="auth-brand-panel d-none d-md-flex flex-column align-items-center justify-content-center">
                 <div class="auth-brand-content">
                   <RouterLink to="/">
-                    <img :src="logoSrc" alt="FLFL Design" class="auth-logo mb-3" />
+                    <img :src="logoSrc" alt="FLFL Design" class="auth-logo mb-3" width="97" height="48" />
                   </RouterLink>
                   <h3 class="auth-brand-title">FLFL Design</h3>
                   <p class="auth-brand-desc">منصة التصميم والتصنيع</p>
@@ -70,7 +70,7 @@ async function handleRegister() {
                 <CCardBody class="auth-form-body p-4 p-lg-5">
                   <div class="text-center d-md-none mb-4">
                     <RouterLink to="/">
-                      <img :src="logoSrc" alt="FLFL Design" class="auth-logo-sm mb-2" />
+                      <img :src="logoSrc" alt="FLFL Design" class="auth-logo-sm mb-2" width="73" height="36" />
                     </RouterLink>
                   </div>
                   <div class="auth-form-header">
@@ -78,7 +78,7 @@ async function handleRegister() {
                     <p class="mb-0" style="color: rgba(255,255,255,0.5);">أنشئ حسابك في FLFL Design لبدء التسوق</p>
                   </div>
 
-                  <CAlert v-if="error" color="danger" class="py-2 auth-alert">{{ error }}</CAlert>
+                  <CAlert v-show="error" color="danger" class="py-2 auth-alert">{{ error }}</CAlert>
 
                   <CForm @submit.prevent="handleRegister" class="auth-form">
                     <div class="mb-3">

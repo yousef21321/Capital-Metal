@@ -339,7 +339,7 @@ onMounted(fetchTicket)
         <CCol :md="8">
           <!-- Actions (full width, at top) -->
           <CCard class="mb-4 shadow-sm">
-            <CCardHeader class="bg-body"><h5 class="mb-0">Actions</h5></CCardHeader>
+            <CCardHeader class="bg-body"><h4 class="mb-0 fs-5">Actions</h4></CCardHeader>
             <CCardBody>
               <!-- Designer actions -->
               <template v-if="role() === 'designer' && ticket.designer_id === auth.user?.id">
@@ -388,9 +388,9 @@ onMounted(fetchTicket)
               <!-- Tester: send suggestion or counter -->
               <template v-if="canTesterPropose">
                 <div class="mb-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary">
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary">
                     {{ ticket.status === 'pending_tester_review' ? 'Send Proposal' : 'Counter Industor' }}
-                  </h6>
+                  </h5>
                   <div v-if="ticket.status === 'waiting_tester_review'" class="small text-body-secondary mb-2">
                     Industor counter: <strong class="text-info">{{ formatDate(ticket.industor_counter_deadline) }}</strong>
                     <CBadge color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
@@ -458,7 +458,7 @@ onMounted(fetchTicket)
               <template v-if="role() === 'industor' && ticket.industor_id === auth.user?.id">
                 <!-- Edit ticket: only during pending_tester_review -->
                 <div v-if="ticket.status === 'pending_tester_review'" class="mb-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary">Edit Ticket</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary">Edit Ticket</h5>
                   <CFormInput v-model="ticket.title" placeholder="Title" class="mb-2" />
                   <CFormTextarea v-model="ticket.description" rows="3" placeholder="Description" class="mb-2" />
                   <CButton color="primary" class="w-100 mb-3" :disabled="submitting" @click="saveEdit">Save Changes</CButton>
@@ -466,7 +466,7 @@ onMounted(fetchTicket)
 
                 <!-- Project files: available in active statuses -->
                 <div v-if="['pending_tester_review', 'waiting_industor_approval', 'waiting_tester_review', 'accepted', 'in_progress', 'rejected_qa', 'awaiting_qa'].includes(ticket.status)" class="mb-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary border-top pt-3">Project Files</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary border-top pt-3">Project Files</h5>
                   <CFormInput type="file" accept=".pdf,.png,.jpg,.jpeg,.zip" class="mb-2" @change="onReqFileChange" />
                   <CButton color="info" variant="outline" class="w-100" :disabled="submitting || !form.req_file" @click="uploadRequirement">
                     <CSpinner v-if="submitting" size="sm" class="me-1" /> Upload File
@@ -498,7 +498,7 @@ onMounted(fetchTicket)
                 </div>
 
                 <div v-if="canIndustorRespond" class="mb-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary">Tester Proposal</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary">Tester Proposal</h5>
                   <div class="small mb-2">
                     <div class="text-body-secondary">Your expected</div>
                     <strong>{{ formatDate(ticket.industor_expected_deadline) }}</strong>
@@ -513,7 +513,7 @@ onMounted(fetchTicket)
                     <CSpinner v-if="submitting" size="sm" class="me-1" /> Accept Tester's Proposal
                   </CButton>
 
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary border-top pt-3">Counter with your proposal</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary border-top pt-3">Counter with your proposal</h5>
                   <CRow class="g-2">
                     <CCol :sm="6">
                       <CFormLabel class="small">Counter Deadline</CFormLabel>
@@ -548,7 +548,7 @@ onMounted(fetchTicket)
                 </div>
 
                 <div v-if="ticket.status === 'pending_payment'" class="mb-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary">Payment Required</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary">Payment Required</h5>
                   <div class="alert alert-warning small mb-2">
                     Your ticket was approved by the tester. Price: <strong>{{ formatPrice(ticket.price) }}</strong>
                     <span v-if="ticket.is_single_purchase" class="d-block mt-1">Single-purchase ticket — pay to make it available to designers.</span>
@@ -560,7 +560,7 @@ onMounted(fetchTicket)
                 </div>
 
                 <div v-if="ticket.status === 'modification_requested'" class="mb-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary">Modification Request</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary">Modification Request</h5>
                   <CFormTextarea v-model="form.mod_response" rows="2" placeholder="Response (optional)" />
                   <div class="d-flex gap-2 mt-2">
                     <CButton color="success" class="flex-grow-1" :disabled="submitting" @click="action('modification/approve')">Approve</CButton>
@@ -569,7 +569,7 @@ onMounted(fetchTicket)
                 </div>
 
                 <div v-if="ticket.status === 'completed' && ticket.can_publish_to_store" class="mt-3 border-top pt-3">
-                  <h6 class="small fw-semibold text-uppercase text-body-secondary">Publish to Store</h6>
+                  <h5 class="small fw-semibold text-uppercase text-body-secondary">Publish to Store</h5>
                   <CFormInput v-model="form.title" placeholder="Listing title" class="mb-2" />
                   <CFormInput v-model.number="form.price" type="number" min="0" placeholder="Price" class="mb-2" />
                   <CButton color="info" class="w-100" :disabled="submitting" @click="publishToStore">
@@ -618,7 +618,7 @@ onMounted(fetchTicket)
           </CCard>
 
           <CCard class="mb-4 shadow-sm">
-            <CCardHeader class="bg-body"><h5 class="mb-0">Project Details</h5></CCardHeader>
+            <CCardHeader class="bg-body"><h4 class="mb-0 fs-5">Project Details</h4></CCardHeader>
             <CCardBody>
               <p class="text-body">{{ ticket.description }}</p>
               <hr />
@@ -659,7 +659,7 @@ onMounted(fetchTicket)
                 </CCol>
               </CRow>
               <div v-if="ticket.price_history?.length" class="mt-3">
-                <h6 class="small text-uppercase text-body-secondary">Price History</h6>
+                <h5 class="small text-uppercase text-body-secondary">Price History</h5>
                 <CListGroup flush>
                   <CListGroupItem v-for="ph in ticket.price_history" :key="ph.id" class="d-flex justify-content-between small px-0">
                     <span>
@@ -693,7 +693,7 @@ onMounted(fetchTicket)
             class="mb-4 shadow-sm border-info"
           >
             <CCardHeader class="bg-body d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><CIcon icon="cil-handshake" class="me-1" /> Price & Deadline Negotiation</h5>
+              <h4 class="mb-0 fs-5"><CIcon icon="cil-handshake" class="me-1" /> Price & Deadline Negotiation</h4>
               <CBadge v-if="ticket.final_deadline" color="success">Agreed</CBadge>
               <CBadge v-else-if="ticket.status === 'waiting_industor_approval'" color="warning">Awaiting Industor</CBadge>
               <CBadge v-else-if="ticket.status === 'waiting_tester_review'" color="warning">Awaiting Tester</CBadge>
@@ -724,7 +724,7 @@ onMounted(fetchTicket)
               </CRow>
 
               <div v-if="ticket.deadline_negotiations?.length">
-                <h6 class="small text-uppercase text-body-secondary">Negotiation History (Round {{ ticket.current_negotiation_round }})</h6>
+                <h5 class="small text-uppercase text-body-secondary">Negotiation History (Round {{ ticket.current_negotiation_round }})</h5>
                 <div class="d-flex flex-column gap-2">
                   <div
                     v-for="n in ticket.deadline_negotiations"
@@ -751,7 +751,7 @@ onMounted(fetchTicket)
 
           <!-- Modification requests -->
           <CCard v-if="ticket.modification_requests?.length" class="mb-4 shadow-sm border-warning">
-            <CCardHeader class="bg-body"><h5 class="mb-0"><CIcon icon="cil-comment-square" class="me-1" /> Modification Requests</h5></CCardHeader>
+            <CCardHeader class="bg-body"><h4 class="mb-0 fs-5"><CIcon icon="cil-comment-square" class="me-1" /> Modification Requests</h4></CCardHeader>
             <CCardBody>
               <div v-for="m in ticket.modification_requests" :key="m.id" class="border-bottom pb-2 mb-2 last:border-0">
                 <div class="d-flex justify-content-between">
@@ -777,7 +777,7 @@ onMounted(fetchTicket)
 
           <!-- Attachments -->
           <CCard class="mb-4 shadow-sm">
-            <CCardHeader class="bg-body"><h5 class="mb-0">Deliverables</h5></CCardHeader>
+            <CCardHeader class="bg-body"><h4 class="mb-0 fs-5">Deliverables</h4></CCardHeader>
             <CCardBody>
               <div v-if="!deliverableFiles.length" class="text-body-secondary small">No files uploaded yet.</div>
               <CListGroup v-else>
@@ -797,7 +797,7 @@ onMounted(fetchTicket)
 
           <!-- History -->
           <CCard class="shadow-sm">
-            <CCardHeader class="bg-body"><h5 class="mb-0">Status History</h5></CCardHeader>
+            <CCardHeader class="bg-body"><h4 class="mb-0 fs-5">Status History</h4></CCardHeader>
             <CCardBody>
               <div class="d-flex flex-column gap-2">
                 <div v-for="h in ticket.histories" :key="h.id" class="d-flex align-items-start gap-3">
@@ -927,7 +927,7 @@ onMounted(fetchTicket)
 }
 
 /* ── Headings inside cards ── */
-:deep(.card-header h5) {
+:deep(.card-header h4) {
   font-weight: 700;
   letter-spacing: -.2px;
   display: flex;

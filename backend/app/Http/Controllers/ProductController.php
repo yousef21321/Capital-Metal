@@ -7,6 +7,7 @@ use App\Models\ProductImage;
 use App\Models\Inventory;
 use App\Models\DigitalFile;
 use App\Models\LicenseAgreement;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -127,7 +128,8 @@ class ProductController extends Controller
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
-        $path = $request->file('image')->store("products/{$product->id}", 'public');
+        $optimizer = app(ImageOptimizer::class);
+        $path = $optimizer->optimizeUploadedFile($request->file('image'), "products/{$product->id}");
 
         $image = $product->images()->create([
             'image_url' => $path,

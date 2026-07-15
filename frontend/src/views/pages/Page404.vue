@@ -5,7 +5,7 @@
         <CCol :md="6">
           <div class="clearfix">
             <h1 class="float-start display-3 me-4">404</h1>
-            <h4 class="pt-3">Oops! You're lost.</h4>
+            <h2 class="pt-3 fs-5">Oops! You're lost.</h2>
             <p class="text-body-secondary float-start">
               The page you are looking for was not found.
             </p>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HeroImage;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,7 +21,8 @@ class HeroController extends Controller
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
-        $path = $request->file('image')->store('hero', 'public');
+        $optimizer = app(ImageOptimizer::class);
+        $path = $optimizer->optimizeUploadedFile($request->file('image'), 'hero');
 
         $heroImage = HeroImage::create([
             'image_url' => $path,

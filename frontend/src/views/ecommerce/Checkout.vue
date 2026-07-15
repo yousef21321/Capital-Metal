@@ -318,9 +318,9 @@ onMounted(() => {
         <!-- Guest name/phone fields -->
         <CCard v-if="!auth.isAuthenticated" class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
-            <h5 class="mb-0 d-flex align-items-center gap-2">
+            <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-user" /> معلوماتك / Your Information
-            </h5>
+            </h4>
           </CCardHeader>
           <CCardBody>
             <CRow>
@@ -343,9 +343,9 @@ onMounted(() => {
 
         <CCard class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
-            <h5 class="mb-0 d-flex align-items-center gap-2">
+            <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-location-pin" /> عنوان الشحن / Shipping Address
-            </h5>
+            </h4>
           </CCardHeader>
           <CCardBody>
             <!-- Guest address fields -->
@@ -399,7 +399,7 @@ onMounted(() => {
 
             <CCollapse :visible="showAddressForm">
               <div class="border rounded p-3 mt-2 bg-body-secondary">
-                <h6 class="mb-3">New Address</h6>
+                <h5 class="mb-3 fs-6">New Address</h5>
                 <CRow>
                   <CCol :sm="6" class="mb-2">
                     <CFormLabel class="small">Full Name</CFormLabel>
@@ -446,9 +446,9 @@ onMounted(() => {
 
         <CCard class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
-            <h5 class="mb-0 d-flex align-items-center gap-2">
+            <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-notes" /> Order Notes
-            </h5>
+            </h4>
           </CCardHeader>
           <CCardBody>
             <CFormTextarea
@@ -464,9 +464,9 @@ onMounted(() => {
       <CCol :md="5">
         <CCard class="shadow-sm sticky-top" style="top: 20px;">
           <CCardHeader class="bg-body">
-            <h5 class="mb-0 d-flex align-items-center gap-2">
+            <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-cart" /> Order Summary
-            </h5>
+            </h4>
           </CCardHeader>
           <CCardBody>
             <!-- Items -->

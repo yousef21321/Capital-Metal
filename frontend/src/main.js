@@ -30,7 +30,6 @@ import { iconsSet as icons } from '@/assets/icons'
 // Documentation components (remove in production if not needed)
 import DocsComponents from '@/components/DocsComponents'
 import DocsExample from '@/components/DocsExample'
-import DocsIcons from '@/components/DocsIcons'
 
 // Create Vue application instance
 const app = createApp(App)
@@ -48,7 +47,6 @@ app.provide('icons', icons)
 app.component('CIcon', CIcon)
 app.component('DocsComponents', DocsComponents)
 app.component('DocsExample', DocsExample)
-app.component('DocsIcons', DocsIcons)
 
 // Mount application to DOM
 app.mount('#app')

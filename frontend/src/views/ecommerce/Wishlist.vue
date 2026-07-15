@@ -104,6 +104,9 @@ onMounted(fetchWishlist)
               :alt="item.product?.name"
               class="w-100 h-100"
               style="object-fit: cover;"
+              loading="lazy"
+              width="400"
+              height="200"
             />
             <div v-else class="d-flex align-items-center justify-content-center h-100">
               <CIcon :icon="item.product?.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="3xl" class="text-body-secondary" />
@@ -122,7 +125,7 @@ onMounted(fetchWishlist)
             </CBadge>
             <p class="card-text text-body-secondary small flex-grow-1">{{ item.product?.description?.slice(0, 60) || $t('wishlist.no_description') }}{{ item.product?.description?.length > 60 ? '...' : '' }}</p>
             <div class="d-flex justify-content-between align-items-center mt-2">
-              <h5 class="text-primary mb-0">{{ formatPrice(item.product) }}</h5>
+              <h4 class="text-primary mb-0 fs-5">{{ formatPrice(item.product) }}</h4>
               <CButton color="primary" size="sm" @click="addToCart(item)">
                 <CIcon icon="cil-cart" class="me-1" />{{ $t('wishlist.add') }}
               </CButton>

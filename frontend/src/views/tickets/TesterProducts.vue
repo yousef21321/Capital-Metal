@@ -62,10 +62,10 @@ onMounted(fetchProducts)
           <CCardBody>
             <div class="d-flex align-items-start gap-3 mb-3">
               <div v-if="p.images?.length" style="width: 80px; height: 80px; flex-shrink: 0;">
-                <img :src="'/storage/' + p.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" />
+                <img :src="'/storage/' + p.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="80" height="80" />
               </div>
               <div class="flex-grow-1 min-w-0">
-                <h6 class="mb-1 text-truncate">{{ p.name }}</h6>
+                <h4 class="mb-1 text-truncate fs-6">{{ p.name }}</h4>
                 <small class="text-body-secondary d-block">Designer: {{ p.designer?.name || 'N/A' }}</small>
                 <small class="text-body-secondary d-block">Status: <CBadge :color="p.status === 'pending_tester_review' ? 'warning' : 'secondary'">{{ p.status }}</CBadge></small>
                 <div class="mt-1">

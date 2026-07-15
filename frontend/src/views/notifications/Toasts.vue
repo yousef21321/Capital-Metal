@@ -31,7 +31,7 @@ const createToast = () => {
                   xmlns="http://www.w3.org/2000/svg"
                   preserveAspectRatio="xMidYMid slice"
                   focusable="false"
-                  role="img"
+                  aria-hidden="true"
                 >
                   <rect width="100%" height="100%" fill="#007aff"></rect>
                 </svg>
@@ -75,7 +75,7 @@ const createToast = () => {
                   xmlns="http://www.w3.org/2000/svg"
                   preserveAspectRatio="xMidYMid slice"
                   focusable="false"
-                  role="img"
+                  aria-hidden="true"
                 >
                   <rect width="100%" height="100%" fill="#007aff"></rect>
                 </svg>

@@ -535,7 +535,7 @@ onMounted(() => {
         <hr />
         <p>{{ detailProduct.description || $t('admin_products.no_description') }}</p>
         <hr />
-        <h6>{{ $t('admin_products.images', { count: detailProduct.images?.length || 0 }) }}</h6>
+        <h4 class="fs-6">{{ $t('admin_products.images', { count: detailProduct.images?.length || 0 }) }}</h4>
         <CRow v-if="detailProduct.images?.length">
           <CCol v-for="(img, idx) in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
             <div class="position-relative">

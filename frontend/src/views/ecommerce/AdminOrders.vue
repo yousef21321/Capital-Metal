@@ -159,7 +159,7 @@ onMounted(fetchOrders)
           </CCol>
         </CRow>
         <hr />
-        <h6>Items</h6>
+        <h4 class="fs-6">Items</h4>
         <div v-for="item in detailOrder.items" :key="item.id" class="d-flex justify-content-between align-items-center mb-2">
           <span>{{ item.product?.name || 'Product' }} <small class="text-body-secondary">x{{ item.quantity }}</small></span>
           <span>{{ item.price }} {{ detailOrder.currency }}</span>

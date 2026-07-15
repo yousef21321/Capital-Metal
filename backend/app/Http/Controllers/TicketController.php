@@ -909,8 +909,9 @@ class TicketController extends Controller
         ]));
 
         if ($request->hasFile('images')) {
+            $optimizer = app(ImageOptimizer::class);
             foreach ($request->file('images') as $i => $image) {
-                $path = $image->store("products/{$product->id}", 'public');
+                $path = $optimizer->optimizeUploadedFile($image, "products/{$product->id}");
                 $product->images()->create([
                     'image_url' => $path,
                     'sort_order' => $i,
@@ -1200,8 +1201,9 @@ class TicketController extends Controller
         if ($request->hasFile('images')) {
             $request->validate(['images' => 'nullable|array|max:2']);
             $product->images()->delete();
+            $optimizer = app(ImageOptimizer::class);
             foreach ($request->file('images') as $i => $image) {
-                $path = $image->store("products/{$product->id}", 'public');
+                $path = $optimizer->optimizeUploadedFile($image, "products/{$product->id}");
                 $product->images()->create([
                     'image_url'  => $path,
                     'sort_order' => $i,

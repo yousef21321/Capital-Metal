@@ -103,6 +103,18 @@ async function addToCart(product) {
   }
 }
 
+function shareProduct(product) {
+  const url = `${window.location.origin}/#/products/${product.id}`
+  if (navigator.share) {
+    navigator.share({ title: product.name, url })
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(t('products.link_copied'))
+    })
+  }
+  viewProduct(product.id)
+}
+
 function viewProduct(id) {
   router.push(`/products/${id}`)
 }
@@ -187,6 +199,9 @@ onMounted(fetchProducts)
               :src="productImage(product)"
               :alt="product.name"
               class="product-img"
+              loading="lazy"
+              width="400"
+              height="240"
             />
             <div v-else class="product-img-fallback">
               <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="3xl" class="text-body-secondary" />
@@ -212,6 +227,15 @@ onMounted(fetchProducts)
                 @click.stop="toggleWishlist(product.id)"
               >
                 <CIcon :icon="wishlistIds.has(product.id) ? 'cil-heart' : 'cil-heart'" />
+              </CButton>
+              <CButton
+                color="light"
+                size="sm"
+                class="action-btn action-share"
+                :title="$t('products.share')"
+                @click.stop="shareProduct(product)"
+              >
+                <CIcon icon="cil-link" />
               </CButton>
               <CButton
                 color="primary"
@@ -241,9 +265,18 @@ onMounted(fetchProducts)
             </p>
             <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
               <div class="product-price-row">
-                <h5 class="product-price mb-0">{{ formatPrice(product) }}</h5>
+                <h4 class="product-price mb-0 fs-5">{{ formatPrice(product) }}</h4>
                 <small v-if="product.compare_price" class="text-decoration-line-through text-body-secondary ms-1">{{ product.compare_price }}</small>
               </div>
+              <CButton
+                color="light"
+                size="sm"
+                class="btn-share-product"
+                :title="$t('products.share')"
+                @click.stop="shareProduct(product)"
+              >
+                <CIcon icon="cil-share-alt" class="me-1" />{{ $t('products.share') }}
+              </CButton>
             </div>
           </CCardBody>
         </CCard>

@@ -227,7 +227,7 @@ onMounted(checkSubscription)
       <CCol :md="4">
         <CCard class="shadow-sm bg-body-tertiary">
           <CCardBody>
-            <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> {{ $t('ticket_create.how_it_works') }}</h6>
+            <h4 class="fw-bold fs-6"><CIcon icon="cil-info" class="me-1" /> {{ $t('ticket_create.how_it_works') }}</h4>
             <ol class="small text-body-secondary mb-0 ps-3">
               <li>{{ $t('ticket_create.step1') }}</li>
               <li>{{ $t('ticket_create.step2') }}</li>

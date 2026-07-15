@@ -114,7 +114,7 @@ onMounted(fetchOrders)
         <CCardBody>
           <div class="d-flex justify-content-between align-items-start">
             <div>
-              <h5 class="mb-1">Order #{{ order.order_number }}</h5>
+              <h4 class="mb-1 fs-5">Order #{{ order.order_number }}</h4>
               <small class="text-body-secondary">{{ new Date(order.created_at).toLocaleDateString() }}</small>
             </div>
             <div class="text-end">
@@ -141,11 +141,11 @@ onMounted(fetchOrders)
             </div>
           </div>
           <hr />
-          <h6 class="fw-semibold mb-3">Products</h6>
+          <h5 class="fw-semibold mb-3 fs-6">Products</h5>
           <div v-if="order.items?.length">
             <div v-for="item in order.items" :key="item.id" class="d-flex align-items-center gap-3 mb-3">
               <div v-if="item.product?.images?.length" style="width: 60px; height: 60px; flex-shrink: 0;">
-                <img :src="'/storage/' + item.product.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" />
+                <img :src="'/storage/' + item.product.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="60" height="60" />
               </div>
               <div class="flex-grow-1 min-w-0">
                 <RouterLink :to="`/products/${item.product?.id || item.product_id}`" class="fw-semibold text-decoration-none">

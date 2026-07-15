@@ -141,7 +141,7 @@ onMounted(load)
       <CCardBody class="d-flex flex-wrap justify-content-between align-items-center">
         <div>
           <span class="text-body-secondary small">{{ $t('plans.current_plan') }}</span>
-          <h5 class="mb-0">{{ subscription.subscription.plan?.name }}</h5>
+          <h4 class="mb-0 fs-5">{{ subscription.subscription.plan?.name }}</h4>
         </div>
         <div class="d-flex align-items-center gap-3 flex-wrap">
           <CBadge :color="approvalBadge(subscription.approval_status).color">{{ $t('plans.' + approvalBadge(subscription.approval_status).key) }}</CBadge>
@@ -206,7 +206,7 @@ onMounted(load)
       <CCol v-for="plan in plans" :key="plan.id" md="6" lg="4" class="mb-4">
         <CCard class="h-100 shadow-sm">
           <CCardHeader class="bg-body text-center">
-            <h5 class="mb-0">{{ plan.name }}</h5>
+            <h4 class="mb-0 fs-5">{{ plan.name }}</h4>
           </CCardHeader>
           <CCardBody class="text-center d-flex flex-column">
             <div class="fs-2 fw-bold text-primary mb-2">{{ money(plan) }}</div>

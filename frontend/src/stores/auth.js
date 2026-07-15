@@ -71,6 +71,7 @@ export async function detectCurrency() {
   }
   try {
     const res = await fetch('https://ip-api.com/json/')
+    if (!res.ok) return 'EGP'
     const data = await res.json()
     const countryCode = data?.countryCode?.toLowerCase()
     return countryCode === 'eg' ? 'EGP' : 'USD'

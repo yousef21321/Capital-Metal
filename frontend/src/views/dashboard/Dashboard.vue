@@ -90,6 +90,18 @@ async function addToCart(product) {
   }
 }
 
+function shareProduct(product) {
+  const url = `${window.location.origin}/#/products/${product.id}`
+  if (navigator.share) {
+    navigator.share({ title: product.name, url })
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(t('products.link_copied'))
+    })
+  }
+  router.push(`/products/${product.id}`)
+}
+
 onMounted(async () => {
   try {
     const { data } = await api.get('/api/products', { params: { page: 1 } })
@@ -150,6 +162,8 @@ let notifInterval
             :key="img.id"
             :src="`/storage/${img.image_url}`"
             class="hero-bg-img"
+            loading="lazy"
+            alt=""
           />
           <span class="shape shape-1"></span>
           <span class="shape shape-2"></span>
@@ -180,18 +194,18 @@ let notifInterval
         </div>
       </div>
 
-      <div v-if="featuredProducts.length" class="featured-products mt-5">
+      <div class="featured-products-container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="fw-bold mb-0">
+          <h2 class="fw-bold mb-0 fs-5">
             <CIcon icon="cil-star" class="me-2 text-primary" />{{ $t('dashboard.featured_products') }}
-          </h4>
+          </h2>
           <RouterLink to="/products">
             <CButton color="primary" variant="outline" size="sm" class="rounded-pill">
               {{ $t('dashboard.view_all') }} <CIcon icon="cil-arrow-right" class="ms-1" />
             </CButton>
           </RouterLink>
         </div>
-        <CRow class="g-3">
+        <CRow v-if="featuredProducts.length" class="g-3">
           <CCol v-for="product in featuredProducts" :key="product.id" sm="6" lg="3">
             <CCard class="featured-product-card h-100">
               <RouterLink to="/products">
@@ -201,6 +215,9 @@ let notifInterval
                     :src="productImage(product)"
                     :alt="product.name"
                     class="product-img"
+                    loading="lazy"
+                    width="320"
+                    height="160"
                   />
                   <div v-else class="product-img-fallback">
                     <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="2xl" class="text-body-secondary" />
@@ -214,6 +231,9 @@ let notifInterval
                     <CButton color="light" size="sm" class="overlay-btn">
                       <CIcon icon="cil-zoom-in" class="me-1" />{{ $t('products.view') }}
                     </CButton>
+                    <CButton color="light" size="sm" class="overlay-btn" :title="$t('products.share')" @click.stop="shareProduct(product)">
+                      <CIcon icon="cil-link" class="me-1" />{{ $t('products.share') }}
+                    </CButton>
                     <CButton color="primary" size="sm" class="overlay-btn" @click.stop="addToCart(product)">
                       <CIcon icon="cil-cart" class="me-1" />{{ $t('products.add_to_cart') }}
                     </CButton>
@@ -222,15 +242,38 @@ let notifInterval
               </RouterLink>
               <CCardBody class="d-flex flex-column">
                 <RouterLink to="/products">
-                  <h6 class="product-name mb-1">{{ product.name }}</h6>
+                  <h3 class="product-name mb-1 fs-6">{{ product.name }}</h3>
                 </RouterLink>
                 <p class="product-desc text-body-secondary small flex-grow-1 mb-2">
                   {{ product.description?.slice(0, 60) || '' }}{{ product.description?.length > 60 ? '...' : '' }}
                 </p>
                 <div class="d-flex align-items-center justify-content-between mt-auto">
                   <span class="product-price fw-bold">{{ formatPrice(product) }}</span>
-                  <span class="type-dot-sm" :class="product.product_type || 'physical'"></span>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="type-dot-sm" :class="product.product_type || 'physical'"></span>
+                    <CButton
+                      color="light"
+                      size="sm"
+                      class="btn-share-product"
+                      :title="$t('products.share')"
+                      @click.stop="shareProduct(product)"
+                    >
+                      <CIcon icon="cil-share-alt" class="me-1" />{{ $t('products.share') }}
+                    </CButton>
+                  </div>
                 </div>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+        <CRow v-else class="g-3">
+          <CCol v-for="n in 4" :key="'skeleton-' + n" sm="6" lg="3">
+            <CCard class="featured-product-card h-100 skeleton-card">
+              <div class="skeleton-img"></div>
+              <CCardBody>
+                <div class="skeleton-line skeleton-line-title"></div>
+                <div class="skeleton-line skeleton-line-text"></div>
+                <div class="skeleton-line skeleton-line-short"></div>
               </CCardBody>
             </CCard>
           </CCol>
@@ -246,7 +289,7 @@ let notifInterval
             <CIcon :icon="config.icon" size="xl" />
           </div>
           <div>
-            <h3 class="mb-1 fw-bold">{{ $t(dashboardTitle) }}</h3>
+            <h2 class="mb-1 fw-bold fs-5">{{ $t(dashboardTitle) }}</h2>
             <p class="text-body-secondary mb-0">
               {{ $t('dashboard.welcome_back') }}, <strong>{{ authStore.userName }}</strong>
               <span class="mx-2">|</span>
@@ -263,7 +306,7 @@ let notifInterval
               <div class="feature-icon-wrapper mb-3" :style="{ background: config.gradient }">
                 <CIcon icon="cil-star" size="lg" />
               </div>
-              <h5 class="fw-semibold">{{ feature }}</h5>
+              <h3 class="fw-semibold fs-6">{{ feature }}</h3>
               <p class="small text-body-secondary mb-0 text-capitalize">{{ $t('dashboard.role_label', { role }) }}</p>
             </CCardBody>
           </CCard>
@@ -286,13 +329,13 @@ let notifInterval
         </CCardBody>
       </CCard>
 
-      <CCard v-if="!loading && !dashboardData" class="mb-4">
+      <CCard v-else-if="!loading" class="mb-4">
         <CCardBody>
           <p class="text-body-secondary mb-0">{{ error || $t('dashboard.no_data') }}</p>
         </CCardBody>
       </CCard>
 
-      <div v-if="loading" class="text-center py-5">
+      <div v-if="loading" class="text-center dashboard-loading-placeholder py-5">
         <CSpinner color="primary" />
         <p class="mt-2 text-body-secondary">{{ $t('dashboard.loading') }}</p>
       </div>

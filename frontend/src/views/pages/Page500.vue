@@ -5,7 +5,7 @@
         <CCol :md="6">
           <span class="clearfix">
             <h1 class="float-start display-3 me-4">500</h1>
-            <h4 class="pt-3">Houston, we have a problem!</h4>
+            <h2 class="pt-3 fs-5">Houston, we have a problem!</h2>
             <p class="text-body-secondary float-start">
               The page you are looking for is temporarily unavailable.
             </p>

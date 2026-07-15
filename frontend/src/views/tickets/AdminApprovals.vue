@@ -81,7 +81,7 @@ onMounted(fetchPending)
         <div v-for="s in subs" :key="s.id" class="border-bottom pb-3 mb-3 last:border-0 last:mb-0 last:pb-0">
           <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
             <div>
-              <h5 class="mb-0">{{ s.plan?.name }} <CBadge color="info">{{ s.plan?.ticket_limit }} {{ $t('admin_approvals.tickets') }}</CBadge></h5>
+              <h4 class="mb-0 fs-5">{{ s.plan?.name }} <CBadge color="info">{{ s.plan?.ticket_limit }} {{ $t('admin_approvals.tickets') }}</CBadge></h4>
               <small class="text-body-secondary">{{ s.user?.name }} ({{ s.user?.email }}) - requested {{ formatDate(s.start_date) }}</small>
             </div>
             <div>

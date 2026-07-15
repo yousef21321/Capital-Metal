@@ -96,7 +96,7 @@ onMounted(() => {
 
     <div v-else-if="filteredNotifications.length === 0" class="text-center py-5 text-body-secondary">
       <CIcon icon="cil-bell" size="3xl" class="mb-3" />
-      <h5>No notifications</h5>
+      <h4 class="fs-5">No notifications</h4>
       <p class="mb-0">{{ filter === 'unread' ? 'All caught up!' : 'You have no notifications yet.' }}</p>
     </div>
 

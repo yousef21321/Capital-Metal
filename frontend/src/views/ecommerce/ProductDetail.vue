@@ -99,7 +99,7 @@ onMounted(fetchProduct)
 
     <div v-else-if="error" class="text-center py-5">
       <CIcon icon="cil-warning" size="3xl" class="text-danger mb-3" />
-      <h4>{{ error }}</h4>
+      <h2 class="fs-5">{{ error }}</h2>
     </div>
 
     <template v-else-if="product">
@@ -117,6 +117,8 @@ onMounted(fetchProduct)
               :src="currentImage"
               :alt="product.name"
               class="gallery-img"
+              width="800"
+              height="600"
             />
             <div v-else class="gallery-placeholder">
               <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="5xl" class="text-body-secondary" />
@@ -133,7 +135,7 @@ onMounted(fetchProduct)
               :class="{ active: selectedImage === idx }"
               @click="selectedImage = idx"
             >
-              <img :src="`/storage/${img.image_url}`" :alt="'Thumbnail ' + (idx + 1)" class="thumb-img" />
+              <img :src="`/storage/${img.image_url}`" :alt="'Thumbnail ' + (idx + 1)" class="thumb-img" loading="lazy" width="64" height="64" />
             </button>
           </div>
         </CCol>
@@ -259,9 +261,9 @@ onMounted(fetchProduct)
       </CRow>
 
       <div v-if="relatedProducts.length" class="related-section mb-5">
-        <h4 class="fw-bold mb-4">
+        <h2 class="fw-bold mb-4 fs-5">
           <CIcon icon="cil-grid" class="me-2 text-primary" />Related Products
-        </h4>
+        </h2>
         <CRow class="g-3">
           <CCol v-for="p in relatedProducts" :key="p.id" sm="6" lg="3">
             <CCard class="related-card h-100" @click="router.push(`/products/${p.id}`)">
@@ -271,13 +273,16 @@ onMounted(fetchProduct)
                   :src="`/storage/${p.images[0].image_url}`"
                   :alt="p.name"
                   class="related-img"
+                  loading="lazy"
+                  width="320"
+                  height="160"
                 />
                 <div v-else class="related-img-placeholder">
                   <CIcon :icon="p.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="2xl" class="text-body-secondary" />
                 </div>
               </div>
               <CCardBody>
-                <h6 class="related-name mb-1">{{ p.name }}</h6>
+                <h3 class="related-name mb-1 fs-6">{{ p.name }}</h3>
                 <span class="related-price">{{ p.price_egp ? parseFloat(p.price_egp).toFixed(2) + ' EGP' : 'Free' }}</span>
               </CCardBody>
             </CCard>

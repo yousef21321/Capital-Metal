@@ -2,8 +2,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useColorModes } from '@coreui/vue'
-import logoLight from '@/assets/images/logo.png'
-import logoDark from '@/assets/images/logodark.png'
+import logoLight from '@/assets/images/logo.webp'
+import logoDark from '@/assets/images/logodark.webp'
 import { RouterLink, useRoute } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
@@ -116,11 +116,11 @@ onMounted(() => {
       </CHeaderToggler>
       <div class="header-brand d-flex align-items-center ms-2">
         <RouterLink to="/">
-          <img :src="logoSrc" alt="FLFL Design" class="header-logo" />
+          <img :src="logoSrc" alt="FLFL Design" class="header-logo" width="85" height="47" />
         </RouterLink>
       </div>
       <div class="header-actions d-flex align-items-center gap-2 ms-4">
-        <button class="btn-animated-glow" @click="sidebar.toggleVisible()">
+        <button class="btn-animated-glow" @click="sidebar.toggleVisible()" aria-label="Toggle sidebar">
           <CIcon icon="cil-view-quilt" class="me-1" />
   <CIcon icon="cil-menu" size="lg" />
         </button>
@@ -128,7 +128,7 @@ onMounted(() => {
       <CHeaderNav class="ms-auto">
         <CNavItem>
           <RouterLink custom to="/cart" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative" :aria-label="$t('header.cart')">
               <CIcon icon="cil-basket" size="lg" />
               <CBadge
                 v-if="cart.count > 0"
@@ -144,14 +144,14 @@ onMounted(() => {
         </CNavItem>
         <CNavItem v-if="['industor','designer','tester','admin'].includes(auth.userRole)">
           <RouterLink custom to="/tickets" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.tickets')">
               <CIcon icon="cil-description" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
         <CNavItem v-if="['tester','admin'].includes(auth.userRole)">
           <RouterLink custom to="/tester/products" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative" :aria-label="$t('header.testerProducts')">
               <CIcon icon="cil-cart" size="lg" />
               <CBadge
                 v-if="testerPendingCount > 0"
@@ -167,7 +167,7 @@ onMounted(() => {
         </CNavItem>
         <CNavItem v-if="['designer','admin'].includes(auth.userRole)">
           <RouterLink custom to="/designer/products/create" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative" :aria-label="$t('header.designerProducts')">
               <CIcon icon="cil-grid" size="lg" />
               <CBadge
                 v-if="designerModificationCount > 0"
@@ -183,21 +183,21 @@ onMounted(() => {
         </CNavItem>
         <CNavItem v-if="['industor','admin'].includes(auth.userRole)">
           <RouterLink custom to="/tickets/create" v-slot="{ href, navigate }">
-            <CNavLink :href="href" class="btn-create-header" @click="navigate">
+            <CNavLink :href="href" class="btn-create-header" @click="navigate" :aria-label="$t('header.createTicket')">
               <CIcon icon="cil-plus" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
         <CNavItem v-if="auth.userRole === 'admin'">
           <RouterLink custom to="/admin/orders" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.orders')">
               <CIcon icon="cil-layers" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
         <CNavItem v-if="auth.userRole === 'admin'">
           <RouterLink custom to="/admin/coupons" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.coupons')">
               <CIcon icon="cil-tag" size="lg" />
             </CNavLink>
           </RouterLink>
@@ -205,7 +205,7 @@ onMounted(() => {
 
         <CNavItem v-if="auth.isAuthenticated">
           <CDropdown placement="bottom-end" variant="nav-item" @show="notif.fetchNotifications()">
-            <CDropdownToggle :caret="false" class="position-relative py-0">
+            <CDropdownToggle :caret="false" class="position-relative py-0" :aria-label="$t('header.notifications')">
               <CIcon icon="cil-bell" size="lg" />
               <CBadge
                 v-if="notif.unreadCount > 0"
@@ -260,9 +260,9 @@ onMounted(() => {
         </CNavItem>
       </CHeaderNav>
       <CHeaderNav>
-        <li class="nav-item py-1">
+        <CNavItem class="py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-25"></div>
-        </li>
+        </CNavItem>
         <CDropdown variant="nav-item" placement="bottom-end">
           <CDropdownToggle :caret="false">
             <CIcon v-if="colorMode === 'dark'" icon="cil-moon" size="lg" />
@@ -273,27 +273,24 @@ onMounted(() => {
             <CDropdownItem
               :active="colorMode === 'light'"
               class="d-flex align-items-center"
-              component="button"
-              type="button"
-              @click="setColorMode('light')"
+              href="#"
+              @click.prevent="setColorMode('light')"
             >
               <CIcon class="me-2" icon="cil-sun" size="lg" />{{ $t('header.light') }}
             </CDropdownItem>
             <CDropdownItem
               :active="colorMode === 'dark'"
               class="d-flex align-items-center"
-              component="button"
-              type="button"
-              @click="setColorMode('dark')"
+              href="#"
+              @click.prevent="setColorMode('dark')"
             >
               <CIcon class="me-2" icon="cil-moon" size="lg" />{{ $t('header.dark') }}
             </CDropdownItem>
             <CDropdownItem
               :active="colorMode === 'auto'"
               class="d-flex align-items-center"
-              component="button"
-              type="button"
-              @click="setColorMode('auto')"
+              href="#"
+              @click.prevent="setColorMode('auto')"
             >
               <CIcon class="me-2" icon="cil-contrast" size="lg" />{{ $t('header.auto') }}
             </CDropdownItem>
@@ -322,27 +319,27 @@ onMounted(() => {
             </CButton>
           </CButtonGroup>
         </CNavItem>
-        <li class="nav-item py-1">
+        <CNavItem class="py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-25"></div>
-        </li>
+        </CNavItem>
         <template v-if="auth.isAuthenticated">
           <AppHeaderDropdownAccnt />
         </template>
         <template v-else>
-          <li class="nav-item">
+          <CNavItem>
             <RouterLink to="/pages/login" custom v-slot="{ href, navigate }">
               <CNavLink :href="href" @click="navigate" class="fw-semibold">
                 <CIcon icon="cil-account-login" class="me-1" />{{ $t('header.login') }}
               </CNavLink>
             </RouterLink>
-          </li>
-          <li class="nav-item">
+          </CNavItem>
+          <CNavItem>
             <RouterLink to="/pages/register" custom v-slot="{ href, navigate }">
               <CButton color="primary" size="sm" :href="href" @click="navigate" class="my-1">
                 {{ $t('header.sign_up') }}
               </CButton>
             </RouterLink>
-          </li>
+          </CNavItem>
         </template>
       </CHeaderNav>
     </CContainer>
@@ -350,9 +347,9 @@ onMounted(() => {
       <CNav variant="underline-border" class="header-nav-horizontal">
           <template v-for="item in visibleNav" :key="item.name">
             <template v-if="item.component === 'CNavTitle'">
-              <li class="nav-item header-nav-title">
+              <CNavItem class="header-nav-title">
                 <span class="nav-link disabled">{{ $t(item.translationKey || item.name) }}</span>
-              </li>
+              </CNavItem>
             </template>
             <template v-else-if="item.items">
               <CDropdown variant="nav-item" placement="bottom">

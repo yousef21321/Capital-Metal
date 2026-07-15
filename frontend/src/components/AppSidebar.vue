@@ -5,8 +5,8 @@ import { useColorModes } from '@coreui/vue'
 
 import { AppSidebarNav } from '@/components/AppSidebarNav.js'
 import { useSidebarStore } from '@/stores/sidebar.js'
-import logoLight from '@/assets/images/logo.png'
-import logoDark from '@/assets/images/logodark.png'
+import logoLight from '@/assets/images/logo.webp'
+import logoDark from '@/assets/images/logodark.webp'
 
 const sidebar = useSidebarStore()
 const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
@@ -26,10 +26,10 @@ const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight
       <RouterLink custom to="/" v-slot="{ href, navigate }">
         <CSidebarBrand v-bind="$attrs" as="a" :href="href" @click="navigate" class="text-decoration-none">
           <span class="sidebar-brand-full d-flex align-items-center gap-2">
-            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo" />
+            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo" width="85" height="47" />
           </span>
           <span class="sidebar-brand-narrow">
-            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo-narrow" />
+            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo-narrow" width="46" height="24" />
           </span>
         </CSidebarBrand>
       </RouterLink>
@@ -37,7 +37,7 @@ const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight
     </CSidebarHeader>
     <AppSidebarNav />
     <CSidebarFooter class="border-top d-none d-lg-flex sidebar-footer-modern">
-      <CSidebarToggler @click="sidebar.toggleUnfoldable()" class="sidebar-toggler-modern" />
+      <CSidebarToggler @click="sidebar.toggleUnfoldable()" class="sidebar-toggler-modern" aria-label="Toggle sidebar" />
     </CSidebarFooter>
   </CSidebar>
 </template>

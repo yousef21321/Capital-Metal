@@ -92,7 +92,7 @@ onMounted(load)
 
     <CCollapse :visible="showForm">
       <CCard class="mb-4 shadow-sm">
-        <CCardHeader class="bg-body"><h5 class="mb-0">{{ $t('saved_cards.add_new') }}</h5></CCardHeader>
+        <CCardHeader class="bg-body"><h4 class="mb-0 fs-5">{{ $t('saved_cards.add_new') }}</h4></CCardHeader>
         <CCardBody>
           <CRow>
             <CCol :sm="12" class="mb-2">
@@ -145,7 +145,7 @@ onMounted(load)
               <CIcon icon="cil-credit-card" size="xl" class="text-primary" />
               <CBadge v-if="card.is_default" color="primary">{{ $t('saved_cards.default_badge') }}</CBadge>
             </div>
-            <h5 class="mt-3 mb-1">{{ card.masked_pan || '•••• •••• ••••' }}</h5>
+            <h4 class="mt-3 mb-1 fs-5">{{ card.masked_pan || '•••• •••• ••••' }}</h4>
             <div class="d-flex justify-content-between small text-body-secondary">
               <span>{{ card.holder_name }}</span>
               <span>{{ card.expiry_month }}/{{ card.expiry_year }}</span>

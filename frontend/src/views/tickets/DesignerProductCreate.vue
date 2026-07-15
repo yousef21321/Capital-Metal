@@ -340,7 +340,7 @@ async function submit() {
       <CCol :md="4">
         <CCard class="shadow-sm bg-body-tertiary">
           <CCardBody>
-            <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> {{ $t('designer_product.sidebar_title') }}</h6>
+            <h4 class="fw-bold fs-6"><CIcon icon="cil-info" class="me-1" /> {{ $t('designer_product.sidebar_title') }}</h4>
             <p class="small text-body-secondary mb-0">{{ $t('designer_product.sidebar_desc') }}</p>
           </CCardBody>
         </CCard>

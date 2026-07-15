@@ -1,5 +1,23 @@
-.simplebar-content {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+.sidebar-nav {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 19, 0, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(184, 19, 0, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(184, 19, 0, 0.5);
+    }
+  }
 }

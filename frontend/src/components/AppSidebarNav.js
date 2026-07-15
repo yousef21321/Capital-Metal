@@ -7,9 +7,6 @@ import { CBadge, CSidebarNav, CNavItem, CNavGroup, CNavTitle } from '@coreui/vue
 import nav from '@/_nav.js'
 import { useAuthStore } from '@/stores/auth'
 
-import simplebar from 'simplebar-vue'
-import 'simplebar-vue/dist/simplebar.min.css'
-
 const normalizePath = (path) =>
   decodeURI(path)
     .replace(/#.*$/, '')
@@ -213,9 +210,7 @@ const AppSidebarNav = defineComponent({
     return () =>
       h(
         CSidebarNav,
-        {
-          as: simplebar,
-        },
+        {},
         {
           default: () => filterNav(nav).map((item) => renderItem(item)),
         },

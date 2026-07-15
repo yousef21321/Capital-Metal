@@ -147,7 +147,7 @@ onMounted(fetchAvailable)
         >
           <CCardHeader class="queue-card-header" :class="ticketMetrics(t).type === 'urgent' ? 'queue-card-header-urgent' : ''">
             <div class="d-flex justify-content-between align-items-center w-100">
-              <h5 class="card-title mb-0 queue-card-title">{{ t.title }}</h5>
+              <h4 class="card-title mb-0 queue-card-title fs-5">{{ t.title }}</h4>
               <CBadge :color="ticketMetrics(t).type === 'urgent' ? 'danger' : 'success'" class="queue-badge text-uppercase">
                 <CIcon v-if="ticketMetrics(t).type === 'urgent'" icon="cil-warning" class="me-1" />
                 {{ ticketMetrics(t).type === 'urgent' ? $t('tickets.urgent') : $t('tickets.normal') }}

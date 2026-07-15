@@ -2,10 +2,26 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
 import autoprefixer from 'autoprefixer'
+import viteSharp from 'vite-plugin-sharp'
 
 export default defineConfig(() => {
   return {
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      viteSharp({
+        compress: {
+          jpeg: { quality: 80 },
+          png: { quality: 80 },
+          webp: { quality: 80 },
+          avif: { quality: 75 },
+        },
+        resize: {
+          width: 1200,
+          height: 1200,
+          withoutEnlargement: true,
+        },
+      }),
+    ],
     base: './',
     css: {
       postcss: {

@@ -240,7 +240,7 @@ onMounted(fetchProduct)
 
               <!-- Tester Feedback -->
               <CAlert v-if="product.tester_comment || product.tester_suggested_price_egp" color="warning" class="mb-4">
-                <h6 class="fw-bold mb-2">Tester Feedback</h6>
+                <h4 class="fw-bold mb-2 fs-6">Tester Feedback</h4>
                 <div v-if="product.tester_suggested_price_egp" class="mb-1">
                   Suggested price: <strong>{{ product.tester_suggested_price_egp }} EGP</strong>
                   <span v-if="product.tester_suggested_price_usd"> / <strong>{{ product.tester_suggested_price_usd }} USD</strong></span>
@@ -390,7 +390,7 @@ onMounted(fetchProduct)
         <CCol :md="4">
           <CCard class="shadow-sm bg-body-tertiary">
             <CCardBody>
-              <h6 class="fw-bold"><CIcon icon="cil-info" class="me-1" /> Editing Tips</h6>
+              <h4 class="fw-bold fs-6"><CIcon icon="cil-info" class="me-1" /> Editing Tips</h4>
               <p class="small text-body-secondary mb-0">Review the tester's feedback carefully. Once resubmitted, a tester will review your product again.</p>
             </CCardBody>
           </CCard>

@@ -99,7 +99,7 @@ onMounted(fetchCart)
         <CCard v-for="item in cart.items" :key="item.id" class="mb-3">
           <CCardBody class="d-flex align-items-center">
             <div class="flex-grow-1">
-              <h5 class="mb-1">{{ item.product?.name }}</h5>
+              <h4 class="mb-1 fs-5">{{ item.product?.name }}</h4>
               <CBadge :color="item.product?.product_type === 'digital' ? 'info' : 'success'" size="sm">
                 {{ item.product?.product_type }}
               </CBadge>
@@ -119,7 +119,7 @@ onMounted(fetchCart)
       <CCol :md="4">
         <CCard class="sticky-top" style="top: 20px;">
           <CCardBody>
-            <h5>{{ $t('cart.summary') }}</h5>
+            <h4 class="fs-5">{{ $t('cart.summary') }}</h4>
             <hr />
             <div class="d-flex justify-content-between mb-2">
               <span>Items ({{ cart.items.length }})</span>
