@@ -5,22 +5,33 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class CartController extends Controller
 {
     protected function cartIdentifier(Request $request): array
     {
-        if ($request->user()) {
-            return ['user_id' => $request->user()->id];
+        $user = $request->user();
+
+        if (!$user) {
+            $token = $request->bearerToken();
+            if ($token) {
+                $accessToken = PersonalAccessToken::findToken($token);
+                $user = $accessToken?->tokenable;
+            }
         }
 
-        $token = $request->header('X-Guest-Token', $request->input('guest_token'));
+        if ($user) {
+            return ['user_id' => $user->id];
+        }
 
-        if (!$token) {
+        $guestToken = $request->header('X-Guest-Token', $request->input('guest_token'));
+
+        if (!$guestToken) {
             return [];
         }
 
-        return ['guest_token' => $token];
+        return ['guest_token' => $guestToken];
     }
 
     public function show(Request $request)

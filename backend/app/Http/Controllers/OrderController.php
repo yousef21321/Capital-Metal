@@ -19,7 +19,17 @@ class OrderController extends Controller
 
     protected function resolveUser(Request $request): ?int
     {
-        return $request->user()?->id;
+        $userId = $request->user()?->id;
+
+        if (!$userId) {
+            $token = $request->bearerToken();
+            if ($token) {
+                $accessToken = PersonalAccessToken::findToken($token);
+                $userId = $accessToken?->tokenable?->id;
+            }
+        }
+
+        return $userId;
     }
 
     protected function cartIdentifier(Request $request): array
@@ -30,10 +40,10 @@ class OrderController extends Controller
             return ['user_id' => $userId];
         }
 
-        $token = $this->guestToken($request);
+        $guestToken = $this->guestToken($request);
 
-        if ($token) {
-            return ['guest_token' => $token];
+        if ($guestToken) {
+            return ['guest_token' => $guestToken];
         }
 
         return [];
@@ -271,22 +281,13 @@ class OrderController extends Controller
 
     public function myOrders(Request $request)
     {
-        $user = $request->user();
-
-        if (!$user) {
-            $token = $request->bearerToken();
-            if ($token) {
-                $accessToken = PersonalAccessToken::findToken($token);
-                $user = $accessToken?->tokenable;
-            }
-        }
-
+        $userId = $this->resolveUser($request);
         $guestToken = $this->guestToken($request);
 
         $orders = Order::with(['items.product.images', 'payments'])
-            ->when($user, fn($q) => $q->where('user_id', $user->id))
-            ->when(!$user && $guestToken, fn($q) => $q->where('guest_token', $guestToken))
-            ->when(!$user && !$guestToken, fn($q) => $q->whereRaw('1 = 0'))
+            ->when($userId, fn($q) => $q->where('user_id', $userId))
+            ->when(!$userId && $guestToken, fn($q) => $q->where('guest_token', $guestToken))
+            ->when(!$userId && !$guestToken, fn($q) => $q->whereRaw('1 = 0'))
             ->latest()
             ->paginate($request->per_page ?? 20);
 
