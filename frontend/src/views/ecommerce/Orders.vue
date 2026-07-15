@@ -123,14 +123,25 @@ onMounted(fetchOrders)
             </div>
           </div>
           <hr />
+          <h6 class="fw-semibold mb-3">Products</h6>
           <div v-if="order.items?.length">
-            <div v-for="item in order.items" :key="item.id" class="d-flex justify-content-between align-items-center mb-1">
-              <RouterLink :to="`/products/${item.product?.id}`" class="btn btn-link btn-sm p-0 text-start">
-                {{ item.product?.name }} x{{ item.quantity }}
-              </RouterLink>
-              <span>{{ item.price }} {{ order.currency }}</span>
+            <div v-for="item in order.items" :key="item.id" class="d-flex align-items-center gap-3 mb-3">
+              <div v-if="item.product?.images?.length" style="width: 60px; height: 60px; flex-shrink: 0;">
+                <img :src="'/storage/' + item.product.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" />
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <RouterLink :to="`/products/${item.product?.id || item.product_id}`" class="fw-semibold text-decoration-none">
+                  {{ item.product?.name || 'Product #' + item.product_id }}
+                </RouterLink>
+                <div class="text-body-secondary small">Qty: {{ item.quantity }}</div>
+              </div>
+              <div class="text-end flex-shrink-0">
+                <div class="fw-semibold">{{ item.price }} {{ order.currency }}</div>
+                <div v-if="item.quantity > 1" class="text-body-secondary small">{{ item.price }} each</div>
+              </div>
             </div>
           </div>
+          <div v-else class="text-body-secondary small">No products found in this order.</div>
         </CCardBody>
       </CCard>
     </div>
