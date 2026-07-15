@@ -11,6 +11,28 @@ const toast = useToastStore()
 const orders = ref([])
 const loading = ref(true)
 const paying = ref(null)
+const downloading = ref(null)
+
+async function downloadFile(order, item) {
+  downloading.value = item.id
+  try {
+    const { data } = await api.get(`/api/orders/${order.id}/items/${item.id}/download`, {
+      responseType: 'blob',
+    })
+    const url = window.URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = item.product?.name || 'design-file'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Download failed')
+  } finally {
+    downloading.value = null
+  }
+}
 
 async function fetchOrders() {
   loading.value = true
@@ -134,6 +156,18 @@ onMounted(fetchOrders)
               <div class="text-end flex-shrink-0">
                 <div class="fw-semibold">{{ item.price }} {{ order.currency }}</div>
                 <div v-if="item.quantity > 1" class="text-body-secondary small">{{ item.price }} each</div>
+                <CButton
+                  v-if="order.payment_status === 'paid' && item.product?.design_file_path"
+                  color="success"
+                  size="sm"
+                  class="mt-1"
+                  :disabled="downloading === item.id"
+                  @click="downloadFile(order, item)"
+                >
+                  <CSpinner v-if="downloading === item.id" size="sm" class="me-1" />
+                  <CIcon icon="cil-cloud-download" class="me-1" />
+                  Download
+                </CButton>
               </div>
             </div>
           </div>

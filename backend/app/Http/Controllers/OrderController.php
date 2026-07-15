@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class OrderController extends Controller
@@ -277,6 +278,43 @@ class OrderController extends Controller
         $order->update($validated);
 
         return response()->json($order->load('items.product'));
+    }
+
+    public function downloadItem($orderId, $itemId, Request $request)
+    {
+        $order = Order::with('items.product')->findOrFail($orderId);
+
+        $userId = $this->resolveUser($request);
+        $guestToken = $this->guestToken($request);
+
+        $ownsOrder = false;
+        if ($userId && $order->user_id === $userId) {
+            $ownsOrder = true;
+        } elseif ($guestToken && $order->guest_token === $guestToken) {
+            $ownsOrder = true;
+        }
+
+        if (!$ownsOrder) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if ($order->payment_status !== 'paid') {
+            return response()->json(['message' => 'Payment required.'], 402);
+        }
+
+        $item = $order->items()->where('id', $itemId)->first();
+
+        if (!$item) {
+            return response()->json(['message' => 'Item not found in this order.'], 404);
+        }
+
+        $filePath = $item->product->design_file_path;
+
+        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+            return response()->json(['message' => 'File not available.'], 404);
+        }
+
+        return Storage::disk('public')->download($filePath);
     }
 
     public function myOrders(Request $request)

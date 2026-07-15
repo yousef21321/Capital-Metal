@@ -64,6 +64,7 @@ Route::post('/checkout', [OrderController::class, 'checkout']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/orders/my', [OrderController::class, 'myOrders']);
 Route::get('/orders/{id}', [OrderController::class, 'show']);
+Route::get('/orders/{orderId}/items/{itemId}/download', [OrderController::class, 'downloadItem']);
 Route::middleware(['auth:sanctum', 'role:admin'])->put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 Route::middleware(['auth:sanctum', 'role:admin'])->delete('/orders/{id}', [OrderController::class, 'destroy']);
 
