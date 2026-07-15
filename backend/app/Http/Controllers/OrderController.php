@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class OrderController extends Controller
 {
@@ -271,6 +272,15 @@ class OrderController extends Controller
     public function myOrders(Request $request)
     {
         $user = $request->user();
+
+        if (!$user) {
+            $token = $request->bearerToken();
+            if ($token) {
+                $accessToken = PersonalAccessToken::findToken($token);
+                $user = $accessToken?->tokenable;
+            }
+        }
+
         $guestToken = $this->guestToken($request);
 
         $orders = Order::with(['items.product.images', 'payments'])
