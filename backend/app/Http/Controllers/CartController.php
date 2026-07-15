@@ -28,7 +28,7 @@ class CartController extends Controller
         $guestToken = $request->header('X-Guest-Token', $request->input('guest_token'));
 
         if (!$guestToken) {
-            return [];
+            $guestToken = 'guest_' . \Illuminate\Support\Str::uuid();
         }
 
         return ['guest_token' => $guestToken];
@@ -37,10 +37,6 @@ class CartController extends Controller
     public function show(Request $request)
     {
         $identifier = $this->cartIdentifier($request);
-
-        if (empty($identifier)) {
-            return response()->json(['items' => []]);
-        }
 
         $cart = Cart::with('items.product.images')
             ->where($identifier)
@@ -58,11 +54,6 @@ class CartController extends Controller
         ]);
 
         $identifier = $this->cartIdentifier($request);
-
-        if (empty($identifier)) {
-            return response()->json(['message' => 'Authentication required or provide a guest token.'], 401);
-        }
-
         $cart = Cart::firstOrCreate($identifier);
 
         $item = $cart->items()->updateOrCreate(
@@ -82,10 +73,6 @@ class CartController extends Controller
 
         $identifier = $this->cartIdentifier($request);
 
-        if (empty($identifier)) {
-            return response()->json(['message' => 'Authentication required.'], 401);
-        }
-
         $item = CartItem::whereHas('cart', function ($q) use ($identifier) {
             $q->where($identifier);
         })->findOrFail($itemId);
@@ -99,10 +86,6 @@ class CartController extends Controller
     {
         $identifier = $this->cartIdentifier($request);
 
-        if (empty($identifier)) {
-            return response()->json(['message' => 'Authentication required.'], 401);
-        }
-
         $item = CartItem::whereHas('cart', function ($q) use ($identifier) {
             $q->where($identifier);
         })->findOrFail($itemId);
@@ -115,10 +98,6 @@ class CartController extends Controller
     public function clear(Request $request)
     {
         $identifier = $this->cartIdentifier($request);
-
-        if (empty($identifier)) {
-            return response()->json(['message' => 'Authentication required.'], 401);
-        }
 
         $cart = Cart::where($identifier)->first();
 
