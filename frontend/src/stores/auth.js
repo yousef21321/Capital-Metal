@@ -102,6 +102,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.token
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
+        localStorage.removeItem('guest-token')
         const detected = await detectCurrency()
         this.detectedCurrency = detected
         if (detected !== (data.user?.currency_preference || 'EGP')) {
@@ -131,6 +132,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.token
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
+        localStorage.removeItem('guest-token')
         this.fetchExchangeRate()
         return true
       } catch (error) {
