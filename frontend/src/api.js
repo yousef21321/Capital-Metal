@@ -12,11 +12,11 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth-token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
-  }
-
-  const guestToken = localStorage.getItem('guest-token')
-  if (guestToken) {
-    config.headers['X-Guest-Token'] = guestToken
+  } else {
+    const guestToken = localStorage.getItem('guest-token')
+    if (guestToken) {
+      config.headers['X-Guest-Token'] = guestToken
+    }
   }
 
   return config
