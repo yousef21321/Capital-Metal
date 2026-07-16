@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useToastStore } from '@/stores/toast'
+import { formatProductPrice } from '@/utils/price'
 import api from '@/api'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
@@ -67,19 +68,7 @@ const productImage = (product) => {
   return null
 }
 
-const formatPrice = (product) => {
-  const currency = authStore.userCurrency
-  if (currency === 'USD' && parseFloat(product.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  if (parseFloat(product.price_egp) > 0) {
-    if (currency === 'USD') {
-      const rate = authStore.exchangeRate || 30
-      return `${(parseFloat(product.price_egp) / rate).toFixed(2)} USD`
-    }
-    return `${parseFloat(product.price_egp).toFixed(2)} EGP`
-  }
-  if (parseFloat(product.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  return t('dashboard.free')
-}
+const formatPrice = formatProductPrice
 
 async function addToCart(product) {
   try {
@@ -91,7 +80,7 @@ async function addToCart(product) {
 }
 
 function shareProduct(product) {
-  const url = `${window.location.origin}/#/products/${product.id}`
+  const url = `${window.location.origin}/#/products/${product.slug}`
   if (navigator.share) {
     navigator.share({ title: product.name, url })
   } else {
@@ -99,7 +88,7 @@ function shareProduct(product) {
       toast.success(t('products.link_copied'))
     })
   }
-  router.push(`/products/${product.id}`)
+  router.push(`/products/${product.slug}`)
 }
 
 onMounted(async () => {

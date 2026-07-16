@@ -152,6 +152,11 @@ const subtotal = computed(() => {
   }, 0)
 })
 
+const isDigitalOnly = computed(() => {
+  if (!cart.value?.items?.length) return false
+  return cart.value.items.every(item => item.product?.product_type === 'digital')
+})
+
 const checkoutItemPrice = (item, currency) => {
   if (currency === 'USD') {
     if (parseFloat(item.product?.price_usd) > 0) return parseFloat(item.product.price_usd)
@@ -162,6 +167,7 @@ const checkoutItemPrice = (item, currency) => {
 }
 
 const shippingCost = computed(() => {
+  if (isDigitalOnly.value) return 0
   const cost = parseFloat(form.value.shipping_cost || 0)
   if (form.value.currency === 'USD') {
     const rate = auth.exchangeRate || 30
@@ -225,16 +231,16 @@ async function placeOrder() {
   try {
     const payload = {
       currency: form.value.currency,
-      shipping_cost: form.value.currency === 'USD'
+      shipping_cost: isDigitalOnly.value ? 0 : (form.value.currency === 'USD'
         ? parseFloat((form.value.shipping_cost / (auth.exchangeRate || 30)).toFixed(4))
-        : form.value.shipping_cost,
+        : form.value.shipping_cost),
       notes: form.value.notes,
-      address_id: form.value.address_id || undefined,
+      address_id: isDigitalOnly.value ? undefined : (form.value.address_id || undefined),
       coupon_code: appliedCoupon.value?.code || undefined,
       payment_method_id: form.value.payment_method_id || undefined,
     }
 
-    if (!auth.isAuthenticated) {
+    if (!auth.isAuthenticated && !isDigitalOnly.value) {
       payload.guest_name = form.value.guest_name
       payload.guest_phone = form.value.guest_phone
       payload.guest_governorate = form.value.guest_governorate
@@ -313,10 +319,15 @@ onMounted(() => {
     </div>
 
     <CRow v-else :gutter="{ md: 24 }">
-      <!-- Left column: shipping + notes -->
+      <!-- Left column: notes (digital) or shipping + notes (physical) -->
       <CCol :md="7">
+        <CAlert v-if="isDigitalOnly" color="info" class="mb-4 d-flex align-items-center">
+          <CIcon icon="cil-info" class="me-2 fs-5" />
+          <span>هذا طلب منتج رقمي — لا يتطلب عنوان شحن / This is a digital product — no shipping address required.</span>
+        </CAlert>
+
         <!-- Guest name/phone fields -->
-        <CCard v-if="!auth.isAuthenticated" class="mb-4 shadow-sm">
+        <CCard v-if="!auth.isAuthenticated && !isDigitalOnly" class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
             <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-user" /> معلوماتك / Your Information
@@ -341,7 +352,7 @@ onMounted(() => {
           </CCardBody>
         </CCard>
 
-        <CCard class="mb-4 shadow-sm">
+        <CCard v-if="!isDigitalOnly" class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
             <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-location-pin" /> عنوان الشحن / Shipping Address
@@ -489,11 +500,11 @@ onMounted(() => {
               <span class="text-body-secondary">Subtotal</span>
               <span>{{ money(subtotal) }} {{ currencySymbol }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-2">
+            <div v-if="!isDigitalOnly" class="d-flex justify-content-between mb-2">
               <span class="text-body-secondary">الشحن / Shipping</span>
               <span>{{ money(shippingCost) }} {{ currencySymbol }}</span>
             </div>
-            <div class="small text-success mb-2">
+            <div v-if="!isDigitalOnly" class="small text-success mb-2">
               <CIcon icon="cil-info" class="me-1" />شحن مجاني للطلبات فوق ١٠٠٠ {{ currencySymbol }} / Free shipping on orders over 1000 {{ currencySymbol }}
             </div>
             <div v-if="appliedCoupon" class="d-flex justify-content-between mb-2">
@@ -563,7 +574,7 @@ onMounted(() => {
               color="primary"
               class="w-100"
               size="lg"
-              :disabled="submitting || (!auth.isAuthenticated && (!form.guest_name || !form.guest_phone || !form.guest_governorate || !form.guest_city || !form.guest_address_line))"
+              :disabled="submitting || (!isDigitalOnly && !auth.isAuthenticated && (!form.guest_name || !form.guest_phone || !form.guest_governorate || !form.guest_city || !form.guest_address_line))"
               @click="placeOrder"
             >
               <CSpinner v-if="submitting" size="sm" class="me-2" />

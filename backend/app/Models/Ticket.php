@@ -121,6 +121,11 @@ class Ticket extends Model
         return $this->hasOne(StoreListing::class);
     }
 
+    public function product()
+    {
+        return $this->hasOne(Product::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

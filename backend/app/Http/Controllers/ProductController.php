@@ -54,12 +54,12 @@ class ProductController extends Controller
         return response()->json($query->paginate($request->per_page ?? 20));
     }
 
-    public function show($id)
+    public function show($slug)
     {
         $product = Product::with([
             'images', 'inventory', 'digitalFiles', 'licenseAgreements',
             'reviews.user', 'analytics',
-        ])->findOrFail($id);
+        ])->where('slug', $slug)->firstOrFail();
 
         return response()->json($product);
     }

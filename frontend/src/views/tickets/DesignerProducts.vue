@@ -90,7 +90,7 @@ onMounted(fetchProducts)
                 size="sm"
                 variant="outline"
                 class="w-100"
-                @click="router.push(`/products/${p.id}`)"
+                @click="router.push(`/products/${p.slug}`)"
               >
                 View
               </CButton>

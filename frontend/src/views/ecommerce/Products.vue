@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { formatProductPrice } from '@/utils/price'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -69,19 +70,7 @@ async function toggleWishlist(productId) {
   }
 }
 
-const formatPrice = (product) => {
-  const currency = auth.userCurrency
-  if (currency === 'USD' && parseFloat(product.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  if (parseFloat(product.price_egp) > 0) {
-    if (currency === 'USD') {
-      const rate = auth.exchangeRate || 30
-      return `${(parseFloat(product.price_egp) / rate).toFixed(2)} USD`
-    }
-    return `${parseFloat(product.price_egp).toFixed(2)} EGP`
-  }
-  if (parseFloat(product.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  return t('products.free')
-}
+const formatPrice = formatProductPrice
 
 const productImage = (product) => {
   const img = product.images?.[0]
@@ -104,7 +93,7 @@ async function addToCart(product) {
 }
 
 function shareProduct(product) {
-  const url = `${window.location.origin}/#/products/${product.id}`
+  const url = `${window.location.origin}/#/products/${product.slug}`
   if (navigator.share) {
     navigator.share({ title: product.name, url })
   } else {
@@ -112,11 +101,11 @@ function shareProduct(product) {
       toast.success(t('products.link_copied'))
     })
   }
-  viewProduct(product.id)
+  viewProduct(product.slug)
 }
 
-function viewProduct(id) {
-  router.push(`/products/${id}`)
+function viewProduct(slug) {
+  router.push(`/products/${slug}`)
 }
 
 onMounted(fetchProducts)
@@ -193,7 +182,7 @@ onMounted(fetchProducts)
     <CRow v-else class="g-4 products-grid">
       <CCol v-for="product in products" :key="product.id" sm="6" lg="4" xl="3" class="product-col">
         <CCard class="product-card h-100">
-          <div class="product-img-wrapper" @click="viewProduct(product.id)">
+          <div class="product-img-wrapper" @click="viewProduct(product.slug)">
             <img
               v-if="productImage(product)"
               :src="productImage(product)"
@@ -216,7 +205,7 @@ onMounted(fetchProducts)
               </span>
             </div>
             <div class="product-actions-overlay">
-              <CButton color="light" size="sm" class="action-btn action-view" @click.stop="viewProduct(product.id)">
+              <CButton color="light" size="sm" class="action-btn action-view" @click.stop="viewProduct(product.slug)">
                 <CIcon icon="cil-zoom-in" />
               </CButton>
               <CButton
@@ -255,7 +244,7 @@ onMounted(fetchProducts)
               <span class="small text-body-secondary text-capitalize">{{ product.product_type || 'physical' }}</span>
               <span v-if="product.type_sample" class="badge bg-info ms-1">{{ product.type_sample }}</span>
             </div>
-            <CCardTitle class="product-name mb-1" @click="viewProduct(product.id)">{{ product.name }}</CCardTitle>
+            <CCardTitle class="product-name mb-1" @click="viewProduct(product.slug)">{{ product.name }}</CCardTitle>
             <div class="product-rating d-flex align-items-center gap-1 mb-1">
               <CIcon v-for="i in 5" :key="i" :icon="i <= (product.rating || 4) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
               <span class="small text-body-secondary ms-1">({{ product.reviews_count || 0 }})</span>

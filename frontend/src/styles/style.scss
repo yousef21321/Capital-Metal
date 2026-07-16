@@ -623,6 +623,31 @@ body {
   }
 }
 
+.theme-dropdown-item {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+
+  &:hover {
+    background: var(--cui-tertiary-bg, rgba(0, 0, 0, 0.06));
+  }
+
+  &.active {
+    background: var(--cui-primary, #b81300);
+    color: #fff;
+  }
+}
+
+.theme-toggle-btn {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  font-size: inherit;
+
+  &:hover {
+    color: inherit;
+  }
+}
+
 @include color-mode(dark) {
   --glass-bg: rgba(26, 30, 42, 0.82);
   --glass-border: rgba(255, 255, 255, 0.06);

@@ -580,6 +580,10 @@ onMounted(fetchTicket)
                   Your plan does not allow publishing to the store.
                 </div>
 
+                <div v-if="ticket.status === 'completed' && ticket.is_single_purchase" class="alert alert-info small mt-3 mb-0">
+                  <CIcon icon="cil-info" /> This single ticket is under review in Product Review.
+                </div>
+
                 <CButton
                   v-if="['pending_payment','approved_by_tester','accepted','modification_requested','in_progress'].includes(ticket.status) && canIndustorCancel"
                   color="danger" variant="outline" class="w-100 mt-3" :disabled="submitting"

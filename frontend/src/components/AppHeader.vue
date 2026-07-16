@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useColorModes } from '@coreui/vue'
 import logoLight from '@/assets/images/logo.webp'
 import logoDark from '@/assets/images/logodark.webp'
 import { RouterLink, useRoute } from 'vue-router'
@@ -12,6 +11,7 @@ import { useSidebarStore } from '@/stores/sidebar.js'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
+import { useThemeStore } from '@/stores/theme.js'
 import api from '@/api'
 import nav from '@/_nav.js'
 
@@ -27,7 +27,8 @@ function timeAgo(date) {
 }
 
 const headerClassNames = ref('mb-4 p-0')
-const { colorMode, setColorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const themeStore = useThemeStore()
+const colorMode = computed(() => themeStore.theme)
 const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 const { locale } = useI18n()
 const toggleLocale = () => {
@@ -270,29 +271,20 @@ onMounted(() => {
             <CIcon v-else icon="cil-contrast" size="lg" />
           </CDropdownToggle>
           <CDropdownMenu>
-            <CDropdownItem
-              :active="colorMode === 'light'"
-              class="d-flex align-items-center"
-              href="#"
-              @click.prevent="setColorMode('light')"
-            >
-              <CIcon class="me-2" icon="cil-sun" size="lg" />{{ $t('header.light') }}
+            <CDropdownItem :class="['d-flex', 'align-items-center', 'theme-dropdown-item', { active: colorMode === 'light' }]">
+              <button type="button" class="theme-toggle-btn d-flex align-items-center w-100 border-0 bg-transparent p-0" @click.stop="themeStore.toggleTheme('light')">
+                <CIcon class="me-2" icon="cil-sun" size="lg" />{{ $t('header.light') }}
+              </button>
             </CDropdownItem>
-            <CDropdownItem
-              :active="colorMode === 'dark'"
-              class="d-flex align-items-center"
-              href="#"
-              @click.prevent="setColorMode('dark')"
-            >
-              <CIcon class="me-2" icon="cil-moon" size="lg" />{{ $t('header.dark') }}
+            <CDropdownItem :class="['d-flex', 'align-items-center', 'theme-dropdown-item', { active: colorMode === 'dark' }]">
+              <button type="button" class="theme-toggle-btn d-flex align-items-center w-100 border-0 bg-transparent p-0" @click.stop="themeStore.toggleTheme('dark')">
+                <CIcon class="me-2" icon="cil-moon" size="lg" />{{ $t('header.dark') }}
+              </button>
             </CDropdownItem>
-            <CDropdownItem
-              :active="colorMode === 'auto'"
-              class="d-flex align-items-center"
-              href="#"
-              @click.prevent="setColorMode('auto')"
-            >
-              <CIcon class="me-2" icon="cil-contrast" size="lg" />{{ $t('header.auto') }}
+            <CDropdownItem :class="['d-flex', 'align-items-center', 'theme-dropdown-item', { active: colorMode === 'auto' }]">
+              <button type="button" class="theme-toggle-btn d-flex align-items-center w-100 border-0 bg-transparent p-0" @click.stop="themeStore.toggleTheme('auto')">
+                <CIcon class="me-2" icon="cil-contrast" size="lg" />{{ $t('header.auto') }}
+              </button>
             </CDropdownItem>
           </CDropdownMenu>
         </CDropdown>

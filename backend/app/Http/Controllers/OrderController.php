@@ -8,8 +8,10 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
+use ZipArchive;
 
 class OrderController extends Controller
 {
@@ -282,7 +284,7 @@ class OrderController extends Controller
 
     public function downloadItem($orderId, $itemId, Request $request)
     {
-        $order = Order::with('items.product')->findOrFail($orderId);
+        $order = Order::with('items.product.digitalFiles')->findOrFail($orderId);
 
         $userId = $this->resolveUser($request);
         $guestToken = $this->guestToken($request);
@@ -308,7 +310,33 @@ class OrderController extends Controller
             return response()->json(['message' => 'Item not found in this order.'], 404);
         }
 
-        $filePath = $item->product->design_file_path;
+        $product = $item->product;
+        $digitalFiles = $product->digitalFiles;
+
+        if ($digitalFiles->count() > 1) {
+            $zipPath = storage_path("app/public/downloads/order-{$orderId}-item-{$itemId}.zip");
+
+            if (!File::exists($zipPath)) {
+                $zip = new ZipArchive();
+                if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+                    foreach ($digitalFiles as $df) {
+                        $filePath = Storage::disk('public')->path($df->file_url);
+                        if (File::exists($filePath)) {
+                            $zip->addFile($filePath, basename($df->file_url));
+                        }
+                    }
+                    $zip->close();
+                }
+            }
+
+            return response()->download($zipPath, $product->name . '.zip')->deleteFileAfterSend(true);
+        }
+
+        $filePath = $product->design_file_path;
+
+        if ($digitalFiles->count() === 1) {
+            $filePath = $digitalFiles->first()->file_url;
+        }
 
         if (!$filePath || !Storage::disk('public')->exists($filePath)) {
             return response()->json(['message' => 'File not available.'], 404);
@@ -322,7 +350,7 @@ class OrderController extends Controller
         $userId = $this->resolveUser($request);
         $guestToken = $this->guestToken($request);
 
-        $orders = Order::with(['items.product.images', 'payments'])
+        $orders = Order::with(['items.product.images', 'items.product.digitalFiles', 'payments'])
             ->when($userId, fn($q) => $q->where('user_id', $userId))
             ->when(!$userId && $guestToken, fn($q) => $q->where('guest_token', $guestToken))
             ->when(!$userId && !$guestToken, fn($q) => $q->whereRaw('1 = 0'))

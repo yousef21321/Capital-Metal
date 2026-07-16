@@ -1,8 +1,9 @@
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '@/api'
 import { useToastStore } from '@/stores/toast'
 import { useAuthStore } from '@/stores/auth'
+import { formatProductPrice } from '@/utils/price'
 
 const toast = useToastStore()
 const authStore = useAuthStore()
@@ -88,27 +89,23 @@ function onNameInput() {
   }
 }
 
-let converting = false
-
-watch(() => form.value.price_egp, (val) => {
-  if (converting || !val || val <= 0) return
-  converting = true
+function convertEgpToUsd() {
+  const val = parseFloat(form.value.price_egp)
+  if (!val || val <= 0) return
   const rate = authStore.exchangeRate || 30
   if (rate > 0) {
-    form.value.price_usd = parseFloat((val / rate).toFixed(4))
+    form.value.price_usd = parseFloat((val / rate).toFixed(2))
   }
-  converting = false
-})
+}
 
-watch(() => form.value.price_usd, (val) => {
-  if (converting || !val || val <= 0) return
-  converting = true
+function convertUsdToEgp() {
+  const val = parseFloat(form.value.price_usd)
+  if (!val || val <= 0) return
   const rate = authStore.exchangeRate || 30
   if (rate > 0) {
-    form.value.price_egp = parseFloat((val * rate).toFixed(4))
+    form.value.price_egp = parseFloat((val * rate).toFixed(2))
   }
-  converting = false
-})
+}
 
 async function save() {
   saving.value = true
@@ -224,11 +221,7 @@ const productImage = (product) => {
   return null
 }
 
-const formatPrice = (p) => {
-  if (parseFloat(p.price_egp) > 0) return `${parseFloat(p.price_egp).toFixed(2)} EGP`
-  if (parseFloat(p.price_usd) > 0) return `$${parseFloat(p.price_usd).toFixed(2)}`
-  return $t('admin_products.free')
-}
+const formatPrice = formatProductPrice
 
 onMounted(() => {
   fetchProducts()
@@ -414,14 +407,14 @@ onMounted(() => {
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_egp') }}</CFormLabel>
-            <CFormInput v-model.number="form.price_egp" type="text" inputmode="decimal" />
+            <CFormInput v-model.number="form.price_egp" type="text" inputmode="decimal" @blur="convertEgpToUsd" />
             <small v-if="form.price_egp > 0" class="text-body-secondary">
               ≈ {{ (form.price_egp / (authStore.exchangeRate || 30)).toFixed(2) }} USD
             </small>
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_usd') }}</CFormLabel>
-            <CFormInput v-model.number="form.price_usd" type="text" inputmode="decimal" />
+            <CFormInput v-model.number="form.price_usd" type="text" inputmode="decimal" @blur="convertUsdToEgp" />
             <small v-if="form.price_usd > 0" class="text-body-secondary">
               ≈ {{ (form.price_usd * (authStore.exchangeRate || 30)).toFixed(2) }} EGP
             </small>
@@ -525,7 +518,7 @@ onMounted(() => {
           </CCol>
           <CCol :sm="6" class="mt-2">
             <span class="text-body-secondary d-block small">{{ $t('admin_products.price_egp') }}</span>
-            <strong>{{ parseFloat(detailProduct.price_egp || 0).toFixed(2) }} EGP</strong>
+            <strong>{{ formatProductPrice(detailProduct) }}</strong>
           </CCol>
           <CCol :sm="6" class="mt-2">
             <span class="text-body-secondary d-block small">{{ $t('admin_products.price_usd') }}</span>

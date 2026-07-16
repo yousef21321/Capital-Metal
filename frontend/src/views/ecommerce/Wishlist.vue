@@ -5,6 +5,7 @@ import api from '@/api'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { formatProductPrice } from '@/utils/price'
 
 const router = useRouter()
 const cart = useCartStore()
@@ -48,19 +49,7 @@ async function addToCart(item) {
   }
 }
 
-const formatPrice = (product) => {
-  const currency = auth.userCurrency
-  if (currency === 'USD' && parseFloat(product?.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  if (parseFloat(product?.price_egp) > 0) {
-    if (currency === 'USD') {
-      const rate = auth.exchangeRate || 30
-      return `${(parseFloat(product.price_egp) / rate).toFixed(2)} USD`
-    }
-    return `${parseFloat(product.price_egp).toFixed(2)} EGP`
-  }
-  if (parseFloat(product?.price_usd) > 0) return `${parseFloat(product.price_usd).toFixed(2)} USD`
-  return $t('products.free')
-}
+const formatPrice = formatProductPrice
 
 const productImage = (product) => {
   const img = product?.images?.[0]
@@ -97,7 +86,7 @@ onMounted(fetchWishlist)
     <CRow v-else>
       <CCol v-for="item in items" :key="item.id" sm="6" lg="4" xl="3" class="mb-4">
         <CCard class="h-100 shadow-sm">
-          <div class="product-img-wrapper text-center bg-light" style="height: 200px; overflow: hidden; cursor: pointer;" @click="router.push(`/products/${item.product_id}`)">
+          <div class="product-img-wrapper text-center bg-light" style="height: 200px; overflow: hidden; cursor: pointer;" @click="router.push(`/products/${item.product?.slug}`)">
             <img
               v-if="productImage(item.product)"
               :src="productImage(item.product)"
@@ -114,7 +103,7 @@ onMounted(fetchWishlist)
           </div>
           <CCardBody class="d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <CCardTitle class="mb-0" style="cursor: pointer" @click="router.push(`/products/${item.product_id}`)">{{ item.product?.name }}</CCardTitle>
+              <CCardTitle class="mb-0" style="cursor: pointer" @click="router.push(`/products/${item.product?.slug}`)">{{ item.product?.name }}</CCardTitle>
               <CButton color="danger" variant="ghost" size="sm" :disabled="removingId === item.product_id" @click="toggleWishlist(item.product_id)">
                 <CSpinner v-if="removingId === item.product_id" size="sm" />
                 <CIcon v-else icon="cil-heart" />

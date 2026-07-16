@@ -5,6 +5,7 @@ import api from '@/api'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { formatProductPrice } from '@/utils/price'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,20 +28,7 @@ const currentImage = computed(() => {
   return null
 })
 
-const formatPrice = computed(() => {
-  if (!product.value) return ''
-  const currency = auth.userCurrency
-  if (currency === 'USD' && parseFloat(product.value.price_usd) > 0) return `${parseFloat(product.value.price_usd).toFixed(2)} USD`
-  if (parseFloat(product.value.price_egp) > 0) {
-    if (currency === 'USD') {
-      const rate = auth.exchangeRate || 30
-      return `${(parseFloat(product.value.price_egp) / rate).toFixed(2)} USD`
-    }
-    return `${parseFloat(product.value.price_egp).toFixed(2)} EGP`
-  }
-  if (parseFloat(product.value.price_usd) > 0) return `${parseFloat(product.value.price_usd).toFixed(2)} USD`
-  return 'Free'
-})
+const formatPrice = computed(() => formatProductPrice(product.value))
 
 const reviews = ref([])
 const relatedProducts = ref([])
@@ -48,7 +36,7 @@ const relatedProducts = ref([])
 async function fetchProduct() {
   loading.value = true
   try {
-    const { data } = await api.get(`/api/products/${route.params.id}`)
+    const { data } = await api.get(`/api/products/${route.params.slug}`)
     product.value = data
     await fetchReviews()
     await fetchRelated()
@@ -61,7 +49,7 @@ async function fetchProduct() {
 
 async function fetchReviews() {
   try {
-    const { data } = await api.get(`/api/products/${route.params.id}/reviews`)
+    const { data } = await api.get(`/api/products/${route.params.slug}/reviews`)
     reviews.value = data
   } catch (_) {}
 }
@@ -208,6 +196,19 @@ onMounted(fetchProduct)
               <span class="small fw-semibold text-body-secondary me-2">Tags:</span>
               <span v-for="tag in product.tags" :key="tag" class="tag-pill">{{ tag }}</span>
             </div>
+
+            <div v-if="product.digital_files?.length" class="files-section mt-4">
+              <h6 class="fw-semibold mb-2">
+                <CIcon icon="cil-files" class="me-1" /> Included Files ({{ product.digital_files.length }})
+              </h6>
+              <div class="d-flex flex-column gap-1">
+                <div v-for="file in product.digital_files" :key="file.id" class="d-flex align-items-center gap-2 p-2 rounded" style="background: var(--cui-tertiary-bg, #f8f9fa);">
+                  <CIcon icon="cil-file" class="text-primary" />
+                  <span class="small flex-grow-1 text-truncate">{{ file.file_url.split('/').pop() }}</span>
+                  <CBadge color="info" class="text-capitalize">{{ file.license_type }}</CBadge>
+                </div>
+              </div>
+            </div>
           </div>
         </CCol>
       </CRow>
@@ -266,7 +267,7 @@ onMounted(fetchProduct)
         </h2>
         <CRow class="g-3">
           <CCol v-for="p in relatedProducts" :key="p.id" sm="6" lg="3">
-            <CCard class="related-card h-100" @click="router.push(`/products/${p.id}`)">
+            <CCard class="related-card h-100" @click="router.push(`/products/${p.slug}`)">
               <div class="related-img-wrapper">
                 <img
                   v-if="p.images?.[0]"
@@ -283,7 +284,7 @@ onMounted(fetchProduct)
               </div>
               <CCardBody>
                 <h3 class="related-name mb-1 fs-6">{{ p.name }}</h3>
-                <span class="related-price">{{ p.price_egp ? parseFloat(p.price_egp).toFixed(2) + ' EGP' : 'Free' }}</span>
+                <span class="related-price">{{ formatProductPrice(p) }}</span>
               </CCardBody>
             </CCard>
           </CCol>

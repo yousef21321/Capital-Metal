@@ -1,14 +1,10 @@
 <script setup>
 import { onBeforeMount, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useColorModes } from '@coreui/vue'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
 import { loadLocale } from '@/i18n'
 
-const { isColorModeSet, setColorMode } = useColorModes(
-  'coreui-free-vue-admin-template-theme',
-)
 const currentTheme = useThemeStore()
 const authStore = useAuthStore()
 const { locale } = useI18n()
@@ -26,6 +22,9 @@ onBeforeMount(async () => {
 
   await loadLocale(locale.value)
 
+  // Clean up old CoreUI theme key that conflicts with our store
+  localStorage.removeItem('coreui-free-vue-admin-template-theme')
+
   const urlParams = new URLSearchParams(window.location.href.split('?')[1])
   let theme = urlParams.get('theme')
 
@@ -34,15 +33,12 @@ onBeforeMount(async () => {
   }
 
   if (theme) {
-    setColorMode(theme)
+    currentTheme.toggleTheme(theme)
     return
   }
 
-  if (isColorModeSet()) {
-    return
-  }
-
-  setColorMode(currentTheme.theme)
+  // Always apply stored theme to DOM
+  currentTheme.toggleTheme(currentTheme.theme)
 
   if (authStore.token) {
     await authStore.fetchUser()

@@ -1,15 +1,16 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useColorModes } from '@coreui/vue'
 
 import { AppSidebarNav } from '@/components/AppSidebarNav.js'
 import { useSidebarStore } from '@/stores/sidebar.js'
+import { useThemeStore } from '@/stores/theme.js'
 import logoLight from '@/assets/images/logo.webp'
 import logoDark from '@/assets/images/logodark.webp'
 
 const sidebar = useSidebarStore()
-const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const themeStore = useThemeStore()
+const colorMode = computed(() => themeStore.theme)
 const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 </script>
 

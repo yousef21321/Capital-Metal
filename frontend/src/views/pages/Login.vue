@@ -1,13 +1,14 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
-import { useColorModes } from '@coreui/vue'
+import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
 import logoLight from '@/assets/images/logo.webp'
 import logoDark from '@/assets/images/logodark.webp'
 
 const authStore = useAuthStore()
-const { colorMode } = useColorModes('coreui-free-vue-admin-template-theme')
+const themeStore = useThemeStore()
+const colorMode = computed(() => themeStore.theme)
 const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 const router = useRouter()
 

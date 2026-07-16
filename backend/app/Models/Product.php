@@ -14,6 +14,7 @@ class Product extends Model
         'tester_comment', 'tested_by', 'tested_at',
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
+        'ticket_id',
     ];
 
     protected function casts(): array
@@ -34,6 +35,11 @@ class Product extends Model
     public function designer()
     {
         return $this->belongsTo(User::class, 'designer_id');
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
     }
 
     public function images()

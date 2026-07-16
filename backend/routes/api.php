@@ -28,8 +28,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::get('/products/{productId}/reviews', [ReviewController::class, 'index']);
+Route::get('/products/{slug}', [ProductController::class, 'show']);
+Route::get('/products/{slug}/reviews', [ReviewController::class, 'index']);
 Route::post('/coupons/verify', [CouponController::class, 'verify']);
 
 Route::get('/plans', [SubscriptionController::class, 'plans']);
@@ -194,8 +194,10 @@ Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::cla
         Route::post('/tickets/{id}/qa/reject', [TicketController::class, 'qaReject']);
         Route::get('/tester/products/pending', [TesterProductController::class, 'index']);
         Route::get('/tester/products/pending-count', [TesterProductController::class, 'pendingCount']);
+        Route::get('/tester/products/{id}/download', [TesterProductController::class, 'downloadDesignFile']);
         Route::post('/tester/products/{id}/approve', [TesterProductController::class, 'approve']);
         Route::post('/tester/products/{id}/return', [TesterProductController::class, 'returnWithFeedback']);
+        Route::post('/tester/tickets/{ticketId}/convert-to-product', [TesterProductController::class, 'convertTicketToProduct']);
     });
 
     Route::middleware('role:industor')->group(function () {

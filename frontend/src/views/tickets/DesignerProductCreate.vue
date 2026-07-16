@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -73,27 +73,23 @@ const designerPriceUSD = computed(() => {
   return form.value.price_usd - commissionUSD.value
 })
 
-let converting = false
-
-watch(() => form.value.price_egp, (val) => {
-  if (converting || !val || val <= 0) return
-  converting = true
+function convertEgpToUsd() {
+  const val = parseFloat(form.value.price_egp)
+  if (!val || val <= 0) return
   const rate = auth.exchangeRate || 30
   if (rate > 0) {
-    form.value.price_usd = parseFloat((val / rate).toFixed(4))
+    form.value.price_usd = parseFloat((val / rate).toFixed(2))
   }
-  converting = false
-})
+}
 
-watch(() => form.value.price_usd, (val) => {
-  if (converting || !val || val <= 0) return
-  converting = true
+function convertUsdToEgp() {
+  const val = parseFloat(form.value.price_usd)
+  if (!val || val <= 0) return
   const rate = auth.exchangeRate || 30
   if (rate > 0) {
-    form.value.price_egp = parseFloat((val * rate).toFixed(4))
+    form.value.price_egp = parseFloat((val * rate).toFixed(2))
   }
-  converting = false
-})
+}
 
 function slugify(value) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
@@ -180,7 +176,7 @@ async function submit() {
   }
 
   for (const f of designFiles.value) {
-    fd.append('design_files[]', f)
+    fd.append('design_file', f)
   }
 
   try {
@@ -188,7 +184,7 @@ async function submit() {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     success.value = 'Product submitted for review. A tester will review it shortly.'
-    setTimeout(() => router.push('/products'), 1200)
+    setTimeout(() => router.push('/designer/products'), 1200)
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to create product.'
   } finally {

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/api'
 import { useToastStore } from '@/stores/toast'
+import { formatPrice } from '@/utils/price'
 
 const toast = useToastStore()
 const coupons = ref([])
@@ -139,9 +140,9 @@ onMounted(fetchCoupons)
               </CBadge>
             </CTableDataCell>
             <CTableDataCell>
-              {{ c.discount_type === 'percentage' ? c.discount_value + '%' : c.discount_value + ' EGP' }}
+              {{ c.discount_type === 'percentage' ? c.discount_value + '%' : formatPrice(c.discount_value) }}
             </CTableDataCell>
-            <CTableDataCell>{{ c.min_order_amount ? c.min_order_amount + ' EGP' : '—' }}</CTableDataCell>
+            <CTableDataCell>{{ c.min_order_amount ? formatPrice(c.min_order_amount) : '—' }}</CTableDataCell>
             <CTableDataCell>{{ formatDate(c.expiry_date) }}</CTableDataCell>
             <CTableDataCell>{{ c.used_count || 0 }}</CTableDataCell>
             <CTableDataCell>{{ c.usage_limit || '∞' }}</CTableDataCell>

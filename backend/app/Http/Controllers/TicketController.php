@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Models\User;
 use App\Models\StoreListing;
 use App\Models\Product;
+use App\Services\ImageOptimizer;
 use App\Models\UserSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -200,7 +201,7 @@ class TicketController extends Controller
             'industor', 'tester', 'designer', 'reviewer', 'subscription.plan',
             'attachments.uploadedBy', 'histories.changedBy',
             'modificationRequests.designer', 'storeListing', 'payments', 'priceHistory',
-            'deadlineNegotiations.creator',
+            'deadlineNegotiations.creator', 'product',
         ])->findOrFail($id);
 
         $this->authorizeView($user, $ticket);

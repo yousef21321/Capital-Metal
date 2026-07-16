@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -78,21 +78,23 @@ const designerPriceUSD = computed(() => {
   return form.value.price_usd - commissionUSD.value
 })
 
-let converting = false
-watch(() => form.value.price_egp, (val) => {
-  if (converting || !val || val <= 0) return
-  converting = true
+function convertEgpToUsd() {
+  const val = parseFloat(form.value.price_egp)
+  if (!val || val <= 0) return
   const rate = auth.exchangeRate || 30
-  if (rate > 0) form.value.price_usd = parseFloat((val / rate).toFixed(4))
-  converting = false
-})
-watch(() => form.value.price_usd, (val) => {
-  if (converting || !val || val <= 0) return
-  converting = true
+  if (rate > 0) {
+    form.value.price_usd = parseFloat((val / rate).toFixed(2))
+  }
+}
+
+function convertUsdToEgp() {
+  const val = parseFloat(form.value.price_usd)
+  if (!val || val <= 0) return
   const rate = auth.exchangeRate || 30
-  if (rate > 0) form.value.price_egp = parseFloat((val * rate).toFixed(4))
-  converting = false
-})
+  if (rate > 0) {
+    form.value.price_egp = parseFloat((val * rate).toFixed(2))
+  }
+}
 
 function slugify(value) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')

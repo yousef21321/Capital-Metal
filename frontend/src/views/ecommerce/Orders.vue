@@ -16,13 +16,16 @@ const downloading = ref(null)
 async function downloadFile(order, item) {
   downloading.value = item.id
   try {
-    const { data } = await api.get(`/api/orders/${order.id}/items/${item.id}/download`, {
+    const res = await api.get(`/api/orders/${order.id}/items/${item.id}/download`, {
       responseType: 'blob',
     })
-    const url = window.URL.createObjectURL(data)
+    const contentType = res.headers['content-type']
+    const isZip = contentType?.includes('zip')
+    const ext = isZip ? '.zip' : ''
+    const url = window.URL.createObjectURL(res.data)
     const a = document.createElement('a')
     a.href = url
-    a.download = item.product?.name || 'design-file'
+    a.download = (item.product?.name || 'design-file') + ext
     document.body.appendChild(a)
     a.click()
     a.remove()
@@ -148,7 +151,7 @@ onMounted(fetchOrders)
                 <img :src="'/storage/' + item.product.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="60" height="60" />
               </div>
               <div class="flex-grow-1 min-w-0">
-                <RouterLink :to="`/products/${item.product?.id || item.product_id}`" class="fw-semibold text-decoration-none">
+                <RouterLink :to="`/products/${item.product?.slug}`" class="fw-semibold text-decoration-none">
                   {{ item.product?.name || 'Product #' + item.product_id }}
                 </RouterLink>
                 <div class="text-body-secondary small">Qty: {{ item.quantity }}</div>
@@ -157,7 +160,7 @@ onMounted(fetchOrders)
                 <div class="fw-semibold">{{ item.price }} {{ order.currency }}</div>
                 <div v-if="item.quantity > 1" class="text-body-secondary small">{{ item.price }} each</div>
                 <CButton
-                  v-if="order.payment_status === 'paid' && item.product?.design_file_path"
+                  v-if="order.payment_status === 'paid' && (item.product?.design_file_path || item.product?.digital_files?.length)"
                   color="success"
                   size="sm"
                   class="mt-1"
@@ -166,7 +169,7 @@ onMounted(fetchOrders)
                 >
                   <CSpinner v-if="downloading === item.id" size="sm" class="me-1" />
                   <CIcon icon="cil-cloud-download" class="me-1" />
-                  Download
+                  Download {{ item.product?.digital_files?.length > 1 ? '(' + item.product.digital_files.length + ' files)' : '' }}
                 </CButton>
               </div>
             </div>
