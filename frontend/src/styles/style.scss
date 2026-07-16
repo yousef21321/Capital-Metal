@@ -802,6 +802,12 @@ body {
     object-fit: cover;
   }
 
+  .hero-bg-video {
+    object-fit: cover;
+    pointer-events: none;
+    border: none;
+  }
+
   .hero-overlay {
     position: absolute;
     inset: 0;

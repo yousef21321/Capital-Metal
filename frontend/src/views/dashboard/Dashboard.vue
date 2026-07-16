@@ -70,6 +70,17 @@ const productImage = (product) => {
 
 const formatPrice = formatProductPrice
 
+function youtubeEmbedUrl(url) {
+  if (!url) return null
+  let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)
+  if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&playlist=${match[1]}&controls=0&showinfo=0&modestbranding=1&playsinline=1`
+  return null
+}
+
+function isDirectVideo(url) {
+  return url && /\.(mp4|webm|ogg)(\?|$)/i.test(url)
+}
+
 async function addToCart(product) {
   try {
     await cart.addItem(product.id, 1)
@@ -147,8 +158,16 @@ let notifInterval
       <div class="hero-section text-center py-5">
         <div class="hero-bg-shapes">
           <template v-for="media in heroImages" :key="media.id">
+            <iframe
+              v-if="media.media_type === 'video' && youtubeEmbedUrl(media.video_url)"
+              :src="youtubeEmbedUrl(media.video_url)"
+              class="hero-bg-img hero-bg-video"
+              frameborder="0"
+              allow="autoplay; encrypted-media"
+              allowfullscreen
+            ></iframe>
             <video
-              v-if="media.media_type === 'video'"
+              v-else-if="media.media_type === 'video' && isDirectVideo(media.video_url)"
               :src="media.video_url"
               class="hero-bg-img"
               autoplay
@@ -157,7 +176,7 @@ let notifInterval
               playsinline
             ></video>
             <img
-              v-else
+              v-else-if="media.media_type === 'image'"
               :src="`/storage/${media.image_url}`"
               class="hero-bg-img"
               loading="lazy"
