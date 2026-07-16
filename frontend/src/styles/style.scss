@@ -806,6 +806,11 @@ body {
     object-fit: cover;
     pointer-events: none;
     border: none;
+    outline: none;
+  }
+
+  .hero-bg-video::-webkit-media-controls {
+    display: none !important;
   }
 
   .hero-overlay {

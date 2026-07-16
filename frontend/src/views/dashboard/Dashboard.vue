@@ -73,7 +73,7 @@ const formatPrice = formatProductPrice
 function youtubeEmbedUrl(url) {
   if (!url) return null
   let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)
-  if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&playlist=${match[1]}&controls=0&showinfo=0&modestbranding=1&playsinline=1`
+  if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&playlist=${match[1]}&controls=0&showinfo=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0&cc_load_policy=0&disablekb=1&playsinline=1&color=white&quality=hd`
   return null
 }
 
