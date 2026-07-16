@@ -155,7 +155,7 @@ let notifInterval
   <div class="dashboard-page">
     <!-- Guest welcome -->
     <div v-if="!authStore.isAuthenticated" class="guest-welcome">
-      <div class="hero-section text-center py-5">
+      <div class="hero-section text-center">
         <div class="hero-bg-shapes">
           <template v-for="media in heroImages" :key="media.id">
             <iframe
