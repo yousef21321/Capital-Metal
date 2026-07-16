@@ -1,9 +1,17 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { computed } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
+
+const avatarUrl = computed(() => {
+  if (!authStore.user?.avatar) return null
+  return authStore.user.avatar.startsWith('http')
+    ? authStore.user.avatar
+    : `/storage/${authStore.user.avatar}`
+})
 
 async function handleLogout() {
   await authStore.logout()
@@ -14,7 +22,8 @@ async function handleLogout() {
 <template>
   <CDropdown placement="bottom-end" variant="nav-item">
     <CDropdownToggle class="py-0 pe-0" :caret="false">
-      <CAvatar color="primary" text-color="white" size="md" class="user-avatar">
+      <CAvatar v-if="avatarUrl" :src="avatarUrl" size="md" class="user-avatar" />
+      <CAvatar v-else color="primary" text-color="white" size="md" class="user-avatar">
         {{ authStore.userName?.charAt(0)?.toUpperCase() || 'U' }}
       </CAvatar>
     </CDropdownToggle>
@@ -24,7 +33,8 @@ async function handleLogout() {
         class="bg-body-secondary text-body-secondary fw-semibold mb-2 rounded-top account-header"
       >
         <div class="d-flex align-items-center gap-2">
-          <CAvatar color="primary" text-color="white" size="sm">
+          <CAvatar v-if="avatarUrl" :src="avatarUrl" size="sm" />
+          <CAvatar v-else color="primary" text-color="white" size="sm">
             {{ authStore.userName?.charAt(0)?.toUpperCase() || 'U' }}
           </CAvatar>
           <div>

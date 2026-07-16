@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore, detectCurrency } from '@/stores/auth'
@@ -21,6 +21,42 @@ const currency = ref('EGP')
 detectCurrency().then(c => currency.value = c)
 const error = ref('')
 const loading = ref(false)
+
+function initGoogleSignIn() {
+  if (window.google?.accounts?.id) {
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+    })
+    window.google.accounts.id.renderButton(
+      document.getElementById('google-signin-btn-register'),
+      { theme: 'outline', size: 'large', width: '100%', text: 'continue_with' }
+    )
+  }
+}
+
+onMounted(() => {
+  initGoogleSignIn()
+  if (!window.google?.accounts?.id) {
+    const interval = setInterval(() => {
+      initGoogleSignIn()
+      if (window.google?.accounts?.id) clearInterval(interval)
+    }, 200)
+  }
+})
+
+async function handleGoogleCredential(response) {
+  error.value = ''
+  loading.value = true
+  try {
+    await authStore.googleLogin(response.credential)
+    router.push('/products')
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
 
 async function handleRegister() {
   error.value = ''
@@ -129,6 +165,13 @@ async function handleRegister() {
                         <template v-else><CIcon icon="cil-user-plus" class="me-2" /></template>
                         {{ loading ? 'جارٍ إنشاء الحساب...' : 'إنشاء الحساب / Create Account' }}
                       </CButton>
+                    </div>
+
+                    <div class="text-center mt-3 mb-2">
+                      <div class="divider-text mb-3">
+                        <span>أو / OR</span>
+                      </div>
+                      <div id="google-signin-btn-register" class="d-flex justify-content-center"></div>
                     </div>
 
                     <div class="text-center mt-3 d-md-none">
@@ -384,6 +427,21 @@ async function handleRegister() {
 .auth-link:hover {
   color: #ff6b35;
   text-decoration: underline;
+}
+
+.divider-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.82rem;
+}
+.divider-text::before,
+.divider-text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
 }
 
 @keyframes fade-up {

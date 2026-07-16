@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
@@ -16,6 +16,42 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+
+function initGoogleSignIn() {
+  if (window.google?.accounts?.id) {
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+    })
+    window.google.accounts.id.renderButton(
+      document.getElementById('google-signin-btn'),
+      { theme: 'outline', size: 'large', width: '100%', text: 'continue_with' }
+    )
+  }
+}
+
+onMounted(() => {
+  initGoogleSignIn()
+  if (!window.google?.accounts?.id) {
+    const interval = setInterval(() => {
+      initGoogleSignIn()
+      if (window.google?.accounts?.id) clearInterval(interval)
+    }, 200)
+  }
+})
+
+async function handleGoogleCredential(response) {
+  error.value = ''
+  loading.value = true
+  try {
+    await authStore.googleLogin(response.credential)
+    router.push('/products')
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
 
 async function handleLogin() {
   error.value = ''
@@ -93,6 +129,12 @@ async function handleLogin() {
                         <template v-else><CIcon icon="cil-account-login" class="me-2" /></template>
                         {{ loading ? 'Signing in...' : $t('login.sign_in') }}
                       </CButton>
+                    </div>
+                    <div class="text-center mb-3">
+                      <div class="divider-text mb-3">
+                        <span>{{ $t('login.or') }}</span>
+                      </div>
+                      <div id="google-signin-btn" class="d-flex justify-content-center"></div>
                     </div>
                     <div class="text-center">
                       <CButton color="link" class="auth-link p-0" @click="router.push('/pages/register')">
@@ -329,6 +371,21 @@ async function handleLogin() {
 .auth-link:hover {
   color: #ff6b35;
   text-decoration: underline;
+}
+
+.divider-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.82rem;
+}
+.divider-text::before,
+.divider-text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
 }
 
 @keyframes fade-up {

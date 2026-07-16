@@ -24,6 +24,9 @@ class User extends Authenticatable
         'reset_token',
         'reset_token_expiry',
         'currency_preference',
+        'google_id',
+        'avatar',
+        'provider',
     ];
 
     protected $hidden = [

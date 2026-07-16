@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -54,6 +55,73 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        if (!$user->is_active) {
+            return response()->json(['message' => 'Account is deactivated.'], 403);
+        }
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        $this->mergeGuestCart($request, $user);
+
+        return response()->json([
+            'user' => $user->load('role'),
+            'token' => $token,
+        ]);
+    }
+
+    public function googleLogin(Request $request)
+    {
+        $request->validate([
+            'credential' => 'required|string',
+        ]);
+
+        $allowedClients = array_filter(array_map('trim', explode(',', config('services.google.client_id'))));
+        $tokenInfo = null;
+
+        foreach ($allowedClients as $clientId) {
+            $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . $request->credential;
+            $response = @file_get_contents($url);
+            if ($response !== false) {
+                $tokenInfo = json_decode($response, true);
+                if (isset($tokenInfo['aud']) && $tokenInfo['aud'] === $clientId) {
+                    break;
+                }
+                $tokenInfo = null;
+            }
+        }
+
+        if (!$tokenInfo || !isset($tokenInfo['email'])) {
+            throw ValidationException::withMessages([
+                'credential' => ['Invalid Google credential.'],
+            ]);
+        }
+
+        $email = $tokenInfo['email'];
+        $googleId = $tokenInfo['sub'];
+        $name = $tokenInfo['name'] ?? $email;
+        $avatar = $tokenInfo['picture'] ?? null;
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            $userRole = Role::where('name', 'user')->first();
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => Str::random(32),
+                'role_id' => $userRole?->id,
+                'google_id' => $googleId,
+                'avatar' => $avatar,
+                'provider' => 'google',
+            ]);
+        } elseif (!$user->google_id) {
+            $user->update([
+                'google_id' => $googleId,
+                'avatar' => $avatar,
+                'provider' => 'google',
             ]);
         }
 
@@ -130,10 +198,21 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:150',
+            'avatar' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:2048',
         ]);
 
         $user = $request->user();
         $user->name = $request->name;
+
+        if ($request->hasFile('avatar')) {
+            $optimizer = new \App\Services\ImageOptimizer(400, 400, 85);
+            $oldAvatar = $user->avatar;
+            $user->avatar = $optimizer->optimizeUploadedFile($request->file('avatar'), 'avatars');
+            if ($oldAvatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAvatar)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAvatar);
+            }
+        }
+
         $user->save();
 
         return response()->json($user->load('role'));

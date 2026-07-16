@@ -156,6 +156,29 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async googleLogin(googleToken) {
+      this.loading = true
+      try {
+        const { data } = await api.post('/api/auth/google', { credential: googleToken })
+        this.token = data.token
+        this.persistUser(data.user)
+        localStorage.setItem('auth-token', data.token)
+        localStorage.removeItem('guest-token')
+        const detected = await detectCurrency()
+        this.detectedCurrency = detected
+        if (detected !== (data.user?.currency_preference || 'EGP')) {
+          try { await this.updateCurrency(detected) } catch {}
+        }
+        this.fetchExchangeRate()
+        return true
+      } catch (error) {
+        const message = error.response?.data?.message || 'Google login failed'
+        throw new Error(message)
+      } finally {
+        this.loading = false
+      }
+    },
+
     async fetchExchangeRate() {
       try {
         const { data } = await api.get('/api/exchange-rate')
@@ -167,6 +190,14 @@ export const useAuthStore = defineStore('auth', {
 
     async updateCurrency(currency) {
       const { data } = await api.put('/api/me/currency', { currency_preference: currency })
+      this.persistUser(data)
+      return data
+    },
+
+    async updateProfile(formData) {
+      const { data } = await api.put('/api/me', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       this.persistUser(data)
       return data
     },
