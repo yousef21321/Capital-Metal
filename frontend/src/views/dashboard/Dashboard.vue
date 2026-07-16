@@ -146,14 +146,25 @@ let notifInterval
     <div v-if="!authStore.isAuthenticated" class="guest-welcome">
       <div class="hero-section text-center py-5">
         <div class="hero-bg-shapes">
-          <img
-            v-for="img in heroImages"
-            :key="img.id"
-            :src="`/storage/${img.image_url}`"
-            class="hero-bg-img"
-            loading="lazy"
-            alt=""
-          />
+          <template v-for="media in heroImages" :key="media.id">
+            <video
+              v-if="media.media_type === 'video'"
+              :src="media.video_url"
+              class="hero-bg-img"
+              autoplay
+              loop
+              muted
+              playsinline
+            ></video>
+            <img
+              v-else
+              :src="`/storage/${media.image_url}`"
+              class="hero-bg-img"
+              loading="lazy"
+              :alt="media.alt_text || ''"
+            />
+          </template>
+          <div class="hero-overlay"></div>
           <span class="shape shape-1"></span>
           <span class="shape shape-2"></span>
           <span class="shape shape-3"></span>

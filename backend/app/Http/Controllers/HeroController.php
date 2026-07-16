@@ -17,31 +17,57 @@ class HeroController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|file|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'media_type' => 'required|in:image,video',
+            'image' => 'required_if:media_type,image|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
+            'video_url' => 'required_if:media_type,video|nullable|string|max:500',
+            'alt_text' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
-        $optimizer = app(ImageOptimizer::class);
-        $path = $optimizer->optimizeUploadedFile($request->file('image'), 'hero');
-
-        $heroImage = HeroImage::create([
-            'image_url' => $path,
+        $data = [
+            'media_type' => $request->input('media_type', 'image'),
+            'alt_text' => $request->input('alt_text'),
             'sort_order' => $request->input('sort_order', 0),
-        ]);
+        ];
+
+        if ($request->input('media_type') === 'video') {
+            $data['video_url'] = $request->input('video_url');
+            $data['image_url'] = $request->input('video_url');
+        } else {
+            $optimizer = app(ImageOptimizer::class);
+            $path = $optimizer->optimizeUploadedFile($request->file('image'), 'hero');
+            $data['image_url'] = $path;
+        }
+
+        $heroImage = HeroImage::create($data);
 
         return response()->json($heroImage, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $heroImage = HeroImage::findOrFail($id);
+
+        $request->validate([
+            'alt_text' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $heroImage->update($request->only(['alt_text', 'sort_order']));
+
+        return response()->json($heroImage);
     }
 
     public function destroy($id)
     {
         $heroImage = HeroImage::findOrFail($id);
 
-        if (Storage::disk('public')->exists($heroImage->image_url)) {
+        if ($heroImage->media_type === 'image' && Storage::disk('public')->exists($heroImage->image_url)) {
             Storage::disk('public')->delete($heroImage->image_url);
         }
 
         $heroImage->delete();
 
-        return response()->json(['message' => 'Hero image deleted.']);
+        return response()->json(['message' => 'Hero media deleted.']);
     }
 }
