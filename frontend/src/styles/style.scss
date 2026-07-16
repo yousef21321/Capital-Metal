@@ -783,7 +783,7 @@ body {
 .hero-section {
   position: relative;
   padding: 6rem 0;
-  height: 600px;
+  height: 900px;
   isolation: isolate;
 }
 
@@ -879,7 +879,16 @@ body {
 }
 
 .hero-title {
-  animation: fade-up 0.8s ease-out 0.1s both;
+  background: linear-gradient(135deg, #b81300, #ff6b35, #39f, #2eb85c, #b81300);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(184, 19, 0, 0.15));
+  animation:
+    fade-up 0.8s ease-out 0.1s both,
+    gradient-shift 6s ease-in-out infinite;
 }
 
 .hero-subtitle {

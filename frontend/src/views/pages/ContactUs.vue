@@ -50,40 +50,36 @@ async function submitContact() {
 
                     <div class="mb-3">
                       <h3 class="fs-6 fw-semibold mb-1">
-                        <CIcon icon="cil-envelope" class="me-1" /> البريد الإلكتروني
+                        <CIcon icon="cil-envelope" class="me-1" /> البريد الإلكتروني / Email
                       </h3>
-                      <p class="mb-0 text-body-secondary">info@flfldesign.com</p>
-                      <p class="text-body-secondary">support@flfldesign.com</p>
+                      <p class="mb-0 text-body-secondary">flfldesign.official@gmail.com</p>
                     </div>
 
                     <div class="mb-3">
                       <h3 class="fs-6 fw-semibold mb-1">
-                        <CIcon icon="cil-phone" class="me-1" /> الهاتف
+                        <CIcon icon="cil-phone" class="me-1" /> الهاتف / Phone
                       </h3>
+                      <p class="mb-0 text-body-secondary" dir="ltr">01109055371</p>
                     </div>
 
                     <div class="mb-3">
                       <h3 class="fs-6 fw-semibold mb-1">
-                        <CIcon icon="cil-location-pin" class="me-1" /> العناوين
+                        <CIcon icon="cil-location-pin" class="me-1" /> العنوان / Address
                       </h3>
-                      <p class="mb-1 fw-semibold">الفرع الرئيسي:</p>
-                      <p class="mb-2 text-body-secondary">
-                        ٧ شارع سليمان أبو عوف، الدقي، الجيزة، مصر<br />
-                        <span class="small">7 Soliman Abu Awf St., Dokki, Giza, Egypt</span>
+                      <p class="mb-0 text-body-secondary" dir="rtl">
+                        ٦ شارع العبسي، منشاة البكري، القاهرة الجديدة
                       </p>
-                      <p class="mb-1 fw-semibold">فرع المعادي:</p>
-                      <p class="mb-0 text-body-secondary">
-                        ١٥ شارع ٢٥٠، المعادي، القاهرة، مصر<br />
-                        <span class="small">15 St. 250, Maadi, Cairo, Egypt</span>
+                      <p class="text-body-secondary small" dir="ltr">
+                        6 Elabnasy St., Manshyat ElBakry, New Cairo
                       </p>
                     </div>
 
                     <div>
                       <h3 class="fs-6 fw-semibold mb-1">
-                        <CIcon icon="cil-clock" class="me-1" /> ساعات العمل
+                        <CIcon icon="cil-clock" class="me-1" /> ساعات العمل / Working Hours
                       </h3>
-                      <p class="mb-0 text-body-secondary">السبت - الخميس: ١٠ ص - ٩ م</p>
-                      <p class="text-body-secondary">Saturday - Thursday: 10 AM - 9 PM</p>
+                      <p class="mb-0 text-body-secondary" dir="rtl">السبت - الخميس: ١٠ ص - ٩ م</p>
+                      <p class="text-body-secondary" dir="ltr">Saturday - Thursday: 10 AM - 9 PM</p>
                     </div>
                   </CCardBody>
                 </CCard>
