@@ -16,13 +16,21 @@ class HeroController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $mediaType = $request->input('media_type', 'image');
+
+        $rules = [
             'media_type' => 'required|in:image,video',
-            'image' => 'required_if:media_type,image|file|mimes:jpg,jpeg,png,webp,gif|max:10240',
-            'video_url' => 'required_if:media_type,video|nullable|string|max:500',
             'alt_text' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
-        ]);
+        ];
+
+        if ($mediaType === 'video') {
+            $rules['video_url'] = 'required|string|max:500';
+        } else {
+            $rules['image'] = 'required|file|mimes:jpg,jpeg,png,webp,gif|max:10240';
+        }
+
+        $request->validate($rules);
 
         $data = [
             'media_type' => $request->input('media_type', 'image'),
