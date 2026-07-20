@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useCartStore } from '@/stores/cart'
@@ -76,6 +76,14 @@ async function addToCart() {
 }
 
 onMounted(fetchProduct)
+
+watch(() => route.params.slug, (newSlug) => {
+  if (newSlug) {
+    selectedImage.value = 0
+    quantity.value = 1
+    fetchProduct()
+  }
+})
 </script>
 
 <template>
@@ -267,26 +275,28 @@ onMounted(fetchProduct)
         </h2>
         <CRow class="g-3">
           <CCol v-for="p in relatedProducts" :key="p.id" sm="6" lg="3">
-            <CCard class="related-card h-100" @click="router.push(`/products/${p.slug}`)">
-              <div class="related-img-wrapper">
-                <img
-                  v-if="p.images?.[0]"
-                  :src="`/storage/${p.images[0].image_url}`"
-                  :alt="p.name"
-                  class="related-img"
-                  loading="lazy"
-                  width="320"
-                  height="160"
-                />
-                <div v-else class="related-img-placeholder">
-                  <CIcon :icon="p.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="2xl" class="text-body-secondary" />
+            <router-link :to="`/products/${p.slug}`" class="text-decoration-none">
+              <CCard class="related-card h-100">
+                <div class="related-img-wrapper">
+                  <img
+                    v-if="p.images?.[0]"
+                    :src="`/storage/${p.images[0].image_url}`"
+                    :alt="p.name"
+                    class="related-img"
+                    loading="lazy"
+                    width="320"
+                    height="160"
+                  />
+                  <div v-else class="related-img-placeholder">
+                    <CIcon :icon="p.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="2xl" class="text-body-secondary" />
+                  </div>
                 </div>
-              </div>
-              <CCardBody>
-                <h3 class="related-name mb-1 fs-6">{{ p.name }}</h3>
-                <span class="related-price">{{ formatProductPrice(p) }}</span>
-              </CCardBody>
-            </CCard>
+                <CCardBody>
+                  <h3 class="related-name mb-1 fs-6">{{ p.name }}</h3>
+                  <span class="related-price">{{ formatProductPrice(p) }}</span>
+                </CCardBody>
+              </CCard>
+            </router-link>
           </CCol>
         </CRow>
       </div>

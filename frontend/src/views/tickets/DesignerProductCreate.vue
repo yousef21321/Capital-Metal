@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -15,7 +15,6 @@ const form = ref({
   price_usd: 0,
   material: '',
   manufacturing_method: '',
-  material_other: '',
   manufacturing_method_other: '',
   tags: [],
 })
@@ -27,6 +26,39 @@ const images = ref([])
 const imagePreviews = ref([])
 const designFiles = ref([])
 const designFilePreviews = ref([])
+
+const materials = ref([])
+const availableManufacturingMethods = ref([])
+
+async function fetchMaterials() {
+  try {
+    const { data } = await api.get('/api/materials')
+    materials.value = data
+  } catch (_) {}
+}
+
+async function fetchManufacturingMethods(materialSlug) {
+  if (!materialSlug) {
+    availableManufacturingMethods.value = []
+    return
+  }
+  try {
+    const { data } = await api.get(`/api/materials/${materialSlug}/manufacturing-methods`)
+    availableManufacturingMethods.value = data
+  } catch (_) {
+    availableManufacturingMethods.value = []
+  }
+}
+
+async function onMaterialChange() {
+  form.value.manufacturing_method = ''
+  form.value.manufacturing_method_other = ''
+  await fetchManufacturingMethods(form.value.material)
+}
+
+onMounted(async () => {
+  await fetchMaterials()
+})
 
 const commissionPct = 0.15
 
@@ -164,7 +196,6 @@ async function submit() {
   fd.append('designer_price_egp', designerPriceEGP.value.toFixed(2))
   fd.append('designer_price_usd', designerPriceUSD.value.toFixed(2))
   let material = form.value.material
-  if (material === 'other') material = form.value.material_other || 'other'
   let method = form.value.manufacturing_method
   if (method === 'other') method = form.value.manufacturing_method_other || 'other'
   if (material) fd.append('material', material)
@@ -269,38 +300,17 @@ async function submit() {
 
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.material') }}</CFormLabel>
-              <CFormSelect v-model="form.material">
+              <CFormSelect v-model="form.material" @change="onMaterialChange">
                   <option value="">{{ $t('designer_product.select_material') }}</option>
-                  <option value="cotton">{{ $t('product_type.cotton') }}</option>
-                  <option value="polyester">{{ $t('product_type.polyester') }}</option>
-                  <option value="silk">{{ $t('product_type.silk') }}</option>
-                  <option value="wool">{{ $t('product_type.wool') }}</option>
-                  <option value="linen">{{ $t('product_type.linen') }}</option>
-                  <option value="denim">{{ $t('product_type.denim') }}</option>
-                  <option value="leather">{{ $t('product_type.leather') }}</option>
-                  <option value="spandex">{{ $t('product_type.spandex') }}</option>
-                  <option value="nylon">{{ $t('product_type.nylon') }}</option>
-                  <option value="rayon">{{ $t('product_type.rayon') }}</option>
-                  <option value="velvet">{{ $t('product_type.velvet') }}</option>
-                  <option value="lace">{{ $t('product_type.lace') }}</option>
-                <option value="other">{{ $t('product_type.other') }}</option>
+                  <option v-for="m in materials" :key="m.id" :value="m.slug">{{ m.name }}</option>
               </CFormSelect>
-              <CFormInput v-if="form.material === 'other'" v-model="form.material_other" class="mt-2" :placeholder="$t('designer_product.material_other_placeholder')" />
           </div>
 
           <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('designer_product.method') }}</CFormLabel>
-              <CFormSelect v-model="form.manufacturing_method">
+              <CFormSelect v-model="form.manufacturing_method" :disabled="!form.material">
                 <option value="">{{ $t('designer_product.select_method') }}</option>
-                <option value="knitted">{{ $t('product_type.knitted') }}</option>
-                <option value="woven">{{ $t('product_type.woven') }}</option>
-                <option value="embroidered">{{ $t('product_type.embroidered') }}</option>
-                <option value="printed">{{ $t('product_type.printed') }}</option>
-                <option value="embellished">{{ $t('product_type.embellished') }}</option>
-                <option value="handmade">{{ $t('product_type.handmade') }}</option>
-                <option value="machine_made">{{ $t('product_type.machine_made') }}</option>
-                <option value="cut_and_sew">{{ $t('product_type.cut_sew') }}</option>
-                <option value="molded">{{ $t('product_type.molded') }}</option>
+                <option v-for="method in availableManufacturingMethods" :key="method.id" :value="method.slug">{{ method.name }}</option>
                 <option value="other">{{ $t('product_type.other') }}</option>
               </CFormSelect>
               <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" :placeholder="$t('designer_product.method_other_placeholder')" />

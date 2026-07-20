@@ -643,6 +643,10 @@ onMounted(fetchTicket)
                   <span class="text-body-secondary d-block">Created</span>
                   <strong>{{ formatDate(ticket.created_at) }}</strong>
                 </CCol>
+                <CCol v-if="ticket.num_order" :sm="6" class="mb-2">
+                  <span class="text-body-secondary d-block">Num Order</span>
+                  <strong>{{ ticket.num_order }}</strong>
+                </CCol>
                 <CCol v-if="ticket.industor_price !== null && ticket.industor_price !== undefined && role() !== 'designer'" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Industor Price</span>
                   <strong>{{ formatPrice(ticket.industor_price) }}</strong>

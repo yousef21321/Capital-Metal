@@ -134,7 +134,9 @@ onMounted(fetchTickets)
               <CIcon icon="cil-description" />
             </div>
             <div class="ticket-info">
-              <h4 class="ticket-title mb-1 fs-6">{{ t.title }}</h4>
+              <h4 class="ticket-title mb-1 fs-6">
+                <span v-if="t.num_order" class="me-1 text-body-secondary">#{{ t.num_order }}</span>{{ t.title }}
+              </h4>
               <div class="ticket-meta d-flex align-items-center gap-2 flex-wrap">
                 <CBadge :color="statusMeta(t.status).color" class="ticket-badge">{{ statusMeta(t.status).label }}</CBadge>
                 <span v-if="t.is_overdue" class="overdue-badge">{{ $t('tickets.overdue') }}</span>

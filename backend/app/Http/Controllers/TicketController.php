@@ -218,6 +218,7 @@ class TicketController extends Controller
 
         $data = $request->validate([
             'title'             => 'required|string|max:200',
+            'num_order'         => 'nullable|integer|min:0',
             'description'       => 'required|string',
             'expected_deadline' => 'required|date|after:now',
             'expected_price'    => 'required|numeric|min:0',
@@ -250,6 +251,7 @@ class TicketController extends Controller
                 'industor_id'       => $user->id,
                 'subscription_id'   => $sub && !$isSingle ? $sub->id : null,
                 'title'             => $data['title'],
+                'num_order'         => $data['num_order'] ?? null,
                 'description'       => $data['description'],
                 'status'            => Ticket::STATUS_PENDING_TESTER_REVIEW,
                 'is_single_purchase' => $isSingle,

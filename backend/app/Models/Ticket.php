@@ -22,7 +22,7 @@ class Ticket extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
-        'industor_id', 'subscription_id', 'title', 'description', 'status',
+        'industor_id', 'subscription_id', 'title', 'num_order', 'description', 'status',
         'tester_id', 'designer_id', 'deadline',
         'reviewed_at', 'approved_at', 'assigned_at', 'started_at',
         'uploaded_at', 'completed_at', 'rejection_reason',

@@ -23,7 +23,6 @@ const form = ref({
   price_usd: 0,
   material: '',
   manufacturing_method: '',
-  material_other: '',
   manufacturing_method_other: '',
   tags: [],
 })
@@ -37,6 +36,35 @@ const designFilePreviews = ref([])
 const existingDesignFile = ref(null)
 
 const commissionPct = 0.15
+
+const materials = ref([])
+const availableManufacturingMethods = ref([])
+
+async function fetchMaterials() {
+  try {
+    const { data } = await api.get('/api/materials')
+    materials.value = data
+  } catch (_) {}
+}
+
+async function fetchManufacturingMethods(materialSlug) {
+  if (!materialSlug) {
+    availableManufacturingMethods.value = []
+    return
+  }
+  try {
+    const { data } = await api.get(`/api/materials/${materialSlug}/manufacturing-methods`)
+    availableManufacturingMethods.value = data
+  } catch (_) {
+    availableManufacturingMethods.value = []
+  }
+}
+
+async function onMaterialChange() {
+  form.value.manufacturing_method = ''
+  form.value.manufacturing_method_other = ''
+  await fetchManufacturingMethods(form.value.material)
+}
 
 const activeCurrency = computed(() => auth.userCurrency || 'EGP')
 const otherCurrency = computed(() => activeCurrency.value === 'EGP' ? 'USD' : 'EGP')
@@ -165,6 +193,7 @@ async function fetchProduct() {
     form.value.tags = data.tags || []
     existingImages.value = data.images || []
     if (data.design_file_path) existingDesignFile.value = data.design_file_path
+    if (data.material) await fetchManufacturingMethods(data.material)
   } catch (e) {
     error.value = 'Failed to load product.'
   } finally {
@@ -189,7 +218,6 @@ async function submit() {
   fd.append('designer_price_usd', designerPriceUSD.value.toFixed(2))
 
   let material = form.value.material
-  if (material === 'other') material = form.value.material_other || 'other'
   let method = form.value.manufacturing_method
   if (method === 'other') method = form.value.manufacturing_method_other || 'other'
   if (material) fd.append('material', material)
@@ -217,7 +245,10 @@ async function submit() {
   }
 }
 
-onMounted(fetchProduct)
+onMounted(async () => {
+  await fetchMaterials()
+  await fetchProduct()
+})
 </script>
 
 <template>
@@ -325,38 +356,17 @@ onMounted(fetchProduct)
 
               <div class="mb-3">
                 <CFormLabel class="fw-semibold">Material</CFormLabel>
-                <CFormSelect v-model="form.material">
+                <CFormSelect v-model="form.material" @change="onMaterialChange">
                   <option value="">-- Select Material --</option>
-                  <option value="cotton">Cotton</option>
-                  <option value="polyester">Polyester</option>
-                  <option value="silk">Silk</option>
-                  <option value="wool">Wool</option>
-                  <option value="linen">Linen</option>
-                  <option value="denim">Denim</option>
-                  <option value="leather">Leather</option>
-                  <option value="spandex">Spandex</option>
-                  <option value="nylon">Nylon</option>
-                  <option value="rayon">Rayon</option>
-                  <option value="velvet">Velvet</option>
-                  <option value="lace">Lace</option>
-                  <option value="other">Other</option>
+                  <option v-for="m in materials" :key="m.id" :value="m.slug">{{ m.name }}</option>
                 </CFormSelect>
-                <CFormInput v-if="form.material === 'other'" v-model="form.material_other" class="mt-2" placeholder="Enter custom material..." />
               </div>
 
               <div class="mb-3">
                 <CFormLabel class="fw-semibold">Manufacturing Method</CFormLabel>
-                <CFormSelect v-model="form.manufacturing_method">
+                <CFormSelect v-model="form.manufacturing_method" :disabled="!form.material">
                   <option value="">-- Select Method --</option>
-                  <option value="knitted">Knitted</option>
-                  <option value="woven">Woven</option>
-                  <option value="embroidered">Embroidered</option>
-                  <option value="printed">Printed</option>
-                  <option value="embellished">Embellished</option>
-                  <option value="handmade">Handmade</option>
-                  <option value="machine_made">Machine Made</option>
-                  <option value="cut_and_sew">Cut & Sew</option>
-                  <option value="molded">Molded</option>
+                  <option v-for="method in availableManufacturingMethods" :key="method.id" :value="method.slug">{{ method.name }}</option>
                   <option value="other">Other</option>
                 </CFormSelect>
                 <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" placeholder="Enter custom method..." />

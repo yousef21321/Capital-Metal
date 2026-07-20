@@ -121,5 +121,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(TicketWorkflowSeeder::class);
+        $this->call(MaterialSeeder::class);
     }
 }

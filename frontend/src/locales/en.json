@@ -432,6 +432,11 @@
   "product_type.machine_made": "Machine Made",
   "product_type.cut_sew": "Cut & Sew",
   "product_type.molded": "Molded",
+  "product_type.wood": "Wood",
+  "product_type.wood_acrylic": "Wood + Acrylic",
+  "product_type.cnc": "CNC",
+  "product_type.laser_cut": "Laser Cut",
+  "product_type.hand_crafted": "Hand Crafted",
 
   "profile.name": "Name",
   "profile.email": "Email",

@@ -22,6 +22,7 @@ use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\TesterProductController;
+use App\Http\Controllers\MaterialController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -31,6 +32,11 @@ Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'show']);
 Route::get('/products/{slug}/reviews', [ReviewController::class, 'index']);
+
+// Materials & Manufacturing Methods (public)
+Route::get('/materials', [MaterialController::class, 'indexMaterials']);
+Route::get('/manufacturing-methods', [MaterialController::class, 'indexManufacturingMethods']);
+Route::get('/materials/{slug}/manufacturing-methods', [MaterialController::class, 'manufacturingMethodsByMaterial']);
 Route::post('/coupons/verify', [CouponController::class, 'verify']);
 
 Route::get('/plans', [SubscriptionController::class, 'plans']);
@@ -88,6 +94,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/products/{id}/digital-files', [ProductController::class, 'addDigitalFile']);
         Route::post('/hero-images', [HeroController::class, 'store']);
         Route::delete('/hero-images/{id}', [HeroController::class, 'destroy']);
+
+        // Materials & Manufacturing Methods (admin)
+        Route::post('/materials', [MaterialController::class, 'storeMaterial']);
+        Route::put('/materials/{id}', [MaterialController::class, 'updateMaterial']);
+        Route::delete('/materials/{id}', [MaterialController::class, 'destroyMaterial']);
+        Route::post('/materials/{id}/attach-method', [MaterialController::class, 'attachMethod']);
+        Route::delete('/materials/{materialId}/detach-method/{methodId}', [MaterialController::class, 'detachMethod']);
+        Route::post('/manufacturing-methods', [MaterialController::class, 'storeMethod']);
+        Route::put('/manufacturing-methods/{id}', [MaterialController::class, 'updateMethod']);
+        Route::delete('/manufacturing-methods/{id}', [MaterialController::class, 'destroyMethod']);
     });
 
     // Addresses

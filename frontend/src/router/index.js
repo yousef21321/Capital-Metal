@@ -31,6 +31,12 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/admin/materials',
+        name: 'AdminMaterials',
+        component: () => import('@/views/ecommerce/AdminMaterials.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: '/admin/domain-verification',
         name: 'DomainVerification',
         component: () => import('@/views/pages/DomainVerification.vue'),
@@ -438,8 +444,11 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior() {
-    return { top: 0 }
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+    return { top: 0, behavior: 'smooth' }
   },
 })
 

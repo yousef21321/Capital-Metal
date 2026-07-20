@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
-const form = ref({ title: '', description: '', single_purchase: false, expected_deadline: '', expected_price: '', files: [] })
+const form = ref({ title: '', num_order: '', description: '', single_purchase: false, expected_deadline: '', expected_price: '', files: [] })
 const submitting = ref(false)
 const error = ref('')
 const hasSubscription = ref(false)
@@ -85,6 +85,7 @@ async function submit() {
     const finalPrice = discountedPrice.value ? discountedPrice.value : rawPrice
     const payload = {
       title: form.value.title,
+      num_order: form.value.num_order || null,
       description: form.value.description,
       expected_deadline: new Date(form.value.expected_deadline).toISOString(),
       expected_price: finalPrice,
@@ -155,6 +156,11 @@ onMounted(checkSubscription)
             <div class="mb-3">
               <CFormLabel class="fw-semibold">{{ $t('ticket_create.project_title') }}</CFormLabel>
               <CFormInput v-model="form.title" :placeholder="$t('ticket_create.project_title_placeholder')" />
+            </div>
+
+            <div class="mb-3">
+              <CFormLabel class="fw-semibold">Num Order</CFormLabel>
+              <CFormInput v-model.number="form.num_order" type="number" min="0" placeholder="Enter order number" />
             </div>
 
             <div class="mb-3">

@@ -35,6 +35,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Manage Materials',
+    to: '/admin/materials',
+    icon: 'cil-layers',
+    translationKey: 'nav.manage_materials',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Cart',
     to: '/cart',
     icon: 'cil-basket',
