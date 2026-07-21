@@ -19,25 +19,86 @@ const error = ref('')
 const selectedImage = ref(0)
 const quantity = ref(1)
 const adding = ref(false)
+const selectedVariant = ref(null)
 
-const images = computed(() => product.value?.images || [])
+const hasVariants = computed(() => (product.value?.variants?.length || 0) > 0)
+
+const activeVariants = computed(() =>
+  (product.value?.variants || []).filter(v => v.is_active)
+)
+
+const isBaseSelected = computed(() => selectedVariant.value === null)
+
+const currentImages = computed(() => {
+  if (selectedVariant.value) {
+    const variantImages = selectedVariant.value.images || []
+    if (variantImages.length > 0) return variantImages
+  }
+  return product.value?.images || []
+})
+
 const currentImage = computed(() => {
-  if (images.value[selectedImage.value]) {
-    return `/storage/${images.value[selectedImage.value].image_url}`
+  if (currentImages.value[selectedImage.value]) {
+    return `/storage/${currentImages.value[selectedImage.value].image_url}`
   }
   return null
 })
 
-const formatPrice = computed(() => formatProductPrice(product.value))
+const displayProduct = computed(() => {
+  if (selectedVariant.value) {
+    return {
+      ...product.value,
+      price_egp: selectedVariant.value.price_egp,
+      price_usd: selectedVariant.value.price_usd,
+      description: selectedVariant.value.description || product.value.description,
+    }
+  }
+  return product.value
+})
+
+function renderDescription(text) {
+  if (!text) return ''
+  const lines = text.split('\n')
+  const hasBullets = lines.some(l => l.trimStart().startsWith('- '))
+  if (!hasBullets) return text.replace(/\n/g, '<br>')
+  let html = ''
+  let inList = false
+  for (const line of lines) {
+    const trimmed = line.trimStart()
+    if (trimmed.startsWith('- ')) {
+      if (!inList) { html += '<ul class="desc-list mb-2">'; inList = true }
+      html += `<li>${trimmed.slice(2)}</li>`
+    } else {
+      if (inList) { html += '</ul>'; inList = false }
+      if (line.trim()) html += `<p class="mb-1">${line}</p>`
+    }
+  }
+  if (inList) html += '</ul>'
+  return html
+}
+
+const formatPrice = computed(() => formatProductPrice(displayProduct.value))
 
 const reviews = ref([])
 const relatedProducts = ref([])
+
+function selectVariant(variant) {
+  selectedVariant.value = variant
+  selectedImage.value = 0
+}
+
+function selectBase() {
+  selectedVariant.value = null
+  selectedImage.value = 0
+}
 
 async function fetchProduct() {
   loading.value = true
   try {
     const { data } = await api.get(`/api/products/${route.params.slug}`)
     product.value = data
+    selectedVariant.value = null
+    selectedImage.value = 0
     await fetchReviews()
     await fetchRelated()
   } catch (e) {
@@ -65,7 +126,8 @@ async function addToCart() {
   if (!product.value) return
   adding.value = true
   try {
-    await cart.addItem(product.value.id, quantity.value)
+    const variantId = selectedVariant.value?.id || null
+    await cart.addItem(product.value.id, quantity.value, variantId)
     toast.success(`"${product.value.name}" added to cart.`)
     quantity.value = 1
   } catch (e) {
@@ -123,10 +185,10 @@ watch(() => route.params.slug, (newSlug) => {
               {{ product.product_type }}
             </span>
           </div>
-          <div v-if="images.length > 1" class="gallery-thumbs mt-3">
+          <div v-if="currentImages.length > 1" class="gallery-thumbs mt-3">
             <button
-              v-for="(img, idx) in images"
-              :key="idx"
+              v-for="(img, idx) in currentImages"
+              :key="img.id || idx"
               class="thumb-btn"
               :class="{ active: selectedImage === idx }"
               @click="selectedImage = idx"
@@ -158,25 +220,52 @@ watch(() => route.params.slug, (newSlug) => {
               </span>
             </div>
 
-            <div class="price-section mb-4">
-              <span class="price-current">{{ formatPrice }}</span>
-              <span v-if="product.compare_price" class="price-compare ms-2">{{ product.compare_price }}</span>
+            <!-- Variant Selector -->
+            <div v-if="hasVariants && activeVariants.length > 0" class="variant-selector mb-4">
+              <label class="form-label fw-semibold small text-body-secondary mb-2">Type:</label>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  class="variant-btn"
+                  :class="{ active: isBaseSelected }"
+                  @click="selectBase"
+                >
+                  {{ product.name }}
+                </button>
+                <button
+                  v-for="variant in activeVariants"
+                  :key="variant.id"
+                  class="variant-btn"
+                  :class="{ active: selectedVariant?.id === variant.id }"
+                  @click="selectVariant(variant)"
+                >
+                  {{ variant.name }}
+                </button>
+              </div>
             </div>
 
-            <p class="product-description text-body-secondary mb-4">{{ product.description }}</p>
+            <div class="price-section mb-4">
+              <span class="price-current">{{ formatPrice }}</span>
+              <span v-if="displayProduct.compare_price" class="price-compare ms-2">{{ displayProduct.compare_price }}</span>
+            </div>
+
+            <div class="product-description text-body-secondary mb-4" v-html="renderDescription(displayProduct.description)"></div>
 
             <div class="product-details-grid mb-4">
               <div class="detail-item">
                 <span class="detail-label">Material</span>
-                <span class="detail-value">{{ product.material || 'N/A' }}</span>
+                <span class="detail-value">{{ selectedVariant?.material || product.material || 'N/A' }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Manufacturing</span>
-                <span class="detail-value">{{ product.manufacturing_method || 'N/A' }}</span>
+                <span class="detail-value">{{ selectedVariant?.manufacturing_method || product.manufacturing_method || 'N/A' }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Type</span>
                 <span class="detail-value text-capitalize">{{ product.product_type }}</span>
+              </div>
+              <div v-if="selectedVariant?.sku" class="detail-item">
+                <span class="detail-label">SKU</span>
+                <span class="detail-value">{{ selectedVariant.sku }}</span>
               </div>
               <div v-if="product.country_availability" class="detail-item">
                 <span class="detail-label">Available in</span>
@@ -257,11 +346,13 @@ watch(() => route.params.slug, (newSlug) => {
               <CIcon icon="cil-info" class="me-2" />Product Details
             </CCardHeader>
             <CCardBody>
-              <div class="info-row"><span>SKU</span><span>{{ product.slug || 'N/A' }}</span></div>
+              <div class="info-row"><span>SKU</span><span>{{ selectedVariant?.sku || product.slug || 'N/A' }}</span></div>
               <div class="info-row"><span>Type</span><span class="text-capitalize">{{ product.product_type }}</span></div>
               <div class="info-row"><span>Status</span><span class="text-capitalize">{{ product.status || 'N/A' }}</span></div>
-              <div class="info-row"><span>Material</span><span>{{ product.material || 'N/A' }}</span></div>
-              <div class="info-row"><span>Manufacturing</span><span>{{ product.manufacturing_method || 'N/A' }}</span></div>
+              <div v-if="selectedVariant" class="info-row"><span>Variant</span><span>{{ selectedVariant.name }}</span></div>
+              <div v-else-if="hasVariants" class="info-row"><span>Variant</span><span class="text-body-secondary">Base Product</span></div>
+              <div class="info-row"><span>Material</span><span>{{ selectedVariant?.material || product.material || 'N/A' }}</span></div>
+              <div class="info-row"><span>Manufacturing</span><span>{{ selectedVariant?.manufacturing_method || product.manufacturing_method || 'N/A' }}</span></div>
               <div class="info-row"><span>Country</span><span>{{ product.country_availability || 'All' }}</span></div>
               <div class="info-row"><span>Published</span><span>{{ product.publish_date ? new Date(product.publish_date).toLocaleDateString() : 'N/A' }}</span></div>
             </CCardBody>
@@ -303,3 +394,40 @@ watch(() => route.params.slug, (newSlug) => {
     </template>
   </div>
 </template>
+
+<style scoped>
+.variant-selector {
+  padding: 12px 16px;
+  background: var(--cui-tertiary-bg, #f8f9fa);
+  border-radius: 10px;
+  border: 1px solid var(--cui-border-color, rgba(0,0,0,0.08));
+}
+.variant-btn {
+  padding: 8px 20px;
+  border: 2px solid var(--cui-border-color, #dee2e6);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  color: var(--cui-body-color, inherit);
+}
+.variant-btn:hover {
+  border-color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #b81300);
+}
+.variant-btn.active {
+  border-color: var(--cui-primary, #b81300);
+  background: var(--cui-primary, #b81300);
+  color: white;
+}
+.desc-list {
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.desc-list li {
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+</style>

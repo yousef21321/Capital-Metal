@@ -23,6 +23,7 @@ use App\Http\Controllers\HeroController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\TesterProductController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\ProductVariantController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -92,6 +93,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/products/{id}/images/{imageId}', [ProductController::class, 'destroyImage']);
         Route::put('/products/{id}/inventory', [ProductController::class, 'updateInventory']);
         Route::post('/products/{id}/digital-files', [ProductController::class, 'addDigitalFile']);
+
+        // Product Variants (admin)
+        Route::get('/products/{product}/variants', [ProductVariantController::class, 'index']);
+        Route::post('/products/{product}/variants', [ProductVariantController::class, 'store']);
+        Route::put('/products/{product}/variants/{variantId}', [ProductVariantController::class, 'update']);
+        Route::delete('/products/{product}/variants/{variantId}', [ProductVariantController::class, 'destroy']);
+        Route::post('/products/{product}/variants/{variantId}/images', [ProductVariantController::class, 'uploadImage']);
+        Route::put('/products/{product}/variants/{variantId}/images/reorder', [ProductVariantController::class, 'reorderImages']);
+        Route::delete('/products/{product}/variants/{variantId}/images/{imageId}', [ProductVariantController::class, 'destroyImage']);
+
         Route::post('/hero-images', [HeroController::class, 'store']);
         Route::delete('/hero-images/{id}', [HeroController::class, 'destroy']);
 

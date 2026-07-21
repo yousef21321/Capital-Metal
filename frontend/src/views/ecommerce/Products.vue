@@ -72,6 +72,24 @@ async function toggleWishlist(productId) {
 
 const formatPrice = formatProductPrice
 
+function productPriceLabel(product) {
+  const variants = (product.variants || []).filter(v => v.is_active)
+  if (variants.length === 0) return formatPrice(product)
+  const prices = variants.map(v => parseFloat(v.price_egp || 0)).filter(p => p > 0)
+  if (prices.length === 0) return formatPrice(product)
+  const min = Math.min(...prices)
+  const max = Math.max(...prices)
+  const auth = useAuthStore()
+  const currency = auth.userCurrency || 'EGP'
+  const rate = auth.exchangeRate || 30
+  if (currency === 'USD') {
+    const minUsd = (min / rate).toFixed(2)
+    const maxUsd = (max / rate).toFixed(2)
+    return min === max ? `${minUsd} USD` : `From ${minUsd} USD`
+  }
+  return min === max ? `${min.toFixed(2)} EGP` : `From ${min.toFixed(2)} EGP`
+}
+
 const productImage = (product) => {
   const img = product.images?.[0]
   if (img && img.image_url) {
@@ -81,6 +99,11 @@ const productImage = (product) => {
 }
 
 async function addToCart(product) {
+  const variants = (product.variants || []).filter(v => v.is_active)
+  if (variants.length > 0) {
+    viewProduct(product.slug)
+    return
+  }
   addingId.value = product.id
   try {
     await cart.addItem(product.id, 1)
@@ -254,7 +277,7 @@ onMounted(fetchProducts)
             </p>
             <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
               <div class="product-price-row">
-                <h4 class="product-price mb-0 fs-5">{{ formatPrice(product) }}</h4>
+                <h4 class="product-price mb-0 fs-5">{{ productPriceLabel(product) }}</h4>
                 <small v-if="product.compare_price" class="text-decoration-line-through text-body-secondary ms-1">{{ product.compare_price }}</small>
               </div>
               <CButton

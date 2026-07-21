@@ -161,7 +161,7 @@ onMounted(fetchOrders)
         <hr />
         <h4 class="fs-6">Items</h4>
         <div v-for="item in detailOrder.items" :key="item.id" class="d-flex justify-content-between align-items-center mb-2">
-          <span>{{ item.product?.name || 'Product' }} <small class="text-body-secondary">x{{ item.quantity }}</small></span>
+          <span>{{ item.product?.name || 'Product' }} <CBadge v-if="item.variant" color="warning" size="sm">{{ item.variant.name }}</CBadge> <small class="text-body-secondary">x{{ item.quantity }}</small></span>
           <span>{{ item.price }} {{ detailOrder.currency }}</span>
         </div>
         <hr />

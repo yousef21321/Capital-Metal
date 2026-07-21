@@ -14,7 +14,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['images', 'inventory', 'reviews']);
+        $query = Product::with(['images', 'inventory', 'reviews', 'variants.images']);
 
         if ($request->product_type) {
             $query->where('product_type', $request->product_type);
@@ -58,7 +58,7 @@ class ProductController extends Controller
     {
         $product = Product::with([
             'images', 'inventory', 'digitalFiles', 'licenseAgreements',
-            'reviews.user', 'analytics',
+            'reviews.user', 'analytics', 'variants.images',
         ])->where('slug', $slug)->firstOrFail();
 
         return response()->json($product);

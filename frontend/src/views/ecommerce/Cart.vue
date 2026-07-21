@@ -51,13 +51,14 @@ async function clearCart() {
 
 const itemPrice = (item) => {
   const currency = auth.userCurrency
-  if (currency === 'USD' && parseFloat(item.product?.price_usd) > 0) return parseFloat(item.product.price_usd)
-  if (parseFloat(item.product?.price_egp) > 0) {
+  const source = item.variant || item.product
+  if (currency === 'USD' && parseFloat(source?.price_usd) > 0) return parseFloat(source.price_usd)
+  if (parseFloat(source?.price_egp) > 0) {
     if (currency === 'USD') {
       const rate = auth.exchangeRate || 30
-      return parseFloat(item.product.price_egp) / rate
+      return parseFloat(source.price_egp) / rate
     }
-    return parseFloat(item.product.price_egp)
+    return parseFloat(source.price_egp)
   }
   return 0
 }
@@ -100,9 +101,12 @@ onMounted(fetchCart)
           <CCardBody class="d-flex align-items-center">
             <div class="flex-grow-1">
               <h4 class="mb-1 fs-5">{{ item.product?.name }}</h4>
-              <CBadge :color="item.product?.product_type === 'digital' ? 'info' : 'success'" size="sm">
-                {{ item.product?.product_type }}
-              </CBadge>
+              <div class="d-flex align-items-center gap-2">
+                <CBadge :color="item.product?.product_type === 'digital' ? 'info' : 'success'" size="sm">
+                  {{ item.product?.product_type }}
+                </CBadge>
+                <CBadge v-if="item.variant" color="warning" size="sm">{{ item.variant.name }}</CBadge>
+              </div>
               <div class="mt-2 d-flex align-items-center gap-2">
                 <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity - 1)">-</CButton>
                 <span class="fw-bold px-2">{{ item.quantity }}</span>

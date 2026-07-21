@@ -30,6 +30,79 @@ const detailVisible = ref(false)
 const uploadTargetId = ref(null)
 const uploadingImage = ref(false)
 
+// Variant state
+const variantModalVisible = ref(false)
+const variantEditing = ref(false)
+const variantSaving = ref(false)
+const variantForm = ref(emptyVariantForm())
+const variantTargetProductId = ref(null)
+const variantImageFile = ref(null)
+const variantImagePreview = ref(null)
+const variantImageUploadTarget = ref(null)
+const uploadingVariantImage = ref(false)
+
+// Bullet points state
+const productPoints = ref([])
+const variantPoints = ref([])
+
+// Variant material/method state
+const variantAvailableMethods = ref([])
+const variantMethodOther = ref('')
+
+watch(() => variantForm.value.material, async (val) => {
+  variantForm.value.manufacturing_method = ''
+  variantMethodOther.value = ''
+  if (!val) { variantAvailableMethods.value = []; return }
+  try {
+    const { data } = await api.get(`/api/materials/${val}/manufacturing-methods`)
+    variantAvailableMethods.value = data
+  } catch (_) {
+    variantAvailableMethods.value = []
+  }
+})
+
+function parseDescriptionToPoints(desc) {
+  if (!desc) return []
+  return desc.split('\n').map(l => l.trimStart().replace(/^- /, '')).filter(l => l.length > 0)
+}
+
+function pointsToDescription(points) {
+  return points.filter(p => p.trim().length > 0).map(p => `- ${p}`).join('\n')
+}
+
+function addProductPoint() {
+  productPoints.value.push('')
+}
+
+function removeProductPoint(index) {
+  productPoints.value.splice(index, 1)
+}
+
+function addVariantPoint() {
+  variantPoints.value.push('')
+}
+
+function removeVariantPoint(index) {
+  variantPoints.value.splice(index, 1)
+}
+
+function emptyVariantForm() {
+  return {
+    id: null,
+    name: '',
+    description: '',
+    price_egp: 0,
+    price_usd: 0,
+    cost: 0,
+    sku: '',
+    material: '',
+    manufacturing_method: '',
+    stock_quantity: null,
+    is_active: true,
+    sort_order: 0,
+  }
+}
+
 function emptyForm() {
   return {
     id: null,
@@ -97,12 +170,14 @@ async function fetchProducts() {
 
 function openCreate() {
   form.value = emptyForm()
+  productPoints.value = []
   editing.value = false
   modalVisible.value = true
 }
 
 function openEdit(product) {
   form.value = { ...emptyForm(), ...product }
+  productPoints.value = parseDescriptionToPoints(product.description)
   editing.value = true
   modalVisible.value = true
 }
@@ -139,6 +214,7 @@ async function save() {
   saving.value = true
   try {
     const payload = { ...form.value }
+    payload.description = pointsToDescription(productPoints.value)
     if (payload.manufacturing_method === 'other') payload.manufacturing_method = payload.manufacturing_method_other || 'other'
     delete payload.manufacturing_method_other
     if (editing.value) {
@@ -247,7 +323,182 @@ const productImage = (product) => {
   return null
 }
 
+function openCreateVariant(productId) {
+  variantForm.value = emptyVariantForm()
+  variantPoints.value = []
+  variantEditing.value = false
+  variantTargetProductId.value = productId
+  variantModalVisible.value = true
+}
+
+function openEditVariant(productId, variant) {
+  variantForm.value = { ...emptyVariantForm(), ...variant }
+  variantPoints.value = parseDescriptionToPoints(variant.description)
+  variantEditing.value = true
+  variantTargetProductId.value = productId
+  variantModalVisible.value = true
+}
+
+async function saveVariant() {
+  variantSaving.value = true
+  try {
+    const payload = { ...variantForm.value }
+    payload.description = pointsToDescription(variantPoints.value)
+    if (payload.manufacturing_method === 'other') payload.manufacturing_method = variantMethodOther.value || 'other'
+    const pid = variantTargetProductId.value
+    if (variantEditing.value) {
+      await api.put(`/api/products/${pid}/variants/${variantForm.value.id}`, variantForm.value)
+      toast.success('Variant updated.')
+    } else {
+      await api.post(`/api/products/${pid}/variants`, variantForm.value)
+      toast.success('Variant created.')
+    }
+    variantModalVisible.value = false
+    await refreshDetailProduct(pid)
+    await fetchProducts()
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Failed to save variant.')
+  } finally {
+    variantSaving.value = false
+  }
+}
+
+async function removeVariant(productId, variantId) {
+  if (!confirm('Delete this variant? This cannot be undone.')) return
+  try {
+    await api.delete(`/api/products/${productId}/variants/${variantId}`)
+    toast.success('Variant deleted.')
+    await refreshDetailProduct(productId)
+    await fetchProducts()
+  } catch (e) {
+    toast.error('Failed to delete variant.')
+  }
+}
+
+function openVariantImageUpload(productId, variantId) {
+  variantImageUploadTarget.value = { productId, variantId }
+  variantImageFile.value = null
+  variantImagePreview.value = null
+}
+
+function onVariantImageSelect(e) {
+  variantImageFile.value = e.target.files?.[0] || null
+  if (variantImageFile.value) {
+    const reader = new FileReader()
+    reader.onload = (ev) => { variantImagePreview.value = ev.target.result }
+    reader.readAsDataURL(variantImageFile.value)
+  } else {
+    variantImagePreview.value = null
+  }
+}
+
+async function uploadVariantImage() {
+  if (!variantImageFile.value || !variantImageUploadTarget.value) return
+  uploadingVariantImage.value = true
+  const { productId, variantId } = variantImageUploadTarget.value
+  const fd = new FormData()
+  fd.append('image', variantImageFile.value)
+  try {
+    await api.post(`/api/products/${productId}/variants/${variantId}/images`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    toast.success('Variant image uploaded.')
+    variantImageFile.value = null
+    variantImagePreview.value = null
+    variantImageUploadTarget.value = null
+    await refreshDetailProduct(productId)
+    await fetchProducts()
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Image upload failed.')
+  } finally {
+    uploadingVariantImage.value = false
+  }
+}
+
+async function removeVariantImage(productId, variantId, imageId) {
+  try {
+    await api.delete(`/api/products/${productId}/variants/${variantId}/images/${imageId}`)
+    toast.success('Image removed.')
+    await refreshDetailProduct(productId)
+    await fetchProducts()
+  } catch (e) {
+    toast.error('Failed to remove image.')
+  }
+}
+
+async function moveVariantImage(productId, variantId, images, index, direction) {
+  const imgs = [...images]
+  const target = index + direction
+  if (target < 0 || target >= imgs.length) return
+  ;[imgs[index], imgs[target]] = [imgs[target], imgs[index]]
+  try {
+    await api.put(`/api/products/${productId}/variants/${variantId}/images/reorder`, {
+      image_ids: imgs.map(i => i.id),
+    })
+    await refreshDetailProduct(productId)
+    await fetchProducts()
+  } catch (e) {
+    toast.error('Failed to reorder images.')
+  }
+}
+
+async function refreshDetailProduct(productId) {
+  try {
+    const { data } = await api.get(`/api/products/${productId}`)
+    detailProduct.value = data
+  } catch (_) {}
+}
+
+function convertVariantEgpToUsd() {
+  const val = parseFloat(variantForm.value.price_egp)
+  if (!val || val <= 0) return
+  const rate = authStore.exchangeRate || 30
+  if (rate > 0) {
+    variantForm.value.price_usd = parseFloat((val / rate).toFixed(2))
+  }
+}
+
+function convertVariantUsdToEgp() {
+  const val = parseFloat(variantForm.value.price_usd)
+  if (!val || val <= 0) return
+  const rate = authStore.exchangeRate || 30
+  if (rate > 0) {
+    variantForm.value.price_egp = parseFloat((val * rate).toFixed(2))
+  }
+}
+
 const formatPrice = formatProductPrice
+
+function adminProductPrice(product) {
+  const variants = (product.variants || []).filter(v => v.is_active)
+  if (variants.length === 0) return formatPrice(product)
+  const prices = variants.map(v => parseFloat(v.price_egp || 0)).filter(p => p > 0)
+  if (prices.length === 0) return formatPrice(product)
+  const min = Math.min(...prices)
+  const max = Math.max(...prices)
+  return min === max ? `${min.toFixed(2)} EGP` : `${min.toFixed(2)} - ${max.toFixed(2)} EGP`
+}
+
+function renderDescription(text) {
+  if (!text) return ''
+  const lines = text.split('\n')
+  const hasBullets = lines.some(l => l.trimStart().startsWith('- '))
+  if (!hasBullets) return text.replace(/\n/g, '<br>')
+  let html = ''
+  let inList = false
+  for (const line of lines) {
+    const trimmed = line.trimStart()
+    if (trimmed.startsWith('- ')) {
+      if (!inList) { html += '<ul class="desc-list mb-2">'; inList = true }
+      html += `<li>${trimmed.slice(2)}</li>`
+    } else {
+      if (inList) { html += '</ul>'; inList = false }
+      if (line.trim()) html += `<p class="mb-1">${line}</p>`
+    }
+  }
+  if (inList) html += '</ul>'
+  return html
+}
 
 onMounted(() => {
   fetchProducts()
@@ -322,8 +573,7 @@ onMounted(() => {
                 <CTableDataCell>
                   <CBadge :color="p.product_type === 'digital' ? 'info' : 'success'">{{ $t('products.' + p.product_type) }}</CBadge>
                 </CTableDataCell>
-                <CTableDataCell>{{ formatPrice(p) }}</CTableDataCell>
-                <CTableDataCell>
+                <CTableDataCell>{{ adminProductPrice(p) }}</CTableDataCell>                <CTableDataCell>
                   <CBadge :color="p.status === 'published' ? 'success' : 'secondary'">{{ $t('admin_products.' + p.status) }}</CBadge>
                 </CTableDataCell>
                 <CTableDataCell class="text-end">
@@ -430,7 +680,18 @@ onMounted(() => {
           </CCol>
           <CCol :sm="12" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.description') }}</CFormLabel>
-            <CFormTextarea v-model="form.description" rows="3" :placeholder="$t('admin_products.description_placeholder')" />
+            <div class="points-editor">
+              <div v-for="(point, idx) in productPoints" :key="idx" class="d-flex align-items-center gap-2 mb-2">
+                <span class="point-bullet">&#8226;</span>
+                <CFormInput v-model="productPoints[idx]" placeholder="Enter point..." />
+                <CButton color="danger" variant="ghost" size="sm" @click="removeProductPoint(idx)">
+                  <CIcon icon="cil-x" />
+                </CButton>
+              </div>
+              <CButton color="primary" variant="ghost" size="sm" @click="addProductPoint">
+                <CIcon icon="cil-plus" class="me-1" /> Add Point
+              </CButton>
+            </div>
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.price_egp') }}</CFormLabel>
@@ -532,8 +793,70 @@ onMounted(() => {
           </CCol>
         </CRow>
         <hr />
-        <p>{{ detailProduct.description || $t('admin_products.no_description') }}</p>
+        <div class="small" v-html="renderDescription(detailProduct.description || $t('admin_products.no_description'))"></div>
         <hr />
+
+        <!-- Variants Section -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fs-6 mb-0">
+            <CIcon icon="cil-layers" class="me-1" /> Variants ({{ detailProduct.variants?.length || 0 }})
+          </h4>
+          <CButton color="primary" size="sm" @click="openCreateVariant(detailProduct.id)">
+            <CIcon icon="cil-plus" class="me-1" /> Add Variant
+          </CButton>
+        </div>
+        <div v-if="detailProduct.variants?.length" class="mb-4">
+          <CCard v-for="variant in detailProduct.variants" :key="variant.id" class="mb-2 variant-card">
+            <CCardBody class="py-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <strong>{{ variant.name }}</strong>
+                    <CBadge :color="variant.is_active ? 'success' : 'secondary'" class="small">
+                      {{ variant.is_active ? 'Active' : 'Inactive' }}
+                    </CBadge>
+                  </div>
+                  <div v-if="variant.description" class="small text-body-secondary mb-1" v-html="renderDescription(variant.description)"></div>
+                  <div class="small">
+                    <span class="fw-semibold">${{ parseFloat(variant.price_egp || 0).toFixed(2) }} EGP</span>
+                    <span class="text-body-secondary mx-1">/</span>
+                    <span>${{ parseFloat(variant.price_usd || 0).toFixed(2) }} USD</span>
+                    <span v-if="variant.sku" class="text-body-secondary ms-2">SKU: {{ variant.sku }}</span>
+                  </div>
+                  <div class="small text-body-secondary mt-1">
+                    <span v-if="variant.material" class="me-2">Material: {{ variant.material }}</span>
+                    <span v-if="variant.manufacturing_method">Method: {{ variant.manufacturing_method }}</span>
+                  </div>
+                  <!-- Variant Images -->
+                  <div v-if="variant.images?.length" class="mt-2 d-flex gap-1 flex-wrap">
+                    <div v-for="(img, idx) in variant.images" :key="img.id" class="position-relative variant-thumb">
+                      <img :src="`/storage/${img.image_url}`" class="rounded" style="width: 48px; height: 48px; object-fit: cover;" />
+                      <div class="variant-thumb-arrows">
+                        <button class="arrow-btn-sm" :disabled="idx === 0" @click="moveVariantImage(detailProduct.id, variant.id, variant.images, idx, -1)">&#9650;</button>
+                        <button class="arrow-btn-sm" :disabled="idx === variant.images.length - 1" @click="moveVariantImage(detailProduct.id, variant.id, variant.images, idx, 1)">&#9660;</button>
+                      </div>
+                      <button class="variant-thumb-del" @click="removeVariantImage(detailProduct.id, variant.id, img.id)">&times;</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex gap-1 ms-2">
+                  <CButton color="info" variant="ghost" size="sm" @click="openVariantImageUpload(detailProduct.id, variant.id)">
+                    <CIcon icon="cil-image-plus" />
+                  </CButton>
+                  <CButton color="warning" variant="ghost" size="sm" @click="openEditVariant(detailProduct.id, variant)">
+                    <CIcon icon="cil-pencil" />
+                  </CButton>
+                  <CButton color="danger" variant="ghost" size="sm" @click="removeVariant(detailProduct.id, variant.id)">
+                    <CIcon icon="cil-trash" />
+                  </CButton>
+                </div>
+              </div>
+            </CCardBody>
+          </CCard>
+        </div>
+        <div v-else class="text-body-secondary small mb-4">No variants yet. Add variants to offer different types of this product (e.g., Acrylic, Wood) with different prices, descriptions, and images.</div>
+        <hr />
+
         <h4 class="fs-6">{{ $t('admin_products.images', { count: detailProduct.images?.length || 0 }) }}</h4>
         <CRow v-if="detailProduct.images?.length">
           <CCol v-for="(img, idx) in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
@@ -561,10 +884,201 @@ onMounted(() => {
         <CButton color="secondary" @click="detailVisible = false">{{ $t('admin_products.close') }}</CButton>
       </CModalFooter>
     </CModal>
+
+    <!-- Variant Create/Edit Modal -->
+    <CModal :visible="variantModalVisible" @close="variantModalVisible = false" size="lg" backdrop="static">
+      <CModalHeader>
+        <CModalTitle>{{ variantEditing ? 'Edit Variant' : 'Add Variant' }}</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CRow>
+          <CCol :sm="12" class="mb-3">
+            <CFormLabel class="fw-semibold">Variant Name *</CFormLabel>
+            <CFormInput v-model="variantForm.name" placeholder="e.g. Acrylic, Wood, Metal" />
+          </CCol>
+          <CCol :sm="12" class="mb-3">
+            <CFormLabel class="fw-semibold">Description</CFormLabel>
+            <div class="points-editor">
+              <div v-for="(point, idx) in variantPoints" :key="idx" class="d-flex align-items-center gap-2 mb-2">
+                <span class="point-bullet">&#8226;</span>
+                <CFormInput v-model="variantPoints[idx]" placeholder="Enter point..." />
+                <CButton color="danger" variant="ghost" size="sm" @click="removeVariantPoint(idx)">
+                  <CIcon icon="cil-x" />
+                </CButton>
+              </div>
+              <CButton color="primary" variant="ghost" size="sm" @click="addVariantPoint">
+                <CIcon icon="cil-plus" class="me-1" /> Add Point
+              </CButton>
+            </div>
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Price (EGP) *</CFormLabel>
+            <CFormInput v-model.number="variantForm.price_egp" type="text" inputmode="decimal" @blur="convertVariantEgpToUsd" />
+            <small v-if="variantForm.price_egp > 0" class="text-body-secondary">
+              ≈ {{ (variantForm.price_egp / (authStore.exchangeRate || 30)).toFixed(2) }} USD
+            </small>
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Price (USD)</CFormLabel>
+            <CFormInput v-model.number="variantForm.price_usd" type="text" inputmode="decimal" @blur="convertVariantUsdToEgp" />
+            <small v-if="variantForm.price_usd > 0" class="text-body-secondary">
+              ≈ {{ (variantForm.price_usd * (authStore.exchangeRate || 30)).toFixed(2) }} EGP
+            </small>
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Cost</CFormLabel>
+            <CFormInput v-model.number="variantForm.cost" type="text" inputmode="decimal" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">SKU</CFormLabel>
+            <CFormInput v-model="variantForm.sku" placeholder="Optional SKU" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">{{ $t('designer_product.material') }}</CFormLabel>
+            <CFormSelect v-model="variantForm.material">
+              <option value="">{{ $t('designer_product.select_material') }}</option>
+              <option v-for="m in materials" :key="m.id" :value="m.slug">{{ m.name }}</option>
+            </CFormSelect>
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">{{ $t('designer_product.method') }}</CFormLabel>
+            <CFormSelect v-model="variantForm.manufacturing_method" :disabled="!variantForm.material">
+              <option value="">{{ $t('designer_product.select_method') }}</option>
+              <option v-for="method in variantAvailableMethods" :key="method.id" :value="method.slug">{{ method.name }}</option>
+              <option value="other">{{ $t('product_type.other') }}</option>
+            </CFormSelect>
+            <CFormInput v-if="variantForm.manufacturing_method === 'other'" v-model="variantMethodOther" class="mt-2" :placeholder="$t('designer_product.method_other_placeholder')" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Stock Quantity</CFormLabel>
+            <CFormInput v-model.number="variantForm.stock_quantity" type="number" min="0" placeholder="Optional" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Active</CFormLabel>
+            <CFormSelect v-model="variantForm.is_active">
+              <option :value="true">Active</option>
+              <option :value="false">Inactive</option>
+            </CFormSelect>
+          </CCol>
+        </CRow>
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" variant="outline" @click="variantModalVisible = false">Cancel</CButton>
+        <CButton color="primary" :disabled="variantSaving || !variantForm.name" @click="saveVariant">
+          <CSpinner v-if="variantSaving" size="sm" class="me-1" /> {{ variantEditing ? 'Update' : 'Create' }}
+        </CButton>
+      </CModalFooter>
+    </CModal>
+
+    <!-- Variant Image Upload Modal -->
+    <CModal :visible="!!variantImageUploadTarget" @close="variantImageUploadTarget = null" backdrop="static">
+      <CModalHeader>
+        <CModalTitle>Upload Variant Image</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CFormInput type="file" accept="image/*" @change="onVariantImageSelect" class="mb-3" />
+        <div v-if="variantImagePreview" class="text-center">
+          <img :src="variantImagePreview" class="rounded" style="max-width: 100%; max-height: 300px; object-fit: contain;" />
+        </div>
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" variant="outline" @click="variantImageUploadTarget = null">Cancel</CButton>
+        <CButton color="primary" :disabled="!variantImageFile || uploadingVariantImage" @click="uploadVariantImage">
+          <CSpinner v-if="uploadingVariantImage" size="sm" class="me-1" /> Upload
+        </CButton>
+      </CModalFooter>
+    </CModal>
   </div>
 </template>
 
 <style scoped>
+.variant-card {
+  border: 1px solid rgba(128, 128, 128, 0.15);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+.variant-card:hover {
+  border-color: var(--cui-primary, #b81300);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.variant-thumb {
+  position: relative;
+  display: inline-block;
+}
+.variant-thumb-arrows {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+}
+.arrow-btn-sm {
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  width: 18px;
+  height: 14px;
+  font-size: 8px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.arrow-btn-sm:hover:not(:disabled) {
+  background: rgba(0,0,0,0.8);
+}
+.arrow-btn-sm:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.variant-thumb-del {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(220,53,69,0.85);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.variant-thumb:hover .variant-thumb-del {
+  opacity: 1;
+}
+.desc-list {
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.desc-list li {
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+.points-editor {
+  border: 1px solid var(--cui-border-color, #dee2e6);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--cui-tertiary-bg, #f8f9fa);
+}
+.point-bullet {
+  font-size: 1.2rem;
+  color: var(--cui-primary, #b81300);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
 .archived-toggle {
   border: 1px solid rgba(128, 128, 128, 0.2);
   border-radius: 12px;

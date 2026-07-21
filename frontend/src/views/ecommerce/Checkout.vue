@@ -158,12 +158,13 @@ const isDigitalOnly = computed(() => {
 })
 
 const checkoutItemPrice = (item, currency) => {
+  const source = item.variant || item.product
   if (currency === 'USD') {
-    if (parseFloat(item.product?.price_usd) > 0) return parseFloat(item.product.price_usd)
-    if (parseFloat(item.product?.price_egp) > 0) return parseFloat(item.product.price_egp) / (auth.exchangeRate || 30)
+    if (parseFloat(source?.price_usd) > 0) return parseFloat(source.price_usd)
+    if (parseFloat(source?.price_egp) > 0) return parseFloat(source.price_egp) / (auth.exchangeRate || 30)
     return 0
   }
-  return parseFloat(item.product?.price_egp || 0)
+  return parseFloat(source?.price_egp || 0)
 }
 
 const shippingCost = computed(() => {
@@ -488,6 +489,7 @@ onMounted(() => {
             >
               <span class="me-2">
                 {{ item.product?.name }}
+                <span v-if="item.variant" class="text-body-secondary">({{ item.variant.name }})</span>
                 <span class="text-body-secondary">x{{ item.quantity }}</span>
               </span>
               <span class="text-nowrap">{{ money(checkoutItemPrice(item, form.currency)) }} {{ currencySymbol }}</span>

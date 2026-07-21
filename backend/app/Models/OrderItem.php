@@ -8,7 +8,7 @@ class OrderItem extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['order_id', 'product_id', 'quantity', 'price', 'license_type'];
+    protected $fillable = ['order_id', 'product_id', 'variant_id', 'quantity', 'price', 'license_type'];
 
     protected function casts(): array
     {
@@ -23,6 +23,11 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class);
     }
 
     public function downloads()

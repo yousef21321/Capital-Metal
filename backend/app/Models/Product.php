@@ -86,4 +86,9 @@ class Product extends Model
     {
         return $this->hasOne(ProductAnalytics::class);
     }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
+    }
 }

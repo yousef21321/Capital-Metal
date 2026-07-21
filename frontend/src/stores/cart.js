@@ -16,10 +16,12 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function addItem(productId, quantity = 1) {
+  async function addItem(productId, quantity = 1, variantId = null) {
     loading.value = true
     try {
-      const { data } = await api.post('/api/cart/items', { product_id: productId, quantity })
+      const payload = { product_id: productId, quantity }
+      if (variantId) payload.variant_id = variantId
+      const { data } = await api.post('/api/cart/items', payload)
       items.value = data.items || []
       return true
     } catch (e) {

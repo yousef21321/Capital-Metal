@@ -147,13 +147,14 @@ onMounted(fetchOrders)
           <h5 class="fw-semibold mb-3 fs-6">Products</h5>
           <div v-if="order.items?.length">
             <div v-for="item in order.items" :key="item.id" class="d-flex align-items-center gap-3 mb-3">
-              <div v-if="item.product?.images?.length" style="width: 60px; height: 60px; flex-shrink: 0;">
-                <img :src="'/storage/' + item.product.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="60" height="60" />
+              <div v-if="item.variant?.images?.length || item.product?.images?.length" style="width: 60px; height: 60px; flex-shrink: 0;">
+                <img :src="'/storage/' + (item.variant?.images?.[0]?.image_url || item.product?.images?.[0]?.image_url)" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="60" height="60" />
               </div>
               <div class="flex-grow-1 min-w-0">
                 <RouterLink :to="`/products/${item.product?.slug}`" class="fw-semibold text-decoration-none">
                   {{ item.product?.name || 'Product #' + item.product_id }}
                 </RouterLink>
+                <CBadge v-if="item.variant" color="warning" size="sm" class="ms-1">{{ item.variant.name }}</CBadge>
                 <div class="text-body-secondary small">Qty: {{ item.quantity }}</div>
               </div>
               <div class="text-end flex-shrink-0">

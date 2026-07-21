@@ -54,7 +54,7 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $query = Order::with(['items.product', 'payments', 'user']);
+        $query = Order::with(['items.product', 'items.variant', 'payments', 'user']);
 
         $user = $request->user();
 
@@ -86,7 +86,7 @@ class OrderController extends Controller
     public function show($id, Request $request)
     {
         $order = Order::with([
-            'items.product.images', 'payments.paymentMethod',
+            'items.product.images', 'items.variant.images', 'payments.paymentMethod',
             'refunds', 'user', 'affiliate',
         ])->findOrFail($id);
 
@@ -132,7 +132,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Cart identifier required.'], 400);
         }
 
-        $cart = Cart::with('items.product')
+        $cart = Cart::with('items.product', 'items.variant')
             ->where($identifier)
             ->first();
 
@@ -145,10 +145,12 @@ class OrderController extends Controller
         $orderItems = [];
 
         foreach ($cart->items as $item) {
-            $price = $validated['currency'] === 'EGP' ? $item->product->price_egp : $item->product->price_usd;
+            $source = $item->variant ?? $item->product;
+            $price = $validated['currency'] === 'EGP' ? $source->price_egp : $source->price_usd;
             $subtotal += $price * $item->quantity;
             $orderItems[] = [
                 'product_id' => $item->product_id,
+                'variant_id' => $item->variant_id,
                 'quantity' => $item->quantity,
                 'price' => $price,
                 'license_type' => $item->license_type,
@@ -217,7 +219,7 @@ class OrderController extends Controller
 
             $cart->items()->delete();
 
-            return response()->json($order->load('items.product'), 201);
+            return response()->json($order->load('items.product', 'items.variant'), 201);
         });
     }
 
@@ -279,7 +281,7 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->update($validated);
 
-        return response()->json($order->load('items.product'));
+        return response()->json($order->load('items.product', 'items.variant'));
     }
 
     public function downloadItem($orderId, $itemId, Request $request)
@@ -350,7 +352,7 @@ class OrderController extends Controller
         $userId = $this->resolveUser($request);
         $guestToken = $this->guestToken($request);
 
-        $orders = Order::with(['items.product.images', 'items.product.digitalFiles', 'payments'])
+        $orders = Order::with(['items.product.images', 'items.variant.images', 'items.product.digitalFiles', 'payments'])
             ->when($userId, fn($q) => $q->where('user_id', $userId))
             ->when(!$userId && $guestToken, fn($q) => $q->where('guest_token', $guestToken))
             ->when(!$userId && !$guestToken, fn($q) => $q->whereRaw('1 = 0'))

@@ -41,6 +41,11 @@ async function toggleWishlist(productId) {
 }
 
 async function addToCart(item) {
+  const variants = (item.product?.variants || []).filter(v => v.is_active)
+  if (variants.length > 0) {
+    router.push(`/products/${item.product?.slug}`)
+    return
+  }
   try {
     await cart.addItem(item.product_id, 1)
     toast.success(`"${item.product?.name}" added to cart.`)

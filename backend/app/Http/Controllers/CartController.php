@@ -38,7 +38,7 @@ class CartController extends Controller
     {
         $identifier = $this->cartIdentifier($request);
 
-        $cart = Cart::with('items.product.images')
+        $cart = Cart::with('items.product.images', 'items.variant.images')
             ->where($identifier)
             ->firstOrCreate($identifier);
 
@@ -49,6 +49,7 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
             'license_type' => 'nullable|in:personal,commercial,extended',
         ]);
@@ -57,11 +58,11 @@ class CartController extends Controller
         $cart = Cart::firstOrCreate($identifier);
 
         $item = $cart->items()->updateOrCreate(
-            ['product_id' => $validated['product_id']],
+            ['product_id' => $validated['product_id'], 'variant_id' => $validated['variant_id'] ?? null],
             ['quantity' => $validated['quantity'], 'license_type' => $validated['license_type'] ?? null]
         );
 
-        return response()->json($cart->load('items.product.images'), 201);
+        return response()->json($cart->load('items.product.images', 'items.variant.images'), 201);
     }
 
     public function updateItem(Request $request, $itemId)
@@ -79,7 +80,7 @@ class CartController extends Controller
 
         $item->update($validated);
 
-        return response()->json($item->cart->load('items.product.images'));
+        return response()->json($item->cart->load('items.product.images', 'items.variant.images'));
     }
 
     public function removeItem(Request $request, $itemId)
