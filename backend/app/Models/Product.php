@@ -14,7 +14,7 @@ class Product extends Model
         'tester_comment', 'tested_by', 'tested_at',
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
-        'ticket_id',
+        'ticket_id', 'stox_product_id',
     ];
 
     protected function casts(): array

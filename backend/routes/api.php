@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/manufacturing-methods', [MaterialController::class, 'storeMethod']);
         Route::put('/manufacturing-methods/{id}', [MaterialController::class, 'updateMethod']);
         Route::delete('/manufacturing-methods/{id}', [MaterialController::class, 'destroyMethod']);
+
     });
 
     // Addresses

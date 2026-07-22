@@ -21,6 +21,40 @@ const quantity = ref(1)
 const adding = ref(false)
 const selectedVariant = ref(null)
 
+const zoomLevel = ref(2)
+const zoomMin = 1.5
+const zoomMax = 5
+const zoomStep = 0.5
+const isZooming = ref(false)
+const zoomX = ref(0)
+const zoomY = ref(0)
+const galleryRef = ref(null)
+
+function zoomIn() {
+  zoomLevel.value = Math.min(zoomLevel.value + zoomStep, zoomMax)
+}
+
+function zoomOut() {
+  zoomLevel.value = Math.max(zoomLevel.value - zoomStep, zoomMin)
+}
+
+function onGalleryMouseMove(e) {
+  if (!galleryRef.value) return
+  const rect = galleryRef.value.getBoundingClientRect()
+  const x = e.clientX - rect.left
+  const y = e.clientY - rect.top
+  zoomX.value = (x / rect.width) * 100
+  zoomY.value = (y / rect.height) * 100
+}
+
+function onGalleryEnter() {
+  isZooming.value = true
+}
+
+function onGalleryLeave() {
+  isZooming.value = false
+}
+
 const hasVariants = computed(() => (product.value?.variants?.length || 0) > 0)
 
 const activeVariants = computed(() =>
@@ -169,21 +203,54 @@ watch(() => route.params.slug, (newSlug) => {
 
       <CRow class="g-4 mb-5">
         <CCol lg="6">
-          <div class="gallery-main">
-            <img
-              v-if="currentImage"
-              :src="currentImage"
-              :alt="product.name"
-              class="gallery-img"
-              width="800"
-              height="600"
-            />
-            <div v-else class="gallery-placeholder">
-              <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="5xl" class="text-body-secondary" />
+          <div class="gallery-zoom-wrapper" @mouseleave="onGalleryLeave">
+            <div
+              ref="galleryRef"
+              class="gallery-main"
+              @mousemove="onGalleryMouseMove"
+              @mouseenter="onGalleryEnter"
+            >
+              <img
+                v-if="currentImage"
+                :src="currentImage"
+                :alt="product.name"
+                class="gallery-img"
+                width="800"
+                height="600"
+                draggable="false"
+              />
+              <div v-else class="gallery-placeholder">
+                <CIcon :icon="product.product_type === 'digital' ? 'cil-cloud-download' : 'cil-box'" size="5xl" class="text-body-secondary" />
+              </div>
+              <span class="gallery-badge" :class="'badge-' + product.product_type">
+                {{ product.product_type }}
+              </span>
             </div>
-            <span class="gallery-badge" :class="'badge-' + product.product_type">
-              {{ product.product_type }}
-            </span>
+            <div
+              v-if="isZooming && currentImage"
+              class="zoom-result"
+            >
+              <img
+                :src="currentImage"
+                :alt="product.name"
+                class="zoom-result-img"
+                :style="{
+                  width: zoomLevel * 100 + '%',
+                  marginLeft: -(zoomX * zoomLevel - 50) + '%',
+                  marginTop: -(zoomY * zoomLevel - 50) + '%',
+                }"
+                draggable="false"
+              />
+            </div>
+            <div v-if="currentImage" class="zoom-controls">
+              <button class="zoom-btn" :disabled="zoomLevel >= zoomMax" @click="zoomIn" title="Zoom In">
+                <CIcon icon="cil-plus" />
+              </button>
+              <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
+              <button class="zoom-btn" :disabled="zoomLevel <= zoomMin" @click="zoomOut" title="Zoom Out">
+                <CIcon icon="cil-minus" />
+              </button>
+            </div>
           </div>
           <div v-if="currentImages.length > 1" class="gallery-thumbs mt-3">
             <button
@@ -396,6 +463,75 @@ watch(() => route.params.slug, (newSlug) => {
 </template>
 
 <style scoped>
+.gallery-zoom-wrapper {
+  position: relative;
+}
+.gallery-main {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+.zoom-result {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--cui-primary, #b81300);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  z-index: 20;
+  background: #fff;
+  pointer-events: none;
+}
+.zoom-result-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  position: relative;
+  z-index: 21;
+}
+.zoom-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--cui-border-color, #dee2e6);
+  background: var(--cui-body-bg, #fff);
+  color: var(--cui-body-color, inherit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+.zoom-btn:hover:not(:disabled) {
+  border-color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #b81300);
+}
+.zoom-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.zoom-level {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cui-body-color, inherit);
+  min-width: 45px;
+  text-align: center;
+}
 .variant-selector {
   padding: 12px 16px;
   background: var(--cui-tertiary-bg, #f8f9fa);

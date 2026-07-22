@@ -8,6 +8,7 @@ use App\Models\Inventory;
 use App\Models\DigitalFile;
 use App\Models\LicenseAgreement;
 use App\Services\ImageOptimizer;
+use App\Services\StoxService;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -80,11 +81,39 @@ class ProductController extends Controller
             'material' => 'nullable|string|max:100',
             'manufacturing_method' => 'nullable|string|max:100',
             'type_sample' => 'nullable|string|max:100',
+            'sku' => 'nullable|string|max:100',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
         ]);
+
+        $sku = $validated['sku'] ?? null;
+        $imageFiles = $validated['images'] ?? [];
+        unset($validated['sku'], $validated['images']);
 
         $product = Product::create($validated);
 
-        return response()->json($product->load('images', 'inventory'), 201);
+        if ($product->product_type === 'physical' && $sku) {
+            $product->inventory()->create([
+                'sku' => $sku,
+                'stock_quantity' => 0,
+            ]);
+        }
+
+        $storedImageUrls = [];
+        $optimizer = app(ImageOptimizer::class);
+
+        foreach ($imageFiles as $index => $file) {
+            $path = $optimizer->optimizeUploadedFile($file, "products/{$product->id}");
+            $product->images()->create([
+                'image_url' => $path,
+                'sort_order' => $index,
+            ]);
+            $storedImageUrls[] = $path;
+        }
+
+        $this->createStoxProduct($product, $sku, $storedImageUrls);
+
+        return response()->json(['product' => $product->load('images', 'inventory')], 201);
     }
 
     public function update(Request $request, $id)
@@ -136,6 +165,8 @@ class ProductController extends Controller
             'sort_order' => $request->input('sort_order', 0),
         ]);
 
+        $this->syncImagesToStox($product);
+
         return response()->json($image, 201);
     }
 
@@ -154,6 +185,8 @@ class ProductController extends Controller
                 ->update(['sort_order' => $index]);
         }
 
+        $this->syncImagesToStox($product);
+
         return response()->json(['message' => 'Images reordered.']);
     }
 
@@ -167,6 +200,8 @@ class ProductController extends Controller
         }
 
         $image->delete();
+
+        $this->syncImagesToStox($product);
 
         return response()->json(['message' => 'Image deleted.']);
     }
@@ -187,7 +222,7 @@ class ProductController extends Controller
             $validated
         );
 
-        return response()->json($inventory);
+        return response()->json(['inventory' => $inventory]);
     }
 
     public function addDigitalFile(Request $request, $id)
@@ -205,5 +240,71 @@ class ProductController extends Controller
         $file = $product->digitalFiles()->create($validated);
 
         return response()->json($file, 201);
+    }
+
+    private function createStoxProduct(Product $product, ?string $sku, array $imagePaths = []): void
+    {
+        if ($product->product_type !== 'physical') {
+            return;
+        }
+
+        /** @var StoxService $stox */
+        $stox = app(StoxService::class);
+
+        if (!$stox->isConfigured()) {
+            return;
+        }
+
+        $stoxSku = $sku ?: $product->slug;
+        $stoxName = $product->name ?: $product->slug;
+
+        $imageUrls = array_map(fn ($path) => $stox->buildImageUrl($path), $imagePaths);
+
+        $result = $stox->createProduct(
+            name: $stoxName,
+            sku: $stoxSku,
+            description: $product->description,
+            images: $imageUrls,
+        );
+
+        if ($result && isset($result['id'])) {
+            $product->update(['stox_product_id' => $result['id']]);
+        } elseif (!$result) {
+            $fallbackSku = strtoupper(str_replace(' ', '-', $product->slug)) . '-' . $product->id;
+            $result = $stox->createProduct(
+                name: $stoxName,
+                sku: $fallbackSku,
+                description: $product->description,
+                images: $imageUrls,
+            );
+            if ($result && isset($result['id'])) {
+                $product->update(['stox_product_id' => $result['id']]);
+            }
+        }
+    }
+
+    private function syncImagesToStox(Product $product): void
+    {
+        if ($product->product_type !== 'physical' || !$product->stox_product_id) {
+            return;
+        }
+
+        /** @var StoxService $stox */
+        $stox = app(StoxService::class);
+
+        if (!$stox->isConfigured()) {
+            return;
+        }
+
+        $images = $product->images()->orderBy('sort_order')->get();
+
+        $imageUrls = $images->map(fn ($img) => $stox->buildImageUrl($img->image_url))->toArray();
+
+        $stox->createProduct(
+            name: $product->name ?: $product->slug,
+            sku: $product->inventory?->sku ?: $product->slug,
+            description: $product->description,
+            images: $imageUrls,
+        );
     }
 }

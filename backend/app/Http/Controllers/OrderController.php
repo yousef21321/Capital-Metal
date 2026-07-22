@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\Coupon;
+use App\Services\StoxService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -116,7 +117,7 @@ class OrderController extends Controller
             'guest_phone' => 'nullable|string|max:50',
             'guest_governorate' => 'nullable|string|max:100',
             'guest_city' => 'nullable|string|max:100',
-            'guest_address_line' => 'required_with:guest_name|string|max:255',
+            'guest_address_line' => 'nullable|string|max:255',
             'guest_postal_code' => 'nullable|string|max:20',
         ]);
 
@@ -138,6 +139,43 @@ class OrderController extends Controller
 
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty.'], 400);
+        }
+
+        $hasPhysical = $cart->items->contains(function ($item) {
+            return ($item->product->product_type ?? null) === 'physical';
+        });
+
+        if ($hasPhysical) {
+            $hasAddressId = !empty($validated['address_id']);
+            $hasGuestFields = !empty($validated['guest_name'])
+                && !empty($validated['guest_phone'])
+                && !empty($validated['guest_governorate'])
+                && !empty($validated['guest_city'])
+                && !empty($validated['guest_address_line']);
+
+            $hasValidAddress = false;
+            if ($userId && $hasAddressId) {
+                $addr = \App\Models\Address::find($validated['address_id']);
+                $user = \App\Models\User::find($userId);
+                $hasValidAddress = $addr
+                    && !empty($addr->governorate)
+                    && !empty($addr->city)
+                    && !empty($addr->address_line)
+                    && (!empty(trim($user->name ?? '')) || !empty($addr->full_name))
+                    && (!empty($user->phone) || !empty($addr->phone));
+            }
+
+            if (!$hasAddressId && !$hasGuestFields) {
+                return response()->json([
+                    'message' => 'Shipping address is required for physical products. Please select a saved address or enter a shipping address.',
+                ], 422);
+            }
+
+            if ($hasAddressId && !$hasValidAddress) {
+                return response()->json([
+                    'message' => 'The selected address is incomplete. Please choose a valid address with name, phone, and full details.',
+                ], 422);
+            }
         }
 
         $orderNumber = 'ORD-' . strtoupper(uniqid());
@@ -166,7 +204,7 @@ class OrderController extends Controller
 
         $totalAmount = max(0, ($subtotal + $shippingCost) - $discount);
 
-        return DB::transaction(function () use (
+        $order = DB::transaction(function () use (
             $request, $validated, $userId, $orderNumber, $subtotal,
             $shippingCost, $discount, $couponId, $totalAmount, $orderItems, $cart
         ) {
@@ -185,17 +223,14 @@ class OrderController extends Controller
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
                 'notes' => $validated['notes'] ?? null,
+                'address_id' => $validated['address_id'] ?? null,
+                'guest_name' => $validated['guest_name'] ?? null,
+                'guest_phone' => $validated['guest_phone'] ?? null,
+                'guest_governorate' => $validated['guest_governorate'] ?? null,
+                'guest_city' => $validated['guest_city'] ?? null,
+                'guest_address_line' => $validated['guest_address_line'] ?? null,
+                'guest_postal_code' => $validated['guest_postal_code'] ?? null,
             ];
-
-            // Guest fields
-            if (!$userId) {
-                $orderData['guest_name'] = $validated['guest_name'] ?? null;
-                $orderData['guest_phone'] = $validated['guest_phone'] ?? null;
-                $orderData['guest_governorate'] = $validated['guest_governorate'] ?? null;
-                $orderData['guest_city'] = $validated['guest_city'] ?? null;
-                $orderData['guest_address_line'] = $validated['guest_address_line'] ?? null;
-                $orderData['guest_postal_code'] = $validated['guest_postal_code'] ?? null;
-            }
 
             $order = Order::create($orderData);
 
@@ -219,8 +254,16 @@ class OrderController extends Controller
 
             $cart->items()->delete();
 
-            return response()->json($order->load('items.product', 'items.variant'), 201);
+            return $order;
         });
+
+        $this->sendOrderToStox(
+            $order->fresh(['items.product.inventory', 'items.variant']),
+            $validated,
+            $userId
+        );
+
+        return response()->json($order->load('items.product', 'items.variant'), 201);
     }
 
     /**
@@ -258,6 +301,117 @@ class OrderController extends Controller
         $discount = min($discount, $subtotal);
 
         return [round($discount, 2), $coupon->id];
+    }
+
+    private function sendOrderToStox(Order $order, array $validated, ?int $userId): void
+    {
+        /** @var StoxService $stox */
+        $stox = app(StoxService::class);
+
+        if (!$stox->isConfigured()) {
+            return;
+        }
+
+        $physicalItems = $order->items->filter(function ($item) {
+            return $item->product && $item->product->product_type === 'physical' && $item->product->stox_product_id;
+        });
+
+        if ($physicalItems->isEmpty()) {
+            return;
+        }
+
+        $customerName = '';
+        $customerPhone = '';
+        $address = '';
+        $areaId = null;
+        $email = null;
+
+        if ($userId) {
+            $user = $order->user;
+            $customerName = $user->name ?? '';
+            $customerPhone = $user->phone ?? '';
+
+            if ($order->address_id) {
+                $addr = \App\Models\Address::find($order->address_id);
+                if ($addr) {
+                    $customerName = $customerName ?: $addr->full_name;
+                    $customerPhone = $customerPhone ?: $addr->phone;
+                    $address = trim(($addr->address_line ?? '') . ', ' . ($addr->city ?? '') . ', ' . ($addr->governorate ?? ''));
+                    $areaId = $stox->resolveAreaId($addr->city, $addr->governorate);
+                }
+            } elseif (!$address) {
+                $fallbackAddr = \App\Models\Address::where('user_id', $userId)->first();
+                if ($fallbackAddr) {
+                    $customerName = $customerName ?: $fallbackAddr->full_name;
+                    $customerPhone = $customerPhone ?: $fallbackAddr->phone;
+                    $address = trim(($fallbackAddr->address_line ?? '') . ', ' . ($fallbackAddr->city ?? '') . ', ' . ($fallbackAddr->governorate ?? ''));
+                    $areaId = $stox->resolveAreaId($fallbackAddr->city, $fallbackAddr->governorate);
+                }
+            }
+
+            $email = $user->email ?? null;
+        }
+
+        if (!$customerName) {
+            $customerName = $validated['guest_name'] ?? $order->guest_name ?? '';
+        }
+        if (!$customerPhone) {
+            $customerPhone = $validated['guest_phone'] ?? $order->guest_phone ?? '';
+        }
+        if (!$address) {
+            $guestAddressLine = $validated['guest_address_line'] ?? $order->guest_address_line ?? '';
+            $guestCity = $validated['guest_city'] ?? $order->guest_city ?? '';
+            $guestGovernorate = $validated['guest_governorate'] ?? $order->guest_governorate ?? '';
+            $address = trim($guestAddressLine . ', ' . $guestCity . ', ' . $guestGovernorate);
+            $areaId = $areaId ?: $stox->resolveAreaId($guestCity ?: null, $guestGovernorate ?: null);
+        }
+
+        if (!$email && $userId) {
+            $email = $order->user?->email;
+        }
+
+        if (!$customerName || !$customerPhone || !$address || !$areaId) {
+            \Illuminate\Support\Facades\Log::warning('Stox order skipped: missing required fields', [
+                'order_id' => $order->id,
+                'name' => $customerName,
+                'phone' => $customerPhone,
+                'address' => $address,
+                'area_id' => $areaId,
+            ]);
+            return;
+        }
+
+        $paymentType = $stox->mapPaymentType($validated['payment_method_id'] ?? null);
+        $codAmount = $paymentType === 'COD' ? (float) $order->total_amount : null;
+
+        $products = $physicalItems->map(function ($item) {
+            $inventory = $item->product->inventory;
+            return [
+                'id' => (int) $item->product->stox_product_id,
+                'qty' => (int) $item->quantity,
+                'sku' => $inventory?->sku ?? $item->product->slug,
+            ];
+        })->toArray();
+
+        $orderData = [
+            'customer_name' => $customerName,
+            'mobile_1' => $customerPhone,
+            'email' => $email,
+            'address' => $address,
+            'area_id' => $areaId,
+            'reference_number' => $order->order_number,
+            'payment_type' => $paymentType,
+            'cod_amount' => $codAmount,
+            'note' => $order->notes,
+            'products' => $products,
+        ];
+
+        $result = $stox->createOrder($orderData);
+
+        if ($result) {
+            $stoxId = $result['data'][0]['id'] ?? $result['data']['id'] ?? null;
+            $order->update(['stox_order_id' => $stoxId]);
+        }
     }
 
     public function destroy($id)

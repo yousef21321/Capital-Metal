@@ -157,6 +157,44 @@ const isDigitalOnly = computed(() => {
   return cart.value.items.every(item => item.product?.product_type === 'digital')
 })
 
+const hasPhysicalProducts = computed(() => {
+  if (!cart.value?.items?.length) return false
+  return cart.value.items.some(item => item.product?.product_type === 'physical')
+})
+
+const selectedAddress = computed(() => {
+  if (!form.value.address_id || !addresses.value.length) return null
+  return addresses.value.find(a => a.id === form.value.address_id) || null
+})
+
+const addressErrors = computed(() => {
+  if (!hasPhysicalProducts.value) return []
+
+  const errs = []
+
+  if (auth.isAuthenticated) {
+    if (!form.value.address_id) {
+      errs.push('Please select or add a shipping address.')
+    } else if (selectedAddress.value) {
+      if (!selectedAddress.value.full_name) errs.push('Selected address is missing full name.')
+      if (!selectedAddress.value.phone) errs.push('Selected address is missing phone number.')
+      if (!selectedAddress.value.governorate) errs.push('Selected address is missing governorate.')
+      if (!selectedAddress.value.city) errs.push('Selected address is missing city.')
+      if (!selectedAddress.value.address_line) errs.push('Selected address is missing address line.')
+    }
+  } else {
+    if (!form.value.guest_name) errs.push('Full name is required.')
+    if (!form.value.guest_phone) errs.push('Phone number is required.')
+    if (!form.value.guest_governorate) errs.push('Governorate is required.')
+    if (!form.value.guest_city) errs.push('City is required.')
+    if (!form.value.guest_address_line) errs.push('Address line is required.')
+  }
+
+  return errs
+})
+
+const isAddressValid = computed(() => addressErrors.value.length === 0)
+
 const checkoutItemPrice = (item, currency) => {
   const source = item.variant || item.product
   if (currency === 'USD') {
@@ -290,9 +328,12 @@ async function placeOrder() {
   }
 }
 
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  await loadData()
   fetchPaymentMethods()
+  if (auth.isAuthenticated && !addresses.value.length && hasPhysicalProducts.value) {
+    showAddressForm.value = true
+  }
 })
 </script>
 
@@ -386,7 +427,11 @@ onMounted(() => {
             </div>
 
             <div v-if="auth.isAuthenticated && !addresses.length && !showAddressForm" class="text-body-secondary">
-              <p class="mb-2">لا توجد عناوين / No addresses found.</p>
+              <CAlert color="warning" class="mb-2">
+                <CIcon icon="cil-warning" class="me-1" />
+                لا توجد عناوين محفوظة. يجب إضافة عنوان شحن للطلبات المادية.
+                No saved addresses. You must add a shipping address for physical products.
+              </CAlert>
               <CButton color="primary" variant="outline" size="sm" @click="toggleAddressForm">
                 <CIcon icon="cil-plus" class="me-1" /> إضافة عنوان / Add Address
               </CButton>
@@ -446,7 +491,7 @@ onMounted(() => {
                   </CCol>
                 </CRow>
                 <div class="d-flex gap-2 mt-2">
-                  <CButton color="primary" size="sm" :disabled="savingAddress || !addressForm.governorate || !addressForm.city" @click="saveAddress">
+                  <CButton color="primary" size="sm" :disabled="savingAddress || !addressForm.full_name || !addressForm.phone || !addressForm.governorate || !addressForm.city || !addressForm.address_line" @click="saveAddress">
                     <CSpinner v-if="savingAddress" size="sm" class="me-1" /> Save Address
                   </CButton>
                   <CButton color="secondary" variant="outline" size="sm" @click="toggleAddressForm">Cancel</CButton>
@@ -571,12 +616,21 @@ onMounted(() => {
 
             <CAlert v-if="error" color="danger" class="mb-3">{{ error }}</CAlert>
             <CAlert v-if="success" color="success" class="mb-3">{{ success }}</CAlert>
+            <CAlert v-if="addressErrors.length" color="warning" class="mb-3">
+              <div class="fw-semibold mb-1">
+                <CIcon icon="cil-warning" class="me-1" />
+                الرجاء إكمال بيانات الشحن / Please complete shipping details:
+              </div>
+              <ul class="mb-0 ps-3">
+                <li v-for="(err, i) in addressErrors" :key="i" class="small">{{ err }}</li>
+              </ul>
+            </CAlert>
 
             <CButton
               color="primary"
               class="w-100"
               size="lg"
-              :disabled="submitting || (!isDigitalOnly && !auth.isAuthenticated && (!form.guest_name || !form.guest_phone || !form.guest_governorate || !form.guest_city || !form.guest_address_line))"
+              :disabled="submitting || !isAddressValid"
               @click="placeOrder"
             >
               <CSpinner v-if="submitting" size="sm" class="me-2" />

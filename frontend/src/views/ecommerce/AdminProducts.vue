@@ -25,6 +25,10 @@ const form = ref(emptyForm())
 const imageFile = ref(null)
 const imagePreview = ref(null)
 
+// Multi-image state for create/edit modal
+const newImages = ref([])
+const newImagePreviews = ref([])
+
 const detailProduct = ref(null)
 const detailVisible = ref(false)
 const uploadTargetId = ref(null)
@@ -78,6 +82,23 @@ function removeProductPoint(index) {
   productPoints.value.splice(index, 1)
 }
 
+function onNewImagesSelect(e) {
+  const files = Array.from(e.target.files || [])
+  for (const file of files) {
+    if (newImages.value.length >= 10) break
+    newImages.value.push(file)
+    const reader = new FileReader()
+    reader.onload = (ev) => { newImagePreviews.value.push(ev.target.result) }
+    reader.readAsDataURL(file)
+  }
+  e.target.value = ''
+}
+
+function removeNewImage(index) {
+  newImages.value.splice(index, 1)
+  newImagePreviews.value.splice(index, 1)
+}
+
 function addVariantPoint() {
   variantPoints.value.push('')
 }
@@ -120,6 +141,7 @@ function emptyForm() {
     material: '',
     manufacturing_method: '',
     manufacturing_method_other: '',
+    sku: '',
   }
 }
 
@@ -171,13 +193,17 @@ async function fetchProducts() {
 function openCreate() {
   form.value = emptyForm()
   productPoints.value = []
+  newImages.value = []
+  newImagePreviews.value = []
   editing.value = false
   modalVisible.value = true
 }
 
 function openEdit(product) {
-  form.value = { ...emptyForm(), ...product }
+  form.value = { ...emptyForm(), ...product, sku: product.inventory?.sku || '' }
   productPoints.value = parseDescriptionToPoints(product.description)
+  newImages.value = []
+  newImagePreviews.value = []
   editing.value = true
   modalVisible.value = true
 }
@@ -213,17 +239,42 @@ function convertUsdToEgp() {
 async function save() {
   saving.value = true
   try {
-    const payload = { ...form.value }
-    payload.description = pointsToDescription(productPoints.value)
-    if (payload.manufacturing_method === 'other') payload.manufacturing_method = payload.manufacturing_method_other || 'other'
-    delete payload.manufacturing_method_other
     if (editing.value) {
+      const payload = { ...form.value }
+      payload.description = pointsToDescription(productPoints.value)
+      if (payload.manufacturing_method === 'other') payload.manufacturing_method = payload.manufacturing_method_other || 'other'
+      delete payload.manufacturing_method_other
+      delete payload.sku
       await api.put(`/api/products/${form.value.id}`, payload)
       toast.success('Product updated.')
     } else {
-      payload.slug = payload.slug || slugify(payload.name)
-      payload.publish_date = payload.publish_date || new Date().toISOString().slice(0, 10)
-      await api.post('/api/products', payload)
+      const fd = new FormData()
+      fd.append('name', form.value.name)
+      fd.append('slug', form.value.slug || slugify(form.value.name))
+      fd.append('product_type', form.value.product_type)
+      fd.append('status', form.value.status || 'published')
+      if (form.value.description || productPoints.value.length) {
+        fd.append('description', pointsToDescription(productPoints.value))
+      }
+      if (form.value.price_egp) fd.append('price_egp', form.value.price_egp)
+      if (form.value.price_usd) fd.append('price_usd', form.value.price_usd)
+      if (form.value.cost) fd.append('cost', form.value.cost)
+      if (form.value.publish_date) fd.append('publish_date', form.value.publish_date)
+      if (form.value.country_availability) fd.append('country_availability', form.value.country_availability)
+      if (form.value.type_sample) fd.append('type_sample', form.value.type_sample)
+      if (form.value.material) fd.append('material', form.value.material)
+      if (form.value.manufacturing_method) {
+        fd.append('manufacturing_method', form.value.manufacturing_method === 'other' ? (form.value.manufacturing_method_other || 'other') : form.value.manufacturing_method)
+      }
+      if (form.value.product_type === 'physical' && form.value.sku) {
+        fd.append('sku', form.value.sku)
+      }
+      for (const file of newImages.value) {
+        fd.append('images[]', file)
+      }
+      await api.post('/api/products', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       toast.success('Product created.')
     }
     modalVisible.value = false
@@ -678,6 +729,11 @@ onMounted(() => {
             <CFormLabel class="fw-semibold">Type Sample</CFormLabel>
             <CFormInput v-model="form.type_sample" placeholder="e.g. sample type" />
           </CCol>
+          <CCol :sm="6" class="mb-3" v-if="form.product_type === 'physical'">
+            <CFormLabel class="fw-semibold">SKU *</CFormLabel>
+            <CFormInput v-model="form.sku" placeholder="e.g. FLFL-TSHIRT-001" />
+            <small class="text-body-secondary">Required for shipping integration (Stox)</small>
+          </CCol>
           <CCol :sm="12" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.description') }}</CFormLabel>
             <div class="points-editor">
@@ -738,6 +794,23 @@ onMounted(() => {
               <option value="other">{{ $t('product_type.other') }}</option>
             </CFormSelect>
             <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" :placeholder="$t('designer_product.method_other_placeholder')" />
+          </CCol>
+          <CCol :sm="12" class="mb-3">
+            <CFormLabel class="fw-semibold">Product Images</CFormLabel>
+            <div class="image-picker-area">
+              <input type="file" accept="image/*" multiple @change="onNewImagesSelect" class="d-none" ref="newImagesInput" />
+              <CButton color="primary" variant="outline" size="sm" @click="$refs.newImagesInput.click()">
+                <CIcon icon="cil-image-plus" class="me-1" /> Select Images
+              </CButton>
+              <small class="text-body-secondary ms-2">Max 10 images, 5MB each</small>
+              <div v-if="newImagePreviews.length" class="mt-2 d-flex gap-2 flex-wrap">
+                <div v-for="(preview, idx) in newImagePreviews" :key="idx" class="position-relative new-image-thumb">
+                  <img :src="preview" class="rounded" style="width: 80px; height: 80px; object-fit: cover;" />
+                  <button class="new-image-remove" @click="removeNewImage(idx)">&times;</button>
+                  <span v-if="idx === 0" class="badge bg-dark position-absolute bottom-0 start-0 mb-1 ms-1" style="font-size:9px">Main</span>
+                </div>
+              </div>
+            </div>
           </CCol>
         </CRow>
       </CModalBody>
@@ -1127,5 +1200,45 @@ onMounted(() => {
 }
 .archived-toggle:active {
   transform: translateY(0);
+}
+.image-picker-area {
+  border: 2px dashed var(--cui-border-color, #dee2e6);
+  border-radius: 10px;
+  padding: 14px;
+  background: var(--cui-tertiary-bg, #f8f9fa);
+  transition: border-color 0.2s;
+}
+.image-picker-area:hover {
+  border-color: var(--cui-primary, #b81300);
+}
+.new-image-thumb {
+  position: relative;
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid var(--cui-border-color, #dee2e6);
+}
+.new-image-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(220, 53, 69, 0.9);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.new-image-thumb:hover .new-image-remove {
+  opacity: 1;
 }
 </style>
