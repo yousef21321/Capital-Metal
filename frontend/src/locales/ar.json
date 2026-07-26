@@ -21,6 +21,8 @@
   "nav.coupons": "الكوبونات",
   "nav.manage_orders": "الطلبات",
   "nav.domain_verification": "التحقق من النطاق",
+  "nav.manage_materials": "إدارة المواد",
+  "nav.shipping_rates": "أسعار الشحن",
 
   "header.login": "تسجيل الدخول",
   "header.sign_up": "إنشاء حساب",
@@ -32,6 +34,8 @@
   "header.createTicket": "إنشاء تذكرة",
   "header.orders": "الطلبات",
   "header.coupons": "الكوبونات",
+  "header.materials": "المواد",
+  "header.shippingRates": "أسعار الشحن",
   "header.mark_all_read": "تحديد الكل كمقروء",
   "header.view_all": "عرض كل الإشعارات",
   "header.no_notifications": "لا توجد إشعارات",

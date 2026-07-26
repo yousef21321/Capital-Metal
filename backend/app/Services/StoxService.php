@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 class StoxService
 {
     protected string $token;
+
     protected string $baseUrl = 'https://merchants.stox-eg.com/api';
 
     public function __construct()
@@ -18,13 +19,14 @@ class StoxService
 
     public function isConfigured(): bool
     {
-        return !empty($this->token);
+        return ! empty($this->token);
     }
 
     public function createProduct(string $name, string $sku, ?string $description = null, array $images = []): ?array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             Log::warning('Stox is not configured. Set STOX_TOKEN in your .env.');
+
             return null;
         }
 
@@ -38,7 +40,7 @@ class StoxService
             'category_id' => null,
         ];
 
-        if (!empty($images)) {
+        if (! empty($images)) {
             $payload['images'] = $images;
         }
 
@@ -73,8 +75,9 @@ class StoxService
 
     public function createOrder(array $orderData): ?array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             Log::warning('Stox is not configured. Set STOX_TOKEN in your .env.');
+
             return null;
         }
 
@@ -135,7 +138,7 @@ class StoxService
 
     public function resolveAreaId(?string $city, ?string $governorate = null): ?int
     {
-        if (!$city && !$governorate) {
+        if (! $city && ! $governorate) {
             return null;
         }
 

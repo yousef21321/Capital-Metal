@@ -33,6 +33,7 @@ class ExchangeRateController extends Controller
 
                 if ($egpRate && is_numeric($egpRate)) {
                     Setting::setValue('egp_to_usd_rate', (string) $egpRate);
+
                     return (string) $egpRate;
                 }
             }

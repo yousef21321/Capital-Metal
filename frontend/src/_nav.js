@@ -43,6 +43,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Shipping Rates',
+    to: '/admin/shipping-rates',
+    icon: 'cil-truck',
+    translationKey: 'nav.shipping_rates',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Cart',
     to: '/cart',
     icon: 'cil-basket',
@@ -179,7 +187,7 @@ export default [
   },
   {
     component: 'CNavItem',
-    name: 'Add Degital Product',
+    name: 'Add Digital Product',
     to: '/designer/products/create',
     icon: 'cil-plus',
     translationKey: 'nav.add_product',

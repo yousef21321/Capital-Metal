@@ -6,13 +6,16 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantImage;
 use App\Services\ImageOptimizer;
+use App\Services\StoxService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductVariantController extends Controller
 {
     public function index(Product $product)
     {
         $variants = $product->variants()->with('images')->get();
+
         return response()->json($variants);
     }
 
@@ -33,11 +36,13 @@ class ProductVariantController extends Controller
         ]);
 
         $maxSort = $product->variants()->max('sort_order') ?? -1;
-        if (!isset($validated['sort_order'])) {
+        if (! isset($validated['sort_order'])) {
             $validated['sort_order'] = $maxSort + 1;
         }
 
         $variant = $product->variants()->create($validated);
+
+        $this->syncVariantToStox($variant, $product);
 
         return response()->json($variant->load('images'), 201);
     }
@@ -62,6 +67,8 @@ class ProductVariantController extends Controller
 
         $variant->update($validated);
 
+        $this->syncVariantToStox($variant, $product);
+
         return response()->json($variant->load('images'));
     }
 
@@ -70,8 +77,8 @@ class ProductVariantController extends Controller
         $variant = $product->variants()->findOrFail($variantId);
 
         foreach ($variant->images as $image) {
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image->image_url)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_url);
+            if (Storage::disk('public')->exists($image->image_url)) {
+                Storage::disk('public')->delete($image->image_url);
             }
         }
 
@@ -124,12 +131,53 @@ class ProductVariantController extends Controller
         $variant = $product->variants()->findOrFail($variantId);
         $image = $variant->images()->findOrFail($imageId);
 
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image->image_url)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_url);
+        if (Storage::disk('public')->exists($image->image_url)) {
+            Storage::disk('public')->delete($image->image_url);
         }
 
         $image->delete();
 
         return response()->json(['message' => 'Image deleted.']);
+    }
+
+    private function syncVariantToStox(ProductVariant $variant, Product $product): void
+    {
+        if ($product->product_type !== 'physical') {
+            return;
+        }
+
+        /** @var StoxService $stox */
+        $stox = app(StoxService::class);
+
+        if (! $stox->isConfigured()) {
+            return;
+        }
+
+        $sku = $variant->sku ?: strtoupper($product->slug.'-'.$variant->name);
+
+        $imagePaths = $variant->images->pluck('image_url')->toArray();
+        $imageUrls = array_map(fn ($path) => $stox->buildImageUrl($path), $imagePaths);
+
+        $result = $stox->createProduct(
+            name: $product->name.' - '.$variant->name,
+            sku: $sku,
+            description: $variant->description ?: $product->description,
+            images: $imageUrls,
+        );
+
+        if ($result && isset($result['id'])) {
+            $variant->update(['stox_product_id' => $result['id']]);
+        } elseif (! $result) {
+            $fallbackSku = strtoupper($product->slug.'-'.$variant->name).'-'.$variant->id;
+            $result = $stox->createProduct(
+                name: $product->name.' - '.$variant->name,
+                sku: $fallbackSku,
+                description: $variant->description ?: $product->description,
+                images: $imageUrls,
+            );
+            if ($result && isset($result['id'])) {
+                $variant->update(['stox_product_id' => $result['id']]);
+            }
+        }
     }
 }

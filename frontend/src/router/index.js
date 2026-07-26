@@ -1,5 +1,5 @@
 import { h, resolveComponent } from 'vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
@@ -34,6 +34,12 @@ const routes = [
         path: '/admin/materials',
         name: 'AdminMaterials',
         component: () => import('@/views/ecommerce/AdminMaterials.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/admin/shipping-rates',
+        name: 'AdminShippingRates',
+        component: () => import('@/views/ecommerce/AdminShippingRates.vue'),
         meta: { requiresAuth: true },
       },
       {
@@ -442,7 +448,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

@@ -1,29 +1,32 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
-use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\CouponController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\TicketController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\IndustorDesignerController;
-use App\Http\Controllers\StoreController;
-use App\Http\Controllers\PayMobController;
-use App\Http\Controllers\SavedCardController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\HeroController;
-use App\Http\Controllers\PaymentMethodController;
-use App\Http\Controllers\TesterProductController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\PayMobController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SavedCardController;
+use App\Http\Controllers\ShippingRateController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TesterProductController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\WishlistController;
+use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -51,7 +54,7 @@ Route::get('/store/{id}', [StoreController::class, 'show']);
 Route::get('/hero-images', [HeroController::class, 'index']);
 
 // Contact form (no auth)
-Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store']);
+Route::post('/contact', [ContactController::class, 'store']);
 
 // Exchange rate (public)
 Route::get('/exchange-rate', [ExchangeRateController::class, 'show']);
@@ -69,6 +72,7 @@ Route::delete('/cart', [CartController::class, 'clear']);
 
 // Checkout & orders (public — supports guest checkout)
 Route::post('/checkout', [OrderController::class, 'checkout']);
+Route::get('/shipping-rates/{governorate}', [ShippingRateController::class, 'byGovernorate']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/orders/my', [OrderController::class, 'myOrders']);
 Route::get('/orders/{id}', [OrderController::class, 'show']);
@@ -116,6 +120,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/manufacturing-methods/{id}', [MaterialController::class, 'updateMethod']);
         Route::delete('/manufacturing-methods/{id}', [MaterialController::class, 'destroyMethod']);
 
+        // Shipping Rates (admin)
+        Route::get('/shipping-rates', [ShippingRateController::class, 'index']);
+        Route::post('/shipping-rates', [ShippingRateController::class, 'store']);
+        Route::put('/shipping-rates/{id}', [ShippingRateController::class, 'update']);
+        Route::delete('/shipping-rates/{id}', [ShippingRateController::class, 'destroy']);
     });
 
     // Addresses
@@ -210,7 +219,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tickets/{id}', [TicketController::class, 'show']);
     Route::put('/tickets/{id}', [TicketController::class, 'update'])->middleware('role:industor');
     Route::get('/tickets/{id}/attachments/{attachmentId}/download', [TicketController::class, 'downloadAttachment']);
-Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::class, 'destroyAttachment']);
+    Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::class, 'destroyAttachment']);
     Route::post('/tickets/{id}/cancel', [TicketController::class, 'cancel']);
 
     Route::middleware('role:tester')->group(function () {
@@ -247,9 +256,9 @@ Route::delete('/tickets/{id}/attachments/{attachmentId}', [TicketController::cla
         Route::post('/tickets/{id}/upload', [TicketController::class, 'upload']);
         Route::post('/designer/products', [TicketController::class, 'storeDesignerProduct']);
         Route::get('/designer/products', [TicketController::class, 'myDesignerProducts']);
-        Route::get('/designer/products/modification-count', function (\Illuminate\Http\Request $r) {
+        Route::get('/designer/products/modification-count', function (Request $r) {
             return response()->json([
-                'count' => \App\Models\Product::where('designer_id', $r->user()->id)
+                'count' => Product::where('designer_id', $r->user()->id)
                     ->where('status', 'modification_requested')->count(),
             ]);
         });

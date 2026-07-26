@@ -14,7 +14,7 @@ class AffiliateController extends Controller
             ->where('user_id', $request->user()->id)
             ->first();
 
-        if (!$affiliate) {
+        if (! $affiliate) {
             return response()->json(['message' => 'Not an affiliate.'], 404);
         }
 
@@ -30,7 +30,7 @@ class AffiliateController extends Controller
 
         $affiliate = Affiliate::create([
             'user_id' => $request->user()->id,
-            'referral_code' => $validated['referral_code'] ?? 'REF-' . strtoupper(uniqid()),
+            'referral_code' => $validated['referral_code'] ?? 'REF-'.strtoupper(uniqid()),
             'commission_percentage' => $validated['commission_percentage'] ?? 10.00,
         ]);
 

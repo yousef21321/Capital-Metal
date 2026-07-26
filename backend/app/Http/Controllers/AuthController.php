@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Cart;
+use App\Models\Role;
+use App\Models\User;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -52,13 +54,13 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return response()->json(['message' => 'Account is deactivated.'], 403);
         }
 
@@ -82,7 +84,7 @@ class AuthController extends Controller
         $tokenInfo = null;
 
         foreach ($allowedClients as $clientId) {
-            $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . $request->credential;
+            $url = 'https://oauth2.googleapis.com/tokeninfo?id_token='.$request->credential;
             $response = @file_get_contents($url);
             if ($response !== false) {
                 $tokenInfo = json_decode($response, true);
@@ -93,7 +95,7 @@ class AuthController extends Controller
             }
         }
 
-        if (!$tokenInfo || !isset($tokenInfo['email'])) {
+        if (! $tokenInfo || ! isset($tokenInfo['email'])) {
             throw ValidationException::withMessages([
                 'credential' => ['Invalid Google credential.'],
             ]);
@@ -106,7 +108,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             $userRole = Role::where('name', 'user')->first();
             $user = User::create([
                 'name' => $name,
@@ -117,7 +119,7 @@ class AuthController extends Controller
                 'avatar' => $avatar,
                 'provider' => 'google',
             ]);
-        } elseif (!$user->google_id) {
+        } elseif (! $user->google_id) {
             $user->update([
                 'google_id' => $googleId,
                 'avatar' => $avatar,
@@ -125,7 +127,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return response()->json(['message' => 'Account is deactivated.'], 403);
         }
 
@@ -143,13 +145,13 @@ class AuthController extends Controller
     {
         $guestToken = $request->header('X-Guest-Token');
 
-        if (!$guestToken) {
+        if (! $guestToken) {
             return;
         }
 
         $guestCart = Cart::where('guest_token', $guestToken)->first();
 
-        if (!$guestCart || $guestCart->items->isEmpty()) {
+        if (! $guestCart || $guestCart->items->isEmpty()) {
             return;
         }
 
@@ -205,11 +207,11 @@ class AuthController extends Controller
         $user->name = $request->name;
 
         if ($request->hasFile('avatar')) {
-            $optimizer = new \App\Services\ImageOptimizer(400, 400, 85);
+            $optimizer = new ImageOptimizer(400, 400, 85);
             $oldAvatar = $user->avatar;
             $user->avatar = $optimizer->optimizeUploadedFile($request->file('avatar'), 'avatars');
-            if ($oldAvatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAvatar)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAvatar);
+            if ($oldAvatar && Storage::disk('public')->exists($oldAvatar)) {
+                Storage::disk('public')->delete($oldAvatar);
             }
         }
 

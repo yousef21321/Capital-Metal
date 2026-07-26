@@ -91,7 +91,7 @@ async function addToCart(product) {
 }
 
 function shareProduct(product) {
-  const url = `${window.location.origin}/#/products/${product.slug}`
+  const url = `${window.location.origin}/products/${product.slug}`
   if (navigator.share) {
     navigator.share({ title: product.name, url })
   } else {

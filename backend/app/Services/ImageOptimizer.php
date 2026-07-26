@@ -4,14 +4,17 @@ namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class ImageOptimizer
 {
     private int $maxWidth;
+
     private int $maxHeight;
+
     private int $quality;
+
     private ImageManager $manager;
 
     public function __construct(int $maxWidth = 1200, int $maxHeight = 1200, int $quality = 80)
@@ -19,14 +22,14 @@ class ImageOptimizer
         $this->maxWidth = $maxWidth;
         $this->maxHeight = $maxHeight;
         $this->quality = $quality;
-        $this->manager = new ImageManager(new Driver());
+        $this->manager = new ImageManager(new Driver);
     }
 
     public function optimizeUploadedFile(UploadedFile $file, string $directory, string $disk = 'public'): string
     {
         $mime = mime_content_type($file->getRealPath());
 
-        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
+        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
             return $file->store($directory, $disk);
         }
 
@@ -36,8 +39,8 @@ class ImageOptimizer
             $img->scaleDown(width: $this->maxWidth, height: $this->maxHeight);
         }
 
-        $filename = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
-        $path = $directory . '/' . $filename;
+        $filename = pathinfo($file->hashName(), PATHINFO_FILENAME).'.webp';
+        $path = $directory.'/'.$filename;
 
         $encoded = $img->toWebp($this->quality)->toString();
         Storage::disk($disk)->put($path, $encoded);
@@ -49,13 +52,13 @@ class ImageOptimizer
     {
         $fullPath = Storage::disk($disk)->path($relativePath);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             return null;
         }
 
         $mime = mime_content_type($fullPath);
 
-        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'])) {
+        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/gif'])) {
             return null;
         }
 

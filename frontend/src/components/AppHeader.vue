@@ -205,8 +205,15 @@ onMounted(() => {
         </CNavItem>
         <CNavItem v-if="auth.userRole === 'admin'">
           <RouterLink custom to="/admin/materials" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="'Manage Materials'">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.materials')">
               <CIcon icon="cil-layers" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="auth.userRole === 'admin'">
+          <RouterLink custom to="/admin/shipping-rates" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.shippingRates')">
+              <CIcon icon="cil-truck" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>

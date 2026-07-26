@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Models\Inventory;
-use App\Models\DigitalFile;
-use App\Models\LicenseAgreement;
 use App\Services\ImageOptimizer;
 use App\Services\StoxService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -33,10 +31,10 @@ class ProductController extends Controller
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('slug', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%")
-                  ->orWhere('material', 'like', "%{$request->search}%")
-                  ->orWhere('manufacturing_method', 'like', "%{$request->search}%");
+                    ->orWhere('slug', 'like', "%{$request->search}%")
+                    ->orWhere('description', 'like', "%{$request->search}%")
+                    ->orWhere('material', 'like', "%{$request->search}%")
+                    ->orWhere('manufacturing_method', 'like', "%{$request->search}%");
             });
         }
 
@@ -122,7 +120,7 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'slug' => 'sometimes|string|max:255|unique:products,slug,' . $id,
+            'slug' => 'sometimes|string|max:255|unique:products,slug,'.$id,
             'description' => 'nullable|string',
             'product_type' => 'sometimes|in:physical,digital',
             'price_egp' => 'nullable|numeric|min:0',
@@ -134,9 +132,20 @@ class ProductController extends Controller
             'material' => 'nullable|string|max:100',
             'manufacturing_method' => 'nullable|string|max:100',
             'type_sample' => 'nullable|string|max:100',
+            'sku' => 'nullable|string|max:100',
         ]);
 
+        $sku = $validated['sku'] ?? null;
+        unset($validated['sku']);
+
         $product->update($validated);
+
+        if ($product->product_type === 'physical' && $sku !== null) {
+            $product->inventory()->updateOrCreate(
+                ['product_id' => $product->id],
+                ['sku' => $sku]
+            );
+        }
 
         return response()->json($product->load('images', 'inventory'));
     }
@@ -195,8 +204,8 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $image = $product->images()->findOrFail($imageId);
 
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image->image_url)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_url);
+        if (Storage::disk('public')->exists($image->image_url)) {
+            Storage::disk('public')->delete($image->image_url);
         }
 
         $image->delete();
@@ -211,7 +220,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $validated = $request->validate([
-            'sku' => 'required|string|max:100|unique:inventory,sku,' . ($product->inventory?->id ?? 'NULL') . ',id',
+            'sku' => 'required|string|max:100|unique:inventory,sku,'.($product->inventory?->id ?? 'NULL').',id',
             'stock_quantity' => 'nullable|integer|min:0',
             'low_stock_alert' => 'nullable|integer|min:0',
             'warehouse_location' => 'nullable|string|max:255',
@@ -251,7 +260,7 @@ class ProductController extends Controller
         /** @var StoxService $stox */
         $stox = app(StoxService::class);
 
-        if (!$stox->isConfigured()) {
+        if (! $stox->isConfigured()) {
             return;
         }
 
@@ -269,8 +278,8 @@ class ProductController extends Controller
 
         if ($result && isset($result['id'])) {
             $product->update(['stox_product_id' => $result['id']]);
-        } elseif (!$result) {
-            $fallbackSku = strtoupper(str_replace(' ', '-', $product->slug)) . '-' . $product->id;
+        } elseif (! $result) {
+            $fallbackSku = strtoupper(str_replace(' ', '-', $product->slug)).'-'.$product->id;
             $result = $stox->createProduct(
                 name: $stoxName,
                 sku: $fallbackSku,
@@ -285,14 +294,14 @@ class ProductController extends Controller
 
     private function syncImagesToStox(Product $product): void
     {
-        if ($product->product_type !== 'physical' || !$product->stox_product_id) {
+        if ($product->product_type !== 'physical' || ! $product->stox_product_id) {
             return;
         }
 
         /** @var StoxService $stox */
         $stox = app(StoxService::class);
 
-        if (!$stox->isConfigured()) {
+        if (! $stox->isConfigured()) {
             return;
         }
 

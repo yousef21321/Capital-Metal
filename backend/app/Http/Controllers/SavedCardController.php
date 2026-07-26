@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SavedCard;
+use App\Services\PaymobService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class SavedCardController extends Controller
 {
     public function __construct(
-        protected \App\Services\PaymobService $paymob
+        protected PaymobService $paymob
     ) {}
 
     public function index(Request $request)
@@ -44,9 +45,11 @@ class SavedCardController extends Controller
             );
         } catch (\RuntimeException $e) {
             Log::error('Saved card tokenization failed (not configured)', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => $e->getMessage()], 503);
         } catch (\Exception $e) {
             Log::error('Saved card tokenization failed', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to save card. Check your card details.'], 422);
         }
 

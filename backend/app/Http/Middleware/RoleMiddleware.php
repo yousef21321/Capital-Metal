@@ -12,11 +12,11 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (!$user || !$user->role) {
+        if (! $user || ! $user->role) {
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        if (!in_array($user->role->name, $roles)) {
+        if (! in_array($user->role->name, $roles)) {
             return response()->json(['message' => 'Forbidden: insufficient permissions.'], 403);
         }
 

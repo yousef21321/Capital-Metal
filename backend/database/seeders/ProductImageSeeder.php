@@ -20,7 +20,7 @@ class ProductImageSeeder extends Seeder
 
     public function run(): void
     {
-        if (!extension_loaded('gd')) {
+        if (! extension_loaded('gd')) {
             return;
         }
 
@@ -36,7 +36,7 @@ class ProductImageSeeder extends Seeder
                 $filename = "products/{$product->id}/image-{$img}.png";
                 $relativeDir = "products/{$product->id}";
 
-                if (!$disk->exists($relativeDir)) {
+                if (! $disk->exists($relativeDir)) {
                     $disk->makeDirectory($relativeDir);
                 }
 
@@ -74,23 +74,23 @@ class ProductImageSeeder extends Seeder
 
         // Icon circle
         $circleColor = imagecolorallocate($image, 255, 255, 255);
-        imagefilledellipse($image, (int)($width / 2), (int)($height / 2) - 50, 120, 120, $circleColor);
+        imagefilledellipse($image, (int) ($width / 2), (int) ($height / 2) - 50, 120, 120, $circleColor);
 
         // Label text
         $textColor = imagecolorallocate($image, 255, 255, 255);
         $fontSize = 5;
-        $text = strlen($label) > 20 ? substr($label, 0, 18) . '...' : $label;
+        $text = strlen($label) > 20 ? substr($label, 0, 18).'...' : $label;
         $textWidth = imagefontwidth($fontSize) * strlen($text);
-        $textX = (int)(($width - $textWidth) / 2);
-        imagestring($image, $fontSize, $textX, (int)($height / 2) + 40, $text, $textColor);
+        $textX = (int) (($width - $textWidth) / 2);
+        imagestring($image, $fontSize, $textX, (int) ($height / 2) + 40, $text, $textColor);
 
         // Type tag
         $tagColor = imagecolorallocate($image, 30, 30, 30);
         $tagText = strtoupper(substr($label, 0, 3));
         $tagWidth = imagefontwidth($fontSize) * strlen($tagText) + 10;
-        imagefilledrectangle($image, (int)(($width - $tagWidth) / 2), (int)($height / 2) + 70, (int)(($width + $tagWidth) / 2), (int)($height / 2) + 90, $tagColor);
-        $tagTextX = (int)(($width - imagefontwidth($fontSize) * strlen($tagText)) / 2);
-        imagestring($image, $fontSize, $tagTextX, (int)($height / 2) + 73, $tagText, $textColor);
+        imagefilledrectangle($image, (int) (($width - $tagWidth) / 2), (int) ($height / 2) + 70, (int) (($width + $tagWidth) / 2), (int) ($height / 2) + 90, $tagColor);
+        $tagTextX = (int) (($width - imagefontwidth($fontSize) * strlen($tagText)) / 2);
+        imagestring($image, $fontSize, $tagTextX, (int) ($height / 2) + 73, $tagText, $textColor);
 
         ob_start();
         imagepng($image);

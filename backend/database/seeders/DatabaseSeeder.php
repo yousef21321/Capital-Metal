@@ -2,16 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Cart;
 use App\Models\Address;
+use App\Models\Cart;
+use App\Models\Inventory;
 use App\Models\PaymentMethod;
+use App\Models\Product;
+use App\Models\Role;
 use App\Models\ShippingCompany;
 use App\Models\ShippingRate;
 use App\Models\SubscriptionPlan;
 use App\Models\TrafficSource;
-use App\Models\Inventory;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,11 +21,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoleSeeder::class);
 
-        $adminRole = \App\Models\Role::where('name', 'admin')->first();
-        $userRole = \App\Models\Role::where('name', 'user')->first();
-        $testerRole = \App\Models\Role::where('name', 'tester')->first();
-        $designerRole = \App\Models\Role::where('name', 'designer')->first();
-        $industorRole = \App\Models\Role::where('name', 'industor')->first();
+        $adminRole = Role::where('name', 'admin')->first();
+        $userRole = Role::where('name', 'user')->first();
+        $testerRole = Role::where('name', 'tester')->first();
+        $designerRole = Role::where('name', 'designer')->first();
+        $industorRole = Role::where('name', 'industor')->first();
 
         $admin = User::firstOrCreate(
             ['email' => 'admin@flfl.com'],

@@ -7,18 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 class Ticket extends Model
 {
     public const STATUS_PENDING_TESTER_REVIEW = 'pending_tester_review';
+
     public const STATUS_WAITING_INDUSTOR_APPROVAL = 'waiting_industor_approval';
+
     public const STATUS_WAITING_TESTER_REVIEW = 'waiting_tester_review';
+
     public const STATUS_PENDING_PAYMENT = 'pending_payment';
+
     public const STATUS_APPROVED_BY_TESTER = 'approved_by_tester';
+
     public const STATUS_ACCEPTED = 'accepted';
+
     public const STATUS_MODIFICATION_REQUESTED = 'modification_requested';
+
     public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_AWAITING_QA = 'awaiting_qa';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_REJECTED_QA = 'rejected_qa';
+
     public const STATUS_REJECTED_BY_INDUSTOR = 'rejected_by_industor';
+
     public const STATUS_REJECTED_BY_TESTER = 'rejected_by_tester';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
@@ -145,12 +158,12 @@ class Ticket extends Model
     {
         return $this->deadline
             && $this->deadline < now()
-            && !in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_CANCELLED, self::STATUS_AWAITING_QA]);
+            && ! in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_CANCELLED, self::STATUS_AWAITING_QA]);
     }
 
     public function getTotalSecondsAttribute(): int
     {
-        if (!$this->reviewed_at || !$this->deadline) {
+        if (! $this->reviewed_at || ! $this->deadline) {
             return 0;
         }
 
@@ -159,7 +172,7 @@ class Ticket extends Model
 
     public function getRemainingSecondsAttribute(): int
     {
-        if (!$this->deadline) {
+        if (! $this->deadline) {
             return 0;
         }
 
@@ -168,7 +181,7 @@ class Ticket extends Model
 
     public function getRemainingPercentageAttribute(): float
     {
-        if (!$this->reviewed_at || !$this->deadline) {
+        if (! $this->reviewed_at || ! $this->deadline) {
             return 100.0;
         }
 
@@ -186,7 +199,7 @@ class Ticket extends Model
     public function getCanPublishToStoreAttribute(): bool
     {
         return $this->status === self::STATUS_COMPLETED
-            && !$this->is_published_to_store
+            && ! $this->is_published_to_store
             && $this->subscription
             && $this->subscription->canPublishToStore();
     }

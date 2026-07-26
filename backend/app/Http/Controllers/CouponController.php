@@ -37,7 +37,7 @@ class CouponController extends Controller
 
         $coupon = Coupon::where('code', $validated['code'])->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             return response()->json(['message' => 'Invalid coupon code.'], 404);
         }
 
@@ -68,7 +68,7 @@ class CouponController extends Controller
         $coupon = Coupon::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|max:100|unique:coupons,code,' . $id,
+            'code' => 'required|string|max:100|unique:coupons,code,'.$id,
             'discount_type' => 'required|in:percentage,fixed',
             'discount_value' => 'required|numeric|min:0',
             'min_order_amount' => 'nullable|numeric|min:0',

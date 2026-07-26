@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\IndustorDesigner;
 use App\Models\Notification;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\StoreListing;
 use App\Models\SubscriptionPlan;
@@ -13,7 +13,6 @@ use App\Models\TicketModificationRequest;
 use App\Models\TicketStatusHistory;
 use App\Models\User;
 use App\Models\UserSubscription;
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -100,7 +99,7 @@ class TicketWorkflowSeeder extends Seeder
                 'name' => $name,
                 'password' => 'password',
                 'role_id' => $role?->id,
-                'phone' => '010' . random_int(10000000, 99999999),
+                'phone' => '010'.random_int(10000000, 99999999),
                 'is_verified' => true,
                 'is_active' => true,
             ]
@@ -173,7 +172,7 @@ class TicketWorkflowSeeder extends Seeder
                 'qa_claimed_at' => $times['qa_claimed_at'] ?? null,
                 'rejection_reason' => $rejectionReason,
                 'is_published_to_store' => $publishToStore,
-            ], fn ($v) => !is_null($v))
+            ], fn ($v) => ! is_null($v))
         );
 
         $this->createHistory($ticket, $industor, null, 'approved_by_tester', 'Ticket approved and opened for designers', $now->copy()->subHours(8));
@@ -196,11 +195,11 @@ class TicketWorkflowSeeder extends Seeder
 
         if ($withAttachment) {
             TicketAttachment::firstOrCreate(
-                ['ticket_id' => $ticket->id, 'file_name' => 'delivery-' . $ticket->id . '.pdf'],
+                ['ticket_id' => $ticket->id, 'file_name' => 'delivery-'.$ticket->id.'.pdf'],
                 [
                     'uploaded_by' => $designer?->id ?? $industor->id,
-                    'file_name' => 'delivery-' . $ticket->id . '.pdf',
-                    'file_path' => 'tickets/' . $ticket->id . '/delivery-' . $ticket->id . '.pdf',
+                    'file_name' => 'delivery-'.$ticket->id.'.pdf',
+                    'file_path' => 'tickets/'.$ticket->id.'/delivery-'.$ticket->id.'.pdf',
                     'mime_type' => 'application/pdf',
                     'file_size' => random_int(50000, 500000),
                     'kind' => 'delivery',
@@ -236,6 +235,7 @@ class TicketWorkflowSeeder extends Seeder
             'completed' => ['accepted_at' => $now->copy()->subHours(7), 'started_at' => $now->copy()->subHours(6), 'uploaded_at' => $now->copy()->subHours(4), 'qa_claimed_at' => $now->copy()->subHours(3), 'completed_at' => $now->copy()->subHour()],
             'rejected_qa' => ['accepted_at' => $now->copy()->subHours(7), 'started_at' => $now->copy()->subHours(6), 'uploaded_at' => $now->copy()->subHours(4), 'qa_claimed_at' => $now->copy()->subHours(3)],
         ];
+
         return $map[$status] ?? [];
     }
 
@@ -283,7 +283,7 @@ class TicketWorkflowSeeder extends Seeder
             Notification::firstOrCreate(
                 ['user_id' => $user->id, 'type' => $type, 'title' => $title],
                 [
-                    'body' => $title . ' - check your dashboard for details.',
+                    'body' => $title.' - check your dashboard for details.',
                     'data' => ['ticket_id' => random_int(1, 11)],
                     'read_at' => random_int(0, 1) ? now() : null,
                     'created_at' => now()->subHours(random_int(1, 24)),

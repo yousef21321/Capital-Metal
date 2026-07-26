@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\SavedCard;
 use App\Models\Ticket;
-use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\PaymobService;
@@ -30,7 +30,7 @@ class PayMobController extends Controller
 
         $user = $request->user();
 
-        if (!isset($validated['order_id']) && !isset($validated['subscription_id']) && !isset($validated['ticket_id'])) {
+        if (! isset($validated['order_id']) && ! isset($validated['subscription_id']) && ! isset($validated['ticket_id'])) {
             return response()->json(['message' => 'Provide order_id, subscription_id, or ticket_id.'], 422);
         }
 
@@ -53,20 +53,20 @@ class PayMobController extends Controller
             $currency = $order->currency;
             $billingData = $this->buildBillingData($user, $order);
 
-            $onRegistered = function ($paymobOrderId) use ($order) {
+            $onRegistered = function ($intentionOrderId) use ($order) {
                 $order->update(['payment_status' => 'processing']);
                 Payment::create([
                     'order_id' => $order->id,
                     'amount' => $order->total_amount,
                     'currency' => $order->currency,
                     'payment_status' => 'pending',
-                    'paymob_order_id' => (string) $paymobOrderId,
+                    'paymob_order_id' => (string) $intentionOrderId,
                     'created_at' => now(),
                 ]);
             };
 
-            $onResult = function ($success, $txn, $paymobOrderId) use ($order) {
-                Payment::where('paymob_order_id', (string) $paymobOrderId)->update([
+            $onResult = function ($success, $txn, $intentionOrderId) use ($order) {
+                Payment::where('paymob_order_id', (string) $intentionOrderId)->update([
                     'transaction_id' => (string) ($txn['id'] ?? ''),
                     'payment_status' => $success ? 'paid' : 'failed',
                 ]);
@@ -85,7 +85,7 @@ class PayMobController extends Controller
                 return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
             }
 
-            return $this->createPaymobSession($amountCents, $currency, $billingData, function ($paymobOrderId, $paymentToken) use ($order) {
+            return $this->createPaymobSession($amountCents, $currency, $billingData, function ($intentionOrderId) use ($order) {
                 $order->update(['payment_status' => 'processing']);
 
                 Payment::create([
@@ -93,7 +93,7 @@ class PayMobController extends Controller
                     'amount' => $order->total_amount,
                     'currency' => $order->currency,
                     'payment_status' => 'pending',
-                    'paymob_order_id' => (string) $paymobOrderId,
+                    'paymob_order_id' => (string) $intentionOrderId,
                     'created_at' => now(),
                 ]);
             });
@@ -115,11 +115,11 @@ class PayMobController extends Controller
             $currency = $plan->currency ?? 'EGP';
             $billingData = $this->buildBillingData($user);
 
-            $onRegistered = function ($paymobOrderId) use ($subscription) {
-                $subscription->update(['paymob_transaction_id' => (string) $paymobOrderId]);
+            $onRegistered = function ($intentionOrderId) use ($subscription) {
+                $subscription->update(['paymob_transaction_id' => (string) $intentionOrderId]);
             };
 
-            $onResult = function ($success, $txn, $paymobOrderId) use ($subscription) {
+            $onResult = function ($success, $txn, $intentionOrderId) use ($subscription) {
                 if ($success) {
                     $subscription->update([
                         'approval_status' => 'approved',
@@ -131,7 +131,7 @@ class PayMobController extends Controller
                         'amount' => ($txn['amount_cents'] ?? 0) / 100,
                         'currency' => $txn['currency'] ?? 'EGP',
                         'transaction_id' => (string) ($txn['id'] ?? ''),
-                        'paymob_order_id' => (string) $paymobOrderId,
+                        'paymob_order_id' => (string) $intentionOrderId,
                         'payment_status' => 'paid',
                         'created_at' => now(),
                     ]);
@@ -164,8 +164,8 @@ class PayMobController extends Controller
                 return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
             }
 
-            return $this->createPaymobSession($amountCents, $currency, $billingData, function ($paymobOrderId, $paymentToken) use ($subscription) {
-                $subscription->update(['paymob_transaction_id' => (string) $paymobOrderId]);
+            return $this->createPaymobSession($amountCents, $currency, $billingData, function ($intentionOrderId) use ($subscription) {
+                $subscription->update(['paymob_transaction_id' => (string) $intentionOrderId]);
             });
         }
     }
@@ -178,7 +178,7 @@ class PayMobController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        if (!$ticket->is_single_purchase) {
+        if (! $ticket->is_single_purchase) {
             return response()->json(['message' => 'This ticket does not require a separate payment.'], 422);
         }
 
@@ -190,20 +190,20 @@ class PayMobController extends Controller
         $currency = 'EGP';
         $billingData = $this->buildBillingData($user);
 
-        $onRegistered = function ($paymobOrderId) use ($ticket) {
+        $onRegistered = function ($intentionOrderId) use ($ticket) {
             Payment::create([
                 'ticket_id' => $ticket->id,
                 'order_id' => null,
                 'amount' => $ticket->price,
-                'currency' => $currency,
+                'currency' => 'EGP',
                 'payment_status' => 'pending',
-                'paymob_order_id' => (string) $paymobOrderId,
+                'paymob_order_id' => (string) $intentionOrderId,
                 'created_at' => now(),
             ]);
         };
 
-        $onResult = function ($success, $txn, $paymobOrderId) use ($ticket) {
-            Payment::where('paymob_order_id', (string) $paymobOrderId)->update([
+        $onResult = function ($success, $txn, $intentionOrderId) use ($ticket) {
+            Payment::where('paymob_order_id', (string) $intentionOrderId)->update([
                 'transaction_id' => (string) ($txn['id'] ?? ''),
                 'payment_status' => $success ? 'paid' : 'failed',
             ]);
@@ -238,14 +238,14 @@ class PayMobController extends Controller
             return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
         }
 
-        return $this->createPaymobSession($amountCents, $currency, $billingData, function ($paymobOrderId) use ($ticket) {
+        return $this->createPaymobSession($amountCents, $currency, $billingData, function ($intentionOrderId) use ($ticket) {
             Payment::create([
                 'ticket_id' => $ticket->id,
                 'order_id' => null,
                 'amount' => $ticket->price,
                 'currency' => 'EGP',
                 'payment_status' => 'pending',
-                'paymob_order_id' => (string) $paymobOrderId,
+                'paymob_order_id' => (string) $intentionOrderId,
                 'created_at' => now(),
             ]);
         });
@@ -254,17 +254,25 @@ class PayMobController extends Controller
     protected function chargeWithSavedCard(SavedCard $card, int $amountCents, string $currency, array $billingData, callable $onRegistered, callable $onResult)
     {
         try {
-            $token = $this->paymob->getAuthToken();
-            $paymobOrder = $this->paymob->createOrder($token, $amountCents, $currency);
-            $paymobOrderId = $paymobOrder['id'];
-
-            $onRegistered($paymobOrderId);
-
-            $txn = $this->paymob->chargeSavedCard(
-                $token,
+            $intention = $this->paymob->createIntention(
                 $amountCents,
                 $currency,
-                $paymobOrderId,
+                $billingData,
+            );
+
+            $intentionOrderId = $intention['intention_order_id'] ?? $intention['id'] ?? null;
+            $clientSecret = $intention['client_secret'] ?? null;
+
+            if (! $intentionOrderId || ! $clientSecret) {
+                throw new \RuntimeException('Paymob did not return intention data.');
+            }
+
+            $onRegistered($intentionOrderId);
+
+            $txn = $this->paymob->chargeSavedCard(
+                $amountCents,
+                $currency,
+                $clientSecret,
                 $billingData,
                 $card->paymob_token
             );
@@ -273,12 +281,12 @@ class PayMobController extends Controller
             $redirect = $txn['redirect_url'] ?? null;
             $pending = (bool) ($txn['pending'] ?? false);
 
-            $onResult($success, $txn, $paymobOrderId);
+            $onResult($success, $txn, $intentionOrderId);
 
-            if ($redirect && ($pending || !$success)) {
+            if ($redirect && ($pending || ! $success)) {
                 return response()->json([
                     'payment_url' => $redirect,
-                    'paymob_order_id' => $paymobOrderId,
+                    'paymob_order_id' => $intentionOrderId,
                     'requires_action' => true,
                 ]);
             }
@@ -286,7 +294,7 @@ class PayMobController extends Controller
             return response()->json([
                 'paid' => $success,
                 'payment_status' => $success ? 'paid' : 'failed',
-                'paymob_order_id' => $paymobOrderId,
+                'paymob_order_id' => $intentionOrderId,
                 'message' => $success
                     ? 'Payment completed using saved card.'
                     : 'Payment was declined. Try another card or use the manual payment page.',
@@ -302,31 +310,34 @@ class PayMobController extends Controller
                 'currency' => $currency,
             ]);
 
-            return response()->json(['message' => 'Failed to charge saved card. Please try another card or use the manual payment page.'], 500);
+            return response()->json([
+                'message' => 'Failed to charge saved card.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     protected function createPaymobSession(int $amountCents, string $currency, array $billingData, callable $onBeforeRedirect)
     {
         try {
-            $token = $this->paymob->getAuthToken();
-            $paymobOrder = $this->paymob->createOrder($token, $amountCents, $currency);
-            $paymobOrderId = $paymobOrder['id'];
-
-            $paymentKey = $this->paymob->getPaymentKey(
-                $token,
+            $intention = $this->paymob->createIntention(
                 $amountCents,
                 $currency,
-                $paymobOrderId,
-                $billingData
+                $billingData,
             );
 
-            $onBeforeRedirect($paymobOrderId, $paymentKey);
+            $intentionOrderId = $intention['intention_order_id'] ?? $intention['id'] ?? null;
+            $clientSecret = $intention['client_secret'] ?? null;
+
+            if (! $intentionOrderId || ! $clientSecret) {
+                throw new \RuntimeException('Paymob did not return intention data.');
+            }
+
+            $onBeforeRedirect($intentionOrderId);
 
             return response()->json([
-                'payment_url' => $this->paymob->getIframeUrl($paymentKey),
-                'paymob_order_id' => $paymobOrderId,
-                'payment_token' => $paymentKey,
+                'payment_url' => $this->paymob->getCheckoutUrl($clientSecret),
+                'paymob_order_id' => $intentionOrderId,
             ]);
         } catch (\RuntimeException $e) {
             Log::error('PayMob not configured', ['error' => $e->getMessage()]);
@@ -339,7 +350,10 @@ class PayMobController extends Controller
                 'currency' => $currency,
             ]);
 
-            return response()->json(['message' => 'Failed to initiate payment. Please try again.'], 500);
+            return response()->json([
+                'message' => 'Failed to initiate payment.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -351,8 +365,9 @@ class PayMobController extends Controller
 
         $transaction = $this->paymob->processCallback($data);
 
-        if (!$transaction) {
+        if (! $transaction) {
             Log::warning('PayMob callback verification failed');
+
             return response()->json(['message' => 'Invalid callback'], 400);
         }
 
@@ -362,8 +377,9 @@ class PayMobController extends Controller
         $amountCents = $transaction['amount_cents'] ?? 0;
         $currency = $transaction['currency'] ?? 'EGP';
 
-        if (!$paymobOrderId) {
+        if (! $paymobOrderId) {
             Log::warning('PayMob callback missing order ID');
+
             return response()->json(['message' => 'Missing order ID'], 400);
         }
 
@@ -396,7 +412,7 @@ class PayMobController extends Controller
                             'ticket_id' => $ticket->id,
                             'title' => $ticket->title,
                         ]);
-                    } elseif (!$success) {
+                    } elseif (! $success) {
                         $this->notifyUser($ticket?->industor_id, 'ticket.payment_failed', 'Ticket payment failed', [
                             'ticket_id' => $ticket?->id,
                         ]);
@@ -495,7 +511,7 @@ class PayMobController extends Controller
 
         return $this->paymob->buildBillingData([
             'first_name' => $user->name ?? explode(' ', $user->email)[0],
-            'last_name' => '',
+            'last_name' => $user->name ?? 'User',
             'email' => $user->email,
             'phone_number' => $user->phone ?? '0000000000',
             'city' => $address?->city ?? 'Cairo',
@@ -508,7 +524,7 @@ class PayMobController extends Controller
 
     protected function notifyUser(int $userId, string $type, string $title, array $data = []): void
     {
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $userId,
             'type' => $type,
             'title' => $title,
@@ -518,7 +534,7 @@ class PayMobController extends Controller
 
     protected function notifyRole(string $roleName, string $type, string $title, array $data = []): void
     {
-        User::whereHas('role', fn($q) => $q->where('name', $roleName))->get(['id'])
-            ->each(fn($u) => $this->notifyUser($u->id, $type, $title, $data));
+        User::whereHas('role', fn ($q) => $q->where('name', $roleName))->get(['id'])
+            ->each(fn ($u) => $this->notifyUser($u->id, $type, $title, $data));
     }
 }

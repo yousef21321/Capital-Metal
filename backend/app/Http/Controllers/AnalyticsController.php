@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DailyReport;
-use App\Models\ProductAnalytics;
 use App\Models\CustomerAnalytics;
+use App\Models\DailyReport;
 use App\Models\Order;
-use App\Models\User;
 use App\Models\Product;
+use App\Models\ProductAnalytics;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AnalyticsController extends Controller

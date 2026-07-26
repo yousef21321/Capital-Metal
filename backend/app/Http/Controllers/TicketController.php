@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
+use App\Models\Product;
+use App\Models\StoreListing;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\TicketDeadlineNegotiation;
 use App\Models\TicketModificationRequest;
 use App\Models\TicketPriceHistory;
-use App\Models\Notification;
 use App\Models\User;
-use App\Models\StoreListing;
-use App\Models\Product;
-use App\Services\ImageOptimizer;
 use App\Models\UserSubscription;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -22,8 +22,8 @@ class TicketController extends Controller
 {
     private const TRANSITIONS = [
         'tester_propose' => [
-            'pending_tester_review'     => 'waiting_industor_approval',
-            'waiting_tester_review'     => 'waiting_industor_approval',
+            'pending_tester_review' => 'waiting_industor_approval',
+            'waiting_tester_review' => 'waiting_industor_approval',
         ],
         'industor_accept' => [
             'waiting_industor_approval' => 'approved_by_tester',
@@ -35,42 +35,42 @@ class TicketController extends Controller
             'waiting_industor_approval' => 'waiting_tester_review',
         ],
         'tester_accept' => [
-            'waiting_tester_review'     => 'approved_by_tester',
+            'waiting_tester_review' => 'approved_by_tester',
         ],
         'tester_accept_single' => [
-            'waiting_tester_review'     => 'pending_payment',
+            'waiting_tester_review' => 'pending_payment',
         ],
         'tester_accept_initial' => [
-            'pending_tester_review'     => 'approved_by_tester',
+            'pending_tester_review' => 'approved_by_tester',
         ],
         'tester_accept_initial_single' => [
-            'pending_tester_review'     => 'pending_payment',
+            'pending_tester_review' => 'pending_payment',
         ],
         'single_paid' => ['pending_payment' => 'approved_by_tester'],
-        'accept'   => ['approved_by_tester' => 'accepted'],
+        'accept' => ['approved_by_tester' => 'accepted'],
         'set_deadline' => ['accepted' => 'in_progress'],
         'resume_after_mod' => ['modification_requested' => 'accepted'],
-        'upload'   => ['accepted' => 'awaiting_qa', 'in_progress' => 'awaiting_qa', 'rejected_qa' => 'awaiting_qa'],
+        'upload' => ['accepted' => 'awaiting_qa', 'in_progress' => 'awaiting_qa', 'rejected_qa' => 'awaiting_qa'],
         'qa_approve' => ['awaiting_qa' => 'completed'],
-        'qa_reject'  => ['awaiting_qa' => 'rejected_qa'],
-        'cancel'   => [
-            'pending_tester_review'        => 'cancelled',
-            'waiting_industor_approval'    => 'cancelled',
-            'waiting_tester_review'        => 'cancelled',
-            'approved_by_tester'           => 'cancelled',
-            'accepted'                     => 'cancelled',
-            'modification_requested'       => 'cancelled',
-            'in_progress'                  => 'cancelled',
+        'qa_reject' => ['awaiting_qa' => 'rejected_qa'],
+        'cancel' => [
+            'pending_tester_review' => 'cancelled',
+            'waiting_industor_approval' => 'cancelled',
+            'waiting_tester_review' => 'cancelled',
+            'approved_by_tester' => 'cancelled',
+            'accepted' => 'cancelled',
+            'modification_requested' => 'cancelled',
+            'in_progress' => 'cancelled',
         ],
     ];
 
     private const STATUS_TIMESTAMP = [
         'approved_by_tester' => 'reviewed_at',
-        'pending_payment'     => 'reviewed_at',
-        'accepted'            => 'accepted_at',
-        'in_progress'          => 'started_at',
-        'awaiting_qa'          => 'uploaded_at',
-        'completed'            => 'completed_at',
+        'pending_payment' => 'reviewed_at',
+        'accepted' => 'accepted_at',
+        'in_progress' => 'started_at',
+        'awaiting_qa' => 'uploaded_at',
+        'completed' => 'completed_at',
     ];
 
     public function index(Request $request)
@@ -82,16 +82,16 @@ class TicketController extends Controller
             ->latest();
 
         $query = match ($role) {
-            'admin'    => $query,
+            'admin' => $query,
             'industor' => $query->where('industor_id', $user->id),
             'designer' => $query->where('designer_id', $user->id),
-            'tester'   => $query->where(fn ($q) => $q
+            'tester' => $query->where(fn ($q) => $q
                 ->where('tester_id', $user->id)
                 ->orWhere('status', Ticket::STATUS_AWAITING_QA)
                 ->orWhere('status', Ticket::STATUS_PENDING_TESTER_REVIEW)
                 ->orWhere('status', Ticket::STATUS_WAITING_INDUSTOR_APPROVAL)
                 ->orWhere('status', Ticket::STATUS_WAITING_TESTER_REVIEW)),
-            default    => $query->whereRaw('1=0'),
+            default => $query->whereRaw('1=0'),
         };
 
         if ($request->status) {
@@ -124,7 +124,7 @@ class TicketController extends Controller
 
     protected function applyUrgentPriceIncrease(Ticket $ticket): void
     {
-        if (!$ticket->deadline || !$ticket->reviewed_at || !$ticket->designer_price) {
+        if (! $ticket->deadline || ! $ticket->reviewed_at || ! $ticket->designer_price) {
             return;
         }
 
@@ -217,12 +217,12 @@ class TicketController extends Controller
         abort_unless($user->hasRole('industor'), 403, 'Only industors can create tickets.');
 
         $data = $request->validate([
-            'title'             => 'required|string|max:200',
-            'num_order'         => 'nullable|integer|min:0',
-            'description'       => 'required|string',
+            'title' => 'required|string|max:200',
+            'num_order' => 'nullable|integer|min:0',
+            'description' => 'required|string',
             'expected_deadline' => 'required|date|after:now',
-            'expected_price'    => 'required|numeric|min:0',
-            'single_purchase'   => 'nullable|boolean',
+            'expected_price' => 'required|numeric|min:0',
+            'single_purchase' => 'nullable|boolean',
         ]);
 
         $isSingle = (bool) ($data['single_purchase'] ?? false);
@@ -235,11 +235,11 @@ class TicketController extends Controller
                 ->where(fn ($q) => $q->whereNull('end_date')->orWhere('end_date', '>', now()))
                 ->latest('id')->first();
 
-            if (!$sub && !$isSingle) {
+            if (! $sub && ! $isSingle) {
                 abort(422, 'You have no active subscription. Subscribe to a plan or create a single-purchase ticket.');
             }
 
-            if ($sub && !$isSingle) {
+            if ($sub && ! $isSingle) {
                 if ($sub->tickets_remaining <= 0) {
                     abort(422, 'You have no tickets remaining in your plan. Please upgrade or create a single-purchase ticket.');
                 }
@@ -248,17 +248,17 @@ class TicketController extends Controller
             }
 
             $ticket = Ticket::create([
-                'industor_id'       => $user->id,
-                'subscription_id'   => $sub && !$isSingle ? $sub->id : null,
-                'title'             => $data['title'],
-                'num_order'         => $data['num_order'] ?? null,
-                'description'       => $data['description'],
-                'status'            => Ticket::STATUS_PENDING_TESTER_REVIEW,
+                'industor_id' => $user->id,
+                'subscription_id' => $sub && ! $isSingle ? $sub->id : null,
+                'title' => $data['title'],
+                'num_order' => $data['num_order'] ?? null,
+                'description' => $data['description'],
+                'status' => Ticket::STATUS_PENDING_TESTER_REVIEW,
                 'is_single_purchase' => $isSingle,
                 'industor_expected_deadline' => $data['expected_deadline'],
-                'industor_expected_price'    => $data['expected_price'],
-                'negotiation_status'         => 'waiting_tester_review',
-                'current_negotiation_round'  => 0,
+                'industor_expected_price' => $data['expected_price'],
+                'negotiation_status' => 'waiting_tester_review',
+                'current_negotiation_round' => 0,
             ]);
 
             $this->createProposal($ticket, 'industor', $data['expected_deadline'], $data['expected_price'], null, $user);
@@ -268,14 +268,14 @@ class TicketController extends Controller
                 : 'Ticket submitted for tester review with proposed deadline & price';
 
             $ticket->histories()->create([
-                'to_status'  => Ticket::STATUS_PENDING_TESTER_REVIEW,
+                'to_status' => Ticket::STATUS_PENDING_TESTER_REVIEW,
                 'changed_by' => $user->id,
-                'note'       => $note,
+                'note' => $note,
             ]);
 
             $this->notifyRole('tester', 'ticket.pending_review', 'New ticket awaiting review', [
                 'ticket_id' => $ticket->id,
-                'title'     => $ticket->title,
+                'title' => $ticket->title,
             ]);
 
             return response()->json($ticket->load(['subscription.plan', 'deadlineNegotiations.creator']), 201);
@@ -288,7 +288,7 @@ class TicketController extends Controller
         abort_unless($user->hasRole('industor'), 403, 'Only the industor can edit a ticket.');
 
         $data = $request->validate([
-            'title'       => 'sometimes|required|string|max:200',
+            'title' => 'sometimes|required|string|max:200',
             'description' => 'sometimes|required|string',
         ]);
 
@@ -308,8 +308,8 @@ class TicketController extends Controller
 
         $data = $request->validate([
             'suggested_deadline' => 'required|date|after:now',
-            'suggested_price'    => 'required|numeric|min:0',
-            'reason'             => 'nullable|string',
+            'suggested_price' => 'required|numeric|min:0',
+            'reason' => 'nullable|string',
         ]);
 
         $ticket = Ticket::where('id', $id)
@@ -318,8 +318,8 @@ class TicketController extends Controller
 
         $ticket->update([
             'tester_suggested_deadline' => $data['suggested_deadline'],
-            'tester_suggested_price'    => $data['suggested_price'],
-            'negotiation_status'        => 'waiting_industor_approval',
+            'tester_suggested_price' => $data['suggested_price'],
+            'negotiation_status' => 'waiting_industor_approval',
             'current_negotiation_round' => $ticket->current_negotiation_round + 1,
         ]);
 
@@ -329,9 +329,9 @@ class TicketController extends Controller
 
         $this->notify($ticket->industor_id, 'ticket.suggestion_received', 'Tester sent a price & deadline proposal', [
             'ticket_id' => $ticket->id,
-            'deadline'  => $ticket->tester_suggested_deadline,
-            'price'     => $ticket->tester_suggested_price,
-            'reason'    => $data['reason'] ?? null,
+            'deadline' => $ticket->tester_suggested_deadline,
+            'price' => $ticket->tester_suggested_price,
+            'reason' => $data['reason'] ?? null,
         ]);
 
         return response()->json($ticket->fresh(['deadlineNegotiations.creator', 'histories']));
@@ -363,8 +363,8 @@ class TicketController extends Controller
 
         $data = $request->validate([
             'counter_deadline' => 'required|date|after:now',
-            'counter_price'    => 'required|numeric|min:0',
-            'reason'           => 'nullable|string',
+            'counter_price' => 'required|numeric|min:0',
+            'reason' => 'nullable|string',
         ]);
 
         $ticket = Ticket::where('id', $id)->where('industor_id', $user->id)
@@ -374,11 +374,11 @@ class TicketController extends Controller
 
         $ticket->update([
             'industor_counter_deadline' => $data['counter_deadline'],
-            'industor_counter_price'     => $data['counter_price'],
-            'tester_suggested_deadline'  => null,
-            'tester_suggested_price'     => null,
-            'negotiation_status'         => 'waiting_tester_review',
-            'current_negotiation_round'  => $ticket->current_negotiation_round + 1,
+            'industor_counter_price' => $data['counter_price'],
+            'tester_suggested_deadline' => null,
+            'tester_suggested_price' => null,
+            'negotiation_status' => 'waiting_tester_review',
+            'current_negotiation_round' => $ticket->current_negotiation_round + 1,
         ]);
 
         $this->createProposal($ticket, 'industor', $data['counter_deadline'], $data['counter_price'], $data['reason'] ?? null, $user);
@@ -387,9 +387,9 @@ class TicketController extends Controller
 
         $this->notifyRole('tester', 'ticket.counter_received', 'Industor sent a counter-proposal', [
             'ticket_id' => $ticket->id,
-            'deadline'  => $ticket->industor_counter_deadline,
-            'price'     => $ticket->industor_counter_price,
-            'reason'    => $data['reason'] ?? null,
+            'deadline' => $ticket->industor_counter_deadline,
+            'price' => $ticket->industor_counter_price,
+            'reason' => $data['reason'] ?? null,
         ]);
 
         return response()->json($ticket->fresh(['deadlineNegotiations.creator', 'histories']));
@@ -464,21 +464,21 @@ class TicketController extends Controller
 
         $ticket->histories()->create([
             'from_status' => $ticket->status,
-            'to_status'   => $rejectedStatus,
-            'changed_by'  => $user->id,
-            'note'        => 'Negotiation cancelled by ' . $user->role->name . ($data['reason'] ? ': ' . $data['reason'] : ''),
+            'to_status' => $rejectedStatus,
+            'changed_by' => $user->id,
+            'note' => 'Negotiation cancelled by '.$user->role->name.($data['reason'] ? ': '.$data['reason'] : ''),
         ]);
 
         $notifyUserId = $user->hasRole('industor') ? null : $ticket->industor_id;
         if ($user->hasRole('industor')) {
             $this->notifyRole('tester', 'ticket.negotiation_cancelled', 'Industor cancelled the negotiation', [
                 'ticket_id' => $ticket->id,
-                'reason'    => $data['reason'] ?? null,
+                'reason' => $data['reason'] ?? null,
             ]);
         } else {
             $this->notify($ticket->industor_id, 'ticket.negotiation_cancelled', 'Tester cancelled the negotiation', [
                 'ticket_id' => $ticket->id,
-                'reason'    => $data['reason'] ?? null,
+                'reason' => $data['reason'] ?? null,
             ]);
         }
 
@@ -520,24 +520,24 @@ class TicketController extends Controller
             ->whereNull('designer_id')
             ->update([
                 'designer_id' => $user->id,
-                'status'      => Ticket::STATUS_ACCEPTED,
+                'status' => Ticket::STATUS_ACCEPTED,
                 'accepted_at' => now(),
             ]);
 
-        abort_if(!$updated, 409, 'Ticket already accepted by another designer.');
+        abort_if(! $updated, 409, 'Ticket already accepted by another designer.');
 
         $ticket = Ticket::findOrFail($id);
         $ticket->histories()->create([
             'from_status' => Ticket::STATUS_APPROVED_BY_TESTER,
-            'to_status'   => Ticket::STATUS_ACCEPTED,
-            'changed_by'  => $user->id,
-            'note'        => 'Ticket accepted by designer',
+            'to_status' => Ticket::STATUS_ACCEPTED,
+            'changed_by' => $user->id,
+            'note' => 'Ticket accepted by designer',
         ]);
 
         $this->notify($ticket->industor_id, 'ticket.accepted', 'A designer accepted your ticket', [
-            'ticket_id'   => $ticket->id,
+            'ticket_id' => $ticket->id,
             'designer_id' => $user->id,
-            'designer'    => $user->name,
+            'designer' => $user->name,
         ]);
 
         return response()->json($ticket->fresh(['designer', 'histories']));
@@ -554,22 +554,22 @@ class TicketController extends Controller
         abort_unless($ticket->status === Ticket::STATUS_ACCEPTED, 422, 'Can only request modifications on an accepted ticket.');
 
         $mod = TicketModificationRequest::create([
-            'ticket_id'   => $ticket->id,
+            'ticket_id' => $ticket->id,
             'designer_id' => $user->id,
             'description' => $data['description'],
-            'status'      => 'pending',
+            'status' => 'pending',
         ]);
 
         $ticket->update(['status' => Ticket::STATUS_MODIFICATION_REQUESTED]);
         $ticket->histories()->create([
             'from_status' => Ticket::STATUS_ACCEPTED,
-            'to_status'   => Ticket::STATUS_MODIFICATION_REQUESTED,
-            'changed_by'  => $user->id,
-            'note'        => 'Modification requested',
+            'to_status' => Ticket::STATUS_MODIFICATION_REQUESTED,
+            'changed_by' => $user->id,
+            'note' => 'Modification requested',
         ]);
 
         $this->notify($ticket->industor_id, 'ticket.modification_requested', 'Designer requested modifications', [
-            'ticket_id'   => $ticket->id,
+            'ticket_id' => $ticket->id,
             'modification_id' => $mod->id,
         ]);
 
@@ -611,9 +611,9 @@ class TicketController extends Controller
         $ticket->update(['status' => Ticket::STATUS_APPROVED_BY_TESTER, 'designer_id' => null, 'accepted_at' => null]);
         $ticket->histories()->create([
             'from_status' => Ticket::STATUS_MODIFICATION_REQUESTED,
-            'to_status'   => Ticket::STATUS_APPROVED_BY_TESTER,
-            'changed_by'  => $user->id,
-            'note'        => 'Modification rejected; ticket reopened',
+            'to_status' => Ticket::STATUS_APPROVED_BY_TESTER,
+            'changed_by' => $user->id,
+            'note' => 'Modification rejected; ticket reopened',
         ]);
 
         $this->notify($ticket->designer_id, 'ticket.modification.rejected', 'Your modification request was rejected', [
@@ -638,7 +638,7 @@ class TicketController extends Controller
 
         $this->notify($ticket->industor_id, 'ticket.deadline_set', 'Designer set a delivery deadline', [
             'ticket_id' => $ticket->id,
-            'deadline'  => $ticket->deadline,
+            'deadline' => $ticket->deadline,
         ]);
 
         return response()->json($ticket->fresh(['designer', 'histories']));
@@ -650,9 +650,9 @@ class TicketController extends Controller
         abort_unless($user->hasRole('designer'), 403, 'Only designers can upload deliverables.');
 
         $request->validate([
-            'files'   => 'required|array|min:1|max:10',
+            'files' => 'required|array|min:1|max:10',
             'files.*' => 'required|file|mimes:pdf,png,jpg,jpeg|max:20480',
-            'notes'   => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         $ticket = Ticket::where('id', $id)->where('designer_id', $user->id)->firstOrFail();
@@ -662,7 +662,7 @@ class TicketController extends Controller
             $from = $ticket->status;
             $isLate = $ticket->deadline !== null
                 && $ticket->deadline < now()
-                && !in_array($ticket->status, [Ticket::STATUS_COMPLETED, Ticket::STATUS_CANCELLED]);
+                && ! in_array($ticket->status, [Ticket::STATUS_COMPLETED, Ticket::STATUS_CANCELLED]);
 
             $ticket = $this->transition($ticket, 'upload', function (Ticket $t) use ($isLate) {
                 $t->is_late = $t->is_late || $isLate;
@@ -679,9 +679,9 @@ class TicketController extends Controller
 
             $ticket->histories()->create([
                 'from_status' => $from,
-                'to_status'   => Ticket::STATUS_AWAITING_QA,
-                'changed_by'  => $user->id,
-                'note'        => $note,
+                'to_status' => Ticket::STATUS_AWAITING_QA,
+                'changed_by' => $user->id,
+                'note' => $note,
             ]);
 
             $this->notify($ticket->industor_id, 'ticket.uploaded', 'New deliverables have been uploaded', [
@@ -740,8 +740,8 @@ class TicketController extends Controller
 
         $data = $request->validate([
             'rejection_reason' => 'required|string',
-            'penalty'          => 'nullable|numeric|min:0',
-            'penalty_reason'   => 'nullable|string',
+            'penalty' => 'nullable|numeric|min:0',
+            'penalty_reason' => 'nullable|string',
         ]);
 
         $ticket = Ticket::where('id', $id)->where('status', Ticket::STATUS_AWAITING_QA)->firstOrFail();
@@ -757,8 +757,8 @@ class TicketController extends Controller
 
         $this->notify($ticket->designer_id, 'ticket.qa_rejected', 'Your design was rejected by QA - please revise', [
             'ticket_id' => $ticket->id,
-            'reason'    => $data['rejection_reason'],
-            'penalty'   => $ticket->penalty,
+            'reason' => $data['rejection_reason'],
+            'penalty' => $ticket->penalty,
         ]);
 
         return response()->json($ticket->fresh(['tester', 'histories']));
@@ -810,23 +810,23 @@ class TicketController extends Controller
 
         abort_if($ticket->status !== Ticket::STATUS_COMPLETED, 422, 'Only completed tickets can be published.');
         abort_if($ticket->is_published_to_store, 422, 'Ticket is already published.');
-        abort_if(!$ticket->can_publish_to_store, 403, 'Your plan does not allow publishing to the store.');
+        abort_if(! $ticket->can_publish_to_store, 403, 'Your plan does not allow publishing to the store.');
 
         $data = $request->validate([
-            'title'         => 'required|string|max:200',
-            'description'   => 'nullable|string',
-            'price'         => 'nullable|numeric|min:0',
+            'title' => 'required|string|max:200',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
             'attachment_id' => 'nullable|exists:ticket_attachments,id',
         ]);
 
         $listing = StoreListing::create([
-            'ticket_id'     => $ticket->id,
-            'industor_id'   => $user->id,
+            'ticket_id' => $ticket->id,
+            'industor_id' => $user->id,
             'attachment_id' => $data['attachment_id'] ?? $ticket->attachments()->latest('id')->value('id'),
-            'title'         => $data['title'],
-            'description'   => $data['description'] ?? null,
-            'price'         => $data['price'] ?? 0,
-            'status'        => 'active',
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'price' => $data['price'] ?? 0,
+            'status' => 'active',
         ]);
 
         $ticket->update(['is_published_to_store' => true, 'store_listing_id' => $listing->id]);
@@ -838,7 +838,7 @@ class TicketController extends Controller
     {
         $user = $request->user();
         $ticket = Ticket::where('id', $id)->where('industor_id', $user->id)->firstOrFail();
-        abort_if(!$ticket->is_published_to_store, 422, 'Ticket is not published.');
+        abort_if(! $ticket->is_published_to_store, 422, 'Ticket is not published.');
 
         $ticket->storeListing?->delete();
         $ticket->update(['is_published_to_store' => false, 'store_listing_id' => null]);
@@ -866,7 +866,7 @@ class TicketController extends Controller
 
         $attachment = $ticket->attachments()->findOrFail($attachmentId);
 
-        if ($attachment->uploaded_by !== $user->id && !$user->hasRole('admin')) {
+        if ($attachment->uploaded_by !== $user->id && ! $user->hasRole('admin')) {
             abort(403, 'You can only delete your own files.');
         }
 
@@ -885,30 +885,30 @@ class TicketController extends Controller
         abort_unless($user->hasRole('designer'), 403, 'Only designers can create products.');
 
         $data = $request->validate([
-            'name'                => 'required|string|max:255',
-            'slug'                => 'required|string|max:255|unique:products',
-            'description'         => 'nullable|string',
-            'price_egp'           => 'nullable|numeric|min:0',
-            'price_usd'           => 'nullable|numeric|min:0',
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:products',
+            'description' => 'nullable|string',
+            'price_egp' => 'nullable|numeric|min:0',
+            'price_usd' => 'nullable|numeric|min:0',
             'platform_commission_egp' => 'nullable|numeric|min:0',
             'platform_commission_usd' => 'nullable|numeric|min:0',
-            'designer_price_egp'      => 'nullable|numeric|min:0',
-            'designer_price_usd'      => 'nullable|numeric|min:0',
-            'status'              => 'nullable|string|max:50',
-            'material'            => 'nullable|string|max:100',
-            'manufacturing_method'=> 'nullable|string|max:100',
-            'tags'                => 'nullable|array',
-            'tags.*'              => 'string|max:50',
-            'images'              => 'nullable|array|max:2',
-            'images.*'            => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
-            'design_file'         => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
+            'designer_price_egp' => 'nullable|numeric|min:0',
+            'designer_price_usd' => 'nullable|numeric|min:0',
+            'status' => 'nullable|string|max:50',
+            'material' => 'nullable|string|max:100',
+            'manufacturing_method' => 'nullable|string|max:100',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
+            'images' => 'nullable|array|max:2',
+            'images.*' => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'design_file' => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
         ]);
 
         $product = Product::create(array_merge($data, [
-            'designer_id'   => $user->id,
-            'product_type'  => 'digital',
-            'status'        => $data['status'] ?? 'pending_tester_review',
-            'publish_date'  => now(),
+            'designer_id' => $user->id,
+            'product_type' => 'digital',
+            'status' => $data['status'] ?? 'pending_tester_review',
+            'publish_date' => now(),
         ]));
 
         if ($request->hasFile('images')) {
@@ -934,7 +934,7 @@ class TicketController extends Controller
     {
         $from = $ticket->status;
         $to = self::TRANSITIONS[$action][$from] ?? null;
-        abort_if(!$to, 422, "Cannot {$action} a ticket in status ({$from}).");
+        abort_if(! $to, 422, "Cannot {$action} a ticket in status ({$from}).");
 
         if ($mutate) {
             $mutate($ticket);
@@ -948,8 +948,8 @@ class TicketController extends Controller
 
         $ticket->histories()->create([
             'from_status' => $from,
-            'to_status'   => $to,
-            'changed_by'  => $changedBy?->id ?? auth()->id(),
+            'to_status' => $to,
+            'changed_by' => $changedBy?->id ?? auth()->id(),
         ]);
 
         return $ticket->fresh();
@@ -973,7 +973,7 @@ class TicketController extends Controller
             unset($data['industor_price'], $data['original_price'], $data['price']);
         }
 
-        if (!empty($data['price_history'])) {
+        if (! empty($data['price_history'])) {
             foreach ($data['price_history'] as &$ph) {
                 if ($isIndustor) {
                     unset($ph['designer_price']);
@@ -1013,27 +1013,27 @@ class TicketController extends Controller
         $path = $file->store("tickets/{$ticket->id}", 'public');
 
         return TicketAttachment::create([
-            'ticket_id'   => $ticket->id,
+            'ticket_id' => $ticket->id,
             'uploaded_by' => $user->id,
-            'file_name'   => $file->getClientOriginalName(),
-            'file_path'   => $path,
-            'mime_type'   => $file->getMimeType(),
-            'file_size'   => $file->getSize(),
-            'kind'        => $kind,
+            'file_name' => $file->getClientOriginalName(),
+            'file_path' => $path,
+            'mime_type' => $file->getMimeType(),
+            'file_size' => $file->getSize(),
+            'kind' => $kind,
         ]);
     }
 
     protected function createProposal(Ticket $ticket, string $proposedBy, $deadline, $price, ?string $reason, User $by): TicketDeadlineNegotiation
     {
         $negotiation = TicketDeadlineNegotiation::create([
-            'ticket_id'         => $ticket->id,
-            'round_number'      => $ticket->current_negotiation_round ?? 0,
-            'proposed_by'       => $proposedBy,
+            'ticket_id' => $ticket->id,
+            'round_number' => $ticket->current_negotiation_round ?? 0,
+            'proposed_by' => $proposedBy,
             'proposed_deadline' => $deadline,
-            'proposed_price'    => $price,
-            'reason'            => $reason,
-            'status'            => 'pending',
-            'created_by'        => $by->id,
+            'proposed_price' => $price,
+            'reason' => $reason,
+            'status' => 'pending',
+            'created_by' => $by->id,
         ]);
 
         $this->syncNegotiationHistory($ticket);
@@ -1066,14 +1066,14 @@ class TicketController extends Controller
         $history = $ticket->deadlineNegotiations
             ->sortBy('id')
             ->map(fn ($n) => [
-                'round_number'      => $n->round_number,
-                'proposed_by'       => $n->proposed_by,
+                'round_number' => $n->round_number,
+                'proposed_by' => $n->proposed_by,
                 'proposed_deadline' => $n->proposed_deadline?->toIso8601String(),
-                'proposed_price'    => $n->proposed_price !== null ? (float) $n->proposed_price : null,
-                'reason'            => $n->reason,
-                'status'            => $n->status,
-                'created_by'        => $n->created_by,
-                'created_at'        => $n->created_at?->toIso8601String(),
+                'proposed_price' => $n->proposed_price !== null ? (float) $n->proposed_price : null,
+                'reason' => $n->reason,
+                'status' => $n->status,
+                'created_by' => $n->created_by,
+                'created_at' => $n->created_at?->toIso8601String(),
             ])
             ->values()
             ->toArray();
@@ -1089,27 +1089,27 @@ class TicketController extends Controller
         $designerPrice = round($finalPrice * 0.70, 2);
 
         $ticket->update([
-            'final_deadline'     => $deadline,
-            'final_price'        => $finalPrice,
-            'deadline'           => $deadline,
-            'price'              => $finalPrice,
-            'original_price'     => $finalPrice,
-            'industor_price'     => $industorPrice,
-            'designer_price'     => $designerPrice,
+            'final_deadline' => $deadline,
+            'final_price' => $finalPrice,
+            'deadline' => $deadline,
+            'price' => $finalPrice,
+            'original_price' => $finalPrice,
+            'industor_price' => $industorPrice,
+            'designer_price' => $designerPrice,
             'urgent_price_applied' => false,
-            'price_updated_at'   => now(),
-            'reviewed_by'        => $user->id,
+            'price_updated_at' => now(),
+            'reviewed_by' => $user->id,
             'negotiation_status' => 'approved',
         ]);
 
         $this->resolveLatestProposal($ticket, $acceptedFrom, 'accepted');
 
         TicketPriceHistory::create([
-            'ticket_id'      => $ticket->id,
+            'ticket_id' => $ticket->id,
             'original_price' => $finalPrice,
             'industor_price' => $industorPrice,
             'designer_price' => $designerPrice,
-            'change_reason'  => 'negotiation_agreed',
+            'change_reason' => 'negotiation_agreed',
         ]);
     }
 
@@ -1118,19 +1118,19 @@ class TicketController extends Controller
         if ($ticket->is_single_purchase) {
             $this->notify($ticket->industor_id, 'ticket.negotiation_agreed', 'Price & deadline agreed - payment required', [
                 'ticket_id' => $ticket->id,
-                'price'     => $ticket->industor_price,
-                'deadline'  => $ticket->final_deadline,
+                'price' => $ticket->industor_price,
+                'deadline' => $ticket->final_deadline,
             ]);
         } else {
             $this->notify($ticket->industor_id, 'ticket.negotiation_agreed', 'Price & deadline agreed - ticket is now available', [
                 'ticket_id' => $ticket->id,
-                'price'     => $ticket->industor_price,
-                'deadline'  => $ticket->final_deadline,
+                'price' => $ticket->industor_price,
+                'deadline' => $ticket->final_deadline,
             ]);
 
             $this->notifyRole('designer', 'ticket.opened', 'New ticket available', [
                 'ticket_id' => $ticket->id,
-                'title'     => $ticket->title,
+                'title' => $ticket->title,
             ]);
         }
     }
@@ -1139,9 +1139,9 @@ class TicketController extends Controller
     {
         Notification::create([
             'user_id' => $userId,
-            'type'    => $type,
-            'title'   => $title,
-            'data'    => $data,
+            'type' => $type,
+            'title' => $title,
+            'data' => $data,
         ]);
     }
 
@@ -1179,22 +1179,22 @@ class TicketController extends Controller
             'Only products returned for modification can be resubmitted.');
 
         $data = $request->validate([
-            'name'                => 'sometimes|string|max:255',
-            'slug'                => 'sometimes|string|max:255|unique:products,slug,' . $id,
-            'description'         => 'nullable|string',
-            'price_egp'           => 'nullable|numeric|min:0',
-            'price_usd'           => 'nullable|numeric|min:0',
+            'name' => 'sometimes|string|max:255',
+            'slug' => 'sometimes|string|max:255|unique:products,slug,'.$id,
+            'description' => 'nullable|string',
+            'price_egp' => 'nullable|numeric|min:0',
+            'price_usd' => 'nullable|numeric|min:0',
             'platform_commission_egp' => 'nullable|numeric|min:0',
             'platform_commission_usd' => 'nullable|numeric|min:0',
-            'designer_price_egp'      => 'nullable|numeric|min:0',
-            'designer_price_usd'      => 'nullable|numeric|min:0',
-            'material'            => 'nullable|string|max:100',
-            'manufacturing_method'=> 'nullable|string|max:100',
-            'tags'                => 'nullable|array',
-            'tags.*'              => 'string|max:50',
-            'images'              => 'nullable|array',
-            'images.*'            => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
-            'design_file'         => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
+            'designer_price_egp' => 'nullable|numeric|min:0',
+            'designer_price_usd' => 'nullable|numeric|min:0',
+            'material' => 'nullable|string|max:100',
+            'manufacturing_method' => 'nullable|string|max:100',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
+            'images' => 'nullable|array',
+            'images.*' => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'design_file' => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
         ]);
 
         $product->update(array_merge($data, [
@@ -1208,7 +1208,7 @@ class TicketController extends Controller
             foreach ($request->file('images') as $i => $image) {
                 $path = $optimizer->optimizeUploadedFile($image, "products/{$product->id}");
                 $product->images()->create([
-                    'image_url'  => $path,
+                    'image_url' => $path,
                     'sort_order' => $i,
                 ]);
             }

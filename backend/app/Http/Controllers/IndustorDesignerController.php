@@ -27,7 +27,7 @@ class IndustorDesignerController extends Controller
 
         $designer = User::where('email', $data['email'])->whereHas('role', fn ($q) => $q->where('name', 'designer'))->first(['id', 'name', 'email']);
 
-        abort_if(!$designer, 404, 'No designer found with that email.');
+        abort_if(! $designer, 404, 'No designer found with that email.');
 
         $alreadyInPool = $user->designerPool()->where('users.id', $designer->id)->exists();
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -61,7 +61,7 @@ async function fetchPaymentMethods() {
 const form = ref({
   address_id: null,
   currency: auth.userCurrency,
-  shipping_cost: 50,
+  shipping_cost: 0,
   payment_method_id: null,
   notes: '',
   guest_name: '',
@@ -109,6 +109,40 @@ async function saveAddress() {
     savingAddress.value = false
   }
 }
+
+async function fetchShippingCost(governorate) {
+  if (!governorate) {
+    form.value.shipping_cost = 0
+    return
+  }
+  try {
+    const { data } = await api.get(`/api/shipping-rates/${encodeURIComponent(governorate)}`)
+    form.value.shipping_cost = parseFloat(data.cost) || 0
+  } catch (_) {
+    form.value.shipping_cost = 0
+  }
+}
+
+watch(
+  () => form.value.address_id,
+  (newId) => {
+    if (isDigitalOnly.value) { form.value.shipping_cost = 0; return }
+    if (!newId || !addresses.value.length) { form.value.shipping_cost = 0; return }
+    const addr = addresses.value.find(a => a.id === newId)
+    if (addr?.governorate) fetchShippingCost(addr.governorate)
+    else form.value.shipping_cost = 0
+  },
+  { immediate: true }
+)
+
+watch(
+  () => form.value.guest_governorate,
+  (gov) => {
+    if (isDigitalOnly.value) { form.value.shipping_cost = 0; return }
+    if (auth.isAuthenticated) return
+    fetchShippingCost(gov)
+  }
+)
 
 function toggleAddressForm() {
   showAddressForm.value = !showAddressForm.value
@@ -551,9 +585,7 @@ onMounted(async () => {
               <span class="text-body-secondary">الشحن / Shipping</span>
               <span>{{ money(shippingCost) }} {{ currencySymbol }}</span>
             </div>
-            <div v-if="!isDigitalOnly" class="small text-success mb-2">
-              <CIcon icon="cil-info" class="me-1" />شحن مجاني للطلبات فوق ١٠٠٠ {{ currencySymbol }} / Free shipping on orders over 1000 {{ currencySymbol }}
-            </div>
+
             <div v-if="appliedCoupon" class="d-flex justify-content-between mb-2">
               <span class="text-success">
                 <CIcon icon="cil-tag" class="me-1" /> Discount

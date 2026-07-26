@@ -44,30 +44,30 @@ class TesterProductController extends Controller
         abort_if($ticket->product()->exists(), 422, 'This ticket has already been converted to a product.');
 
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'slug'        => 'required|string|max:255|unique:products',
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:products',
             'description' => 'nullable|string',
-            'price_egp'   => 'nullable|numeric|min:0',
-            'price_usd'   => 'nullable|numeric|min:0',
+            'price_egp' => 'nullable|numeric|min:0',
+            'price_usd' => 'nullable|numeric|min:0',
         ]);
 
         $deliveryAttachments = $ticket->attachments()->where('kind', 'delivery')->get();
 
         $designFile = $deliveryAttachments->first(function ($att) {
-            return !Str::startsWith($att->mime_type, 'image/');
+            return ! Str::startsWith($att->mime_type, 'image/');
         }) ?? $deliveryAttachments->first();
 
         $product = Product::create([
-            'name'              => $data['name'],
-            'slug'              => $data['slug'],
-            'description'       => $data['description'] ?? $ticket->description,
-            'product_type'      => 'digital',
-            'status'            => 'pending_tester_review',
-            'designer_id'       => $ticket->designer_id,
-            'ticket_id'         => $ticket->id,
-            'price_egp'         => $data['price_egp'] ?? $ticket->price ?? 0,
-            'price_usd'         => $data['price_usd'] ?? 0,
-            'publish_date'      => now(),
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'description' => $data['description'] ?? $ticket->description,
+            'product_type' => 'digital',
+            'status' => 'pending_tester_review',
+            'designer_id' => $ticket->designer_id,
+            'ticket_id' => $ticket->id,
+            'price_egp' => $data['price_egp'] ?? $ticket->price ?? 0,
+            'price_usd' => $data['price_usd'] ?? 0,
+            'publish_date' => now(),
         ]);
 
         if ($designFile && Storage::disk('public')->exists($designFile->file_path)) {
@@ -80,16 +80,16 @@ class TesterProductController extends Controller
 
         foreach ($imageAttachments as $i => $img) {
             $product->images()->create([
-                'image_url'  => $img->file_path,
+                'image_url' => $img->file_path,
                 'sort_order' => $i,
             ]);
         }
 
         foreach ($deliveryAttachments as $att) {
             $product->digitalFiles()->create([
-                'file_url'      => $att->file_path,
-                'version'       => '1.0',
-                'license_type'  => 'commercial',
+                'file_url' => $att->file_path,
+                'version' => '1.0',
+                'license_type' => 'commercial',
                 'max_downloads' => null,
             ]);
         }
@@ -98,9 +98,9 @@ class TesterProductController extends Controller
 
         $ticket->histories()->create([
             'from_status' => Ticket::STATUS_COMPLETED,
-            'to_status'   => Ticket::STATUS_COMPLETED,
-            'changed_by'  => $user->id,
-            'note'        => 'Ticket converted to digital product by tester for review',
+            'to_status' => Ticket::STATUS_COMPLETED,
+            'changed_by' => $user->id,
+            'note' => 'Ticket converted to digital product by tester for review',
         ]);
 
         return response()->json($product->load('images', 'ticket'), 201);
@@ -133,7 +133,7 @@ class TesterProductController extends Controller
         $data = $request->validate([
             'suggested_price_egp' => 'nullable|numeric|min:0',
             'suggested_price_usd' => 'nullable|numeric|min:0',
-            'comment'             => 'nullable|string|max:1000',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         $product->update([
@@ -156,11 +156,11 @@ class TesterProductController extends Controller
 
         $filePath = $product->design_file_path;
 
-        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+        if (! $filePath || ! Storage::disk('public')->exists($filePath)) {
             return response()->json(['message' => 'Design file not available.'], 404);
         }
 
-        return Storage::disk('public')->download($filePath, $product->name . '_' . basename($filePath));
+        return Storage::disk('public')->download($filePath, $product->name.'_'.basename($filePath));
     }
 
     public function pendingCount()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class CartController extends Controller
@@ -13,7 +14,7 @@ class CartController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             $token = $request->bearerToken();
             if ($token) {
                 $accessToken = PersonalAccessToken::findToken($token);
@@ -27,8 +28,8 @@ class CartController extends Controller
 
         $guestToken = $request->header('X-Guest-Token', $request->input('guest_token'));
 
-        if (!$guestToken) {
-            $guestToken = 'guest_' . \Illuminate\Support\Str::uuid();
+        if (! $guestToken) {
+            $guestToken = 'guest_'.Str::uuid();
         }
 
         return ['guest_token' => $guestToken];

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Material;
 use App\Models\ManufacturingMethod;
+use App\Models\Material;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller
@@ -11,12 +11,14 @@ class MaterialController extends Controller
     public function indexMaterials()
     {
         $materials = Material::orderBy('sort_order')->get();
+
         return response()->json($materials);
     }
 
     public function indexManufacturingMethods()
     {
         $methods = ManufacturingMethod::orderBy('sort_order')->get();
+
         return response()->json($methods);
     }
 
@@ -42,6 +44,7 @@ class MaterialController extends Controller
         ]);
 
         $material = Material::create($validated);
+
         return response()->json($material, 201);
     }
 
@@ -55,12 +58,14 @@ class MaterialController extends Controller
         ]);
 
         $material->update($validated);
+
         return response()->json($material);
     }
 
     public function destroyMaterial($id)
     {
         Material::findOrFail($id)->delete();
+
         return response()->json(['message' => 'Deleted']);
     }
 
@@ -72,6 +77,7 @@ class MaterialController extends Controller
         ]);
 
         $material->manufacturingMethods()->syncWithoutDetaching([$validated['manufacturing_method_id']]);
+
         return response()->json(['message' => 'Attached']);
     }
 
@@ -79,6 +85,7 @@ class MaterialController extends Controller
     {
         $material = Material::findOrFail($materialId);
         $material->manufacturingMethods()->detach($methodId);
+
         return response()->json(['message' => 'Detached']);
     }
 
@@ -90,6 +97,7 @@ class MaterialController extends Controller
         ]);
 
         $method = ManufacturingMethod::create($validated);
+
         return response()->json($method, 201);
     }
 
@@ -103,12 +111,14 @@ class MaterialController extends Controller
         ]);
 
         $method->update($validated);
+
         return response()->json($method);
     }
 
     public function destroyMethod($id)
     {
         ManufacturingMethod::findOrFail($id)->delete();
+
         return response()->json(['message' => 'Deleted']);
     }
 }

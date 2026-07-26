@@ -240,11 +240,26 @@ async function save() {
   saving.value = true
   try {
     if (editing.value) {
-      const payload = { ...form.value }
-      payload.description = pointsToDescription(productPoints.value)
-      if (payload.manufacturing_method === 'other') payload.manufacturing_method = payload.manufacturing_method_other || 'other'
-      delete payload.manufacturing_method_other
-      delete payload.sku
+      const payload = {
+        name: form.value.name,
+        slug: form.value.slug || slugify(form.value.name),
+        product_type: form.value.product_type,
+        status: form.value.status || 'published',
+        description: pointsToDescription(productPoints.value),
+      }
+      if (form.value.price_egp) payload.price_egp = form.value.price_egp
+      if (form.value.price_usd) payload.price_usd = form.value.price_usd
+      if (form.value.cost) payload.cost = form.value.cost
+      if (form.value.publish_date) payload.publish_date = form.value.publish_date
+      if (form.value.country_availability) payload.country_availability = form.value.country_availability
+      if (form.value.type_sample) payload.type_sample = form.value.type_sample
+      if (form.value.material) payload.material = form.value.material
+      if (form.value.manufacturing_method) {
+        payload.manufacturing_method = form.value.manufacturing_method === 'other' ? (form.value.manufacturing_method_other || 'other') : form.value.manufacturing_method
+      }
+      if (form.value.product_type === 'physical' && form.value.sku) {
+        payload.sku = form.value.sku
+      }
       await api.put(`/api/products/${form.value.id}`, payload)
       toast.success('Product updated.')
     } else {

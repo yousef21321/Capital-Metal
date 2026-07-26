@@ -33,7 +33,7 @@ api.interceptors.response.use(
         || error.config?.url?.includes('/api/orders')
       if (isAuthRoute) {
         localStorage.removeItem('auth-token')
-        window.location.hash = '#/pages/login'
+        window.location.href = '/pages/login'
       }
     }
     return Promise.reject(error)

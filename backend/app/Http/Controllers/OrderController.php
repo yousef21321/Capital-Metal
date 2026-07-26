@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Coupon;
+use App\Models\Order;
+use App\Models\ShippingRate;
+use App\Models\User;
 use App\Services\StoxService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
 use ZipArchive;
@@ -25,7 +28,7 @@ class OrderController extends Controller
     {
         $userId = $request->user()?->id;
 
-        if (!$userId) {
+        if (! $userId) {
             $token = $request->bearerToken();
             if ($token) {
                 $accessToken = PersonalAccessToken::findToken($token);
@@ -97,7 +100,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        if (!$user && $order->user_id !== null) {
+        if (! $user && $order->user_id !== null) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -123,7 +126,7 @@ class OrderController extends Controller
 
         $userId = $this->resolveUser($request);
 
-        if (!$userId && !$this->guestToken($request)) {
+        if (! $userId && ! $this->guestToken($request)) {
             return response()->json(['message' => 'Authentication required. Please login or provide guest details.'], 401);
         }
 
@@ -137,48 +140,49 @@ class OrderController extends Controller
             ->where($identifier)
             ->first();
 
-        if (!$cart || $cart->items->isEmpty()) {
+        if (! $cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty.'], 400);
         }
 
         $hasPhysical = $cart->items->contains(function ($item) {
             return ($item->product->product_type ?? null) === 'physical';
         });
+        $isDigitalOnly = ! $hasPhysical;
 
         if ($hasPhysical) {
-            $hasAddressId = !empty($validated['address_id']);
-            $hasGuestFields = !empty($validated['guest_name'])
-                && !empty($validated['guest_phone'])
-                && !empty($validated['guest_governorate'])
-                && !empty($validated['guest_city'])
-                && !empty($validated['guest_address_line']);
+            $hasAddressId = ! empty($validated['address_id']);
+            $hasGuestFields = ! empty($validated['guest_name'])
+                && ! empty($validated['guest_phone'])
+                && ! empty($validated['guest_governorate'])
+                && ! empty($validated['guest_city'])
+                && ! empty($validated['guest_address_line']);
 
             $hasValidAddress = false;
             if ($userId && $hasAddressId) {
-                $addr = \App\Models\Address::find($validated['address_id']);
-                $user = \App\Models\User::find($userId);
+                $addr = Address::find($validated['address_id']);
+                $user = User::find($userId);
                 $hasValidAddress = $addr
-                    && !empty($addr->governorate)
-                    && !empty($addr->city)
-                    && !empty($addr->address_line)
-                    && (!empty(trim($user->name ?? '')) || !empty($addr->full_name))
-                    && (!empty($user->phone) || !empty($addr->phone));
+                    && ! empty($addr->governorate)
+                    && ! empty($addr->city)
+                    && ! empty($addr->address_line)
+                    && (! empty(trim($user->name ?? '')) || ! empty($addr->full_name))
+                    && (! empty($user->phone) || ! empty($addr->phone));
             }
 
-            if (!$hasAddressId && !$hasGuestFields) {
+            if (! $hasAddressId && ! $hasGuestFields) {
                 return response()->json([
                     'message' => 'Shipping address is required for physical products. Please select a saved address or enter a shipping address.',
                 ], 422);
             }
 
-            if ($hasAddressId && !$hasValidAddress) {
+            if ($hasAddressId && ! $hasValidAddress) {
                 return response()->json([
                     'message' => 'The selected address is incomplete. Please choose a valid address with name, phone, and full details.',
                 ], 422);
             }
         }
 
-        $orderNumber = 'ORD-' . strtoupper(uniqid());
+        $orderNumber = 'ORD-'.strtoupper(uniqid());
         $subtotal = 0;
         $orderItems = [];
 
@@ -195,7 +199,21 @@ class OrderController extends Controller
             ];
         }
 
-        $shippingCost = $validated['shipping_cost'] ?? 0;
+        $shippingCost = 0;
+        if (! $isDigitalOnly) {
+            $governorate = null;
+            if (! empty($validated['address_id'])) {
+                $addr = Address::find($validated['address_id']);
+                $governorate = $addr?->governorate;
+            }
+            if (! $governorate) {
+                $governorate = $validated['guest_governorate'] ?? null;
+            }
+            if ($governorate) {
+                $rate = ShippingRate::where('governorate', $governorate)->first();
+                $shippingCost = $rate ? (float) $rate->cost : 0;
+            }
+        }
 
         [$discount, $couponId] = $this->resolveCoupon(
             $validated['coupon_code'] ?? null,
@@ -258,7 +276,7 @@ class OrderController extends Controller
         });
 
         $this->sendOrderToStox(
-            $order->fresh(['items.product.inventory', 'items.variant']),
+            $order->fresh(['items.product.inventory', 'items.variant', 'items.variant.images']),
             $validated,
             $userId
         );
@@ -272,13 +290,13 @@ class OrderController extends Controller
      */
     protected function resolveCoupon(?string $code, float $subtotal): array
     {
-        if (!$code) {
+        if (! $code) {
             return [0, null];
         }
 
         $coupon = Coupon::where('code', $code)->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             abort(response()->json(['message' => 'Invalid coupon code.'], 422));
         }
 
@@ -308,12 +326,19 @@ class OrderController extends Controller
         /** @var StoxService $stox */
         $stox = app(StoxService::class);
 
-        if (!$stox->isConfigured()) {
+        if (! $stox->isConfigured()) {
             return;
         }
 
         $physicalItems = $order->items->filter(function ($item) {
-            return $item->product && $item->product->product_type === 'physical' && $item->product->stox_product_id;
+            if (! $item->product || $item->product->product_type !== 'physical') {
+                return false;
+            }
+            if ($item->variant) {
+                return ! empty($item->variant->stox_product_id);
+            }
+
+            return ! empty($item->product->stox_product_id);
         });
 
         if ($physicalItems->isEmpty()) {
@@ -332,19 +357,19 @@ class OrderController extends Controller
             $customerPhone = $user->phone ?? '';
 
             if ($order->address_id) {
-                $addr = \App\Models\Address::find($order->address_id);
+                $addr = Address::find($order->address_id);
                 if ($addr) {
                     $customerName = $customerName ?: $addr->full_name;
                     $customerPhone = $customerPhone ?: $addr->phone;
-                    $address = trim(($addr->address_line ?? '') . ', ' . ($addr->city ?? '') . ', ' . ($addr->governorate ?? ''));
+                    $address = trim(($addr->address_line ?? '').', '.($addr->city ?? '').', '.($addr->governorate ?? ''));
                     $areaId = $stox->resolveAreaId($addr->city, $addr->governorate);
                 }
-            } elseif (!$address) {
-                $fallbackAddr = \App\Models\Address::where('user_id', $userId)->first();
+            } elseif (! $address) {
+                $fallbackAddr = Address::where('user_id', $userId)->first();
                 if ($fallbackAddr) {
                     $customerName = $customerName ?: $fallbackAddr->full_name;
                     $customerPhone = $customerPhone ?: $fallbackAddr->phone;
-                    $address = trim(($fallbackAddr->address_line ?? '') . ', ' . ($fallbackAddr->city ?? '') . ', ' . ($fallbackAddr->governorate ?? ''));
+                    $address = trim(($fallbackAddr->address_line ?? '').', '.($fallbackAddr->city ?? '').', '.($fallbackAddr->governorate ?? ''));
                     $areaId = $stox->resolveAreaId($fallbackAddr->city, $fallbackAddr->governorate);
                 }
             }
@@ -352,32 +377,33 @@ class OrderController extends Controller
             $email = $user->email ?? null;
         }
 
-        if (!$customerName) {
+        if (! $customerName) {
             $customerName = $validated['guest_name'] ?? $order->guest_name ?? '';
         }
-        if (!$customerPhone) {
+        if (! $customerPhone) {
             $customerPhone = $validated['guest_phone'] ?? $order->guest_phone ?? '';
         }
-        if (!$address) {
+        if (! $address) {
             $guestAddressLine = $validated['guest_address_line'] ?? $order->guest_address_line ?? '';
             $guestCity = $validated['guest_city'] ?? $order->guest_city ?? '';
             $guestGovernorate = $validated['guest_governorate'] ?? $order->guest_governorate ?? '';
-            $address = trim($guestAddressLine . ', ' . $guestCity . ', ' . $guestGovernorate);
+            $address = trim($guestAddressLine.', '.$guestCity.', '.$guestGovernorate);
             $areaId = $areaId ?: $stox->resolveAreaId($guestCity ?: null, $guestGovernorate ?: null);
         }
 
-        if (!$email && $userId) {
+        if (! $email && $userId) {
             $email = $order->user?->email;
         }
 
-        if (!$customerName || !$customerPhone || !$address || !$areaId) {
-            \Illuminate\Support\Facades\Log::warning('Stox order skipped: missing required fields', [
+        if (! $customerName || ! $customerPhone || ! $address || ! $areaId) {
+            Log::warning('Stox order skipped: missing required fields', [
                 'order_id' => $order->id,
                 'name' => $customerName,
                 'phone' => $customerPhone,
                 'address' => $address,
                 'area_id' => $areaId,
             ]);
+
             return;
         }
 
@@ -385,7 +411,15 @@ class OrderController extends Controller
         $codAmount = $paymentType === 'COD' ? (float) $order->total_amount : null;
 
         $products = $physicalItems->map(function ($item) {
+            if ($item->variant && $item->variant->stox_product_id) {
+                return [
+                    'id' => (int) $item->variant->stox_product_id,
+                    'qty' => (int) $item->quantity,
+                    'sku' => $item->variant->sku ?? $item->product->slug,
+                ];
+            }
             $inventory = $item->product->inventory;
+
             return [
                 'id' => (int) $item->product->stox_product_id,
                 'qty' => (int) $item->quantity,
@@ -452,7 +486,7 @@ class OrderController extends Controller
             $ownsOrder = true;
         }
 
-        if (!$ownsOrder) {
+        if (! $ownsOrder) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -462,7 +496,7 @@ class OrderController extends Controller
 
         $item = $order->items()->where('id', $itemId)->first();
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['message' => 'Item not found in this order.'], 404);
         }
 
@@ -472,8 +506,8 @@ class OrderController extends Controller
         if ($digitalFiles->count() > 1) {
             $zipPath = storage_path("app/public/downloads/order-{$orderId}-item-{$itemId}.zip");
 
-            if (!File::exists($zipPath)) {
-                $zip = new ZipArchive();
+            if (! File::exists($zipPath)) {
+                $zip = new ZipArchive;
                 if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
                     foreach ($digitalFiles as $df) {
                         $filePath = Storage::disk('public')->path($df->file_url);
@@ -485,7 +519,7 @@ class OrderController extends Controller
                 }
             }
 
-            return response()->download($zipPath, $product->name . '.zip')->deleteFileAfterSend(true);
+            return response()->download($zipPath, $product->name.'.zip')->deleteFileAfterSend(true);
         }
 
         $filePath = $product->design_file_path;
@@ -494,7 +528,7 @@ class OrderController extends Controller
             $filePath = $digitalFiles->first()->file_url;
         }
 
-        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+        if (! $filePath || ! Storage::disk('public')->exists($filePath)) {
             return response()->json(['message' => 'File not available.'], 404);
         }
 
@@ -507,9 +541,9 @@ class OrderController extends Controller
         $guestToken = $this->guestToken($request);
 
         $orders = Order::with(['items.product.images', 'items.variant.images', 'items.product.digitalFiles', 'payments'])
-            ->when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when(!$userId && $guestToken, fn($q) => $q->where('guest_token', $guestToken))
-            ->when(!$userId && !$guestToken, fn($q) => $q->whereRaw('1 = 0'))
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId && $guestToken, fn ($q) => $q->where('guest_token', $guestToken))
+            ->when(! $userId && ! $guestToken, fn ($q) => $q->whereRaw('1 = 0'))
             ->latest()
             ->paginate($request->per_page ?? 20);
 

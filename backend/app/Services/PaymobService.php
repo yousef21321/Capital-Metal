@@ -7,56 +7,98 @@ use Illuminate\Support\Facades\Log;
 
 class PaymobService
 {
-    protected string $apiKey;
+    protected string $secretKey;
+
+    protected string $publicKey;
+
     protected string $merchantId;
+
     protected string $integrationId;
+
     protected string $iframeId;
+
     protected string $hmac;
+
     protected string $baseUrl;
 
     public function __construct()
     {
-        $this->apiKey = config('services.paymob.api_key');
+        $this->secretKey = config('services.paymob.api_key');
+        $this->publicKey = config('services.paymob.public_key');
         $this->merchantId = config('services.paymob.merchant_id');
         $this->integrationId = config('services.paymob.integration_id');
         $this->iframeId = config('services.paymob.iframe_id');
         $this->hmac = config('services.paymob.hmac');
-        $this->baseUrl = 'https://accept.paymob.com/api';
-    }
-
-    public function getAuthToken(): string
-    {
-        $this->ensureConfigured();
-
-        $response = Http::post("{$this->baseUrl}/auth/tokens", [
-            'api_key' => $this->apiKey,
-        ]);
-
-        $response->throw();
-        $body = $response->json();
-
-        return $body['token'];
+        $this->baseUrl = 'https://accept.paymob.com';
     }
 
     protected function ensureConfigured(): void
     {
-        if (empty($this->apiKey) || empty($this->integrationId) || empty($this->iframeId)) {
+        if (empty($this->secretKey) || empty($this->integrationId)) {
             throw new \RuntimeException(
-                'Paymob is not configured. Set PAYMOB_API_KEY, PAYMOB_INTEGRATION_ID, and PAYMOB_IFRAME_ID in your .env.'
+                'Paymob is not configured. Set PAYMOB_API_KEY and PAYMOB_INTEGRATION_ID in your .env.'
             );
         }
     }
 
+    protected function authHeaders(): array
+    {
+        return [
+            'Authorization' => "Token {$this->secretKey}",
+            'Content-Type' => 'application/json',
+        ];
+    }
+
+    public function createIntention(int $amountCents, string $currency, array $billingData, array $items = [], ?string $notificationUrl = null, ?string $redirectionUrl = null): array
+    {
+        $this->ensureConfigured();
+
+        $payload = [
+            'amount' => $amountCents,
+            'currency' => $currency,
+            'payment_methods' => [(int) $this->integrationId],
+            'items' => $items ?: [
+                [
+                    'name' => 'Payment',
+                    'amount' => $amountCents,
+                    'description' => 'Payment for order',
+                    'quantity' => 1,
+                ],
+            ],
+            'billing_data' => $billingData,
+        ];
+
+        if ($notificationUrl) {
+            $payload['notification_url'] = $notificationUrl;
+        }
+
+        if ($redirectionUrl) {
+            $payload['redirection_url'] = $redirectionUrl;
+        }
+
+        $response = Http::withHeaders($this->authHeaders())
+            ->post("{$this->baseUrl}/v1/intention", $payload);
+
+        $response->throw();
+
+        return $response->json();
+    }
+
+    public function getCheckoutUrl(string $clientSecret): string
+    {
+        return "{$this->baseUrl}/unifiedcheckout/?publicKey={$this->publicKey}&clientSecret={$clientSecret}";
+    }
+
     public function tokenizeCard(string $holderName, string $cardNumber, string $expiryMonth, string $expiryYear, string $cvv): array
     {
-        if (empty($this->apiKey) || empty($this->merchantId)) {
+        if (empty($this->secretKey) || empty($this->merchantId)) {
             throw new \RuntimeException(
                 'Paymob is not configured. Set PAYMOB_API_KEY and PAYMOB_MERCHANT_ID in your .env to save cards.'
             );
         }
 
-        $response = Http::post("{$this->baseUrl}/commerce/tokenization", [
-            'api_key' => $this->apiKey,
+        $response = Http::post("{$this->baseUrl}/api/commerce/tokenization", [
+            'api_key' => $this->secretKey,
             'merchant_id' => (int) $this->merchantId,
             'cardholder_name' => $holderName,
             'card_number' => preg_replace('/\s+/', '', $cardNumber),
@@ -80,65 +122,20 @@ class PaymobService
         ];
     }
 
-    public function chargeSavedCard(string $authToken, int $amountCents, string $currency, int $paymobOrderId, array $billingData, string $cardToken): array
+    public function chargeSavedCard(int $amountCents, string $currency, string $clientSecret, array $billingData, string $cardToken): array
     {
-        $paymentKey = $this->getPaymentKey($authToken, $amountCents, $currency, $paymobOrderId, $billingData);
-
-        $response = Http::post("{$this->baseUrl}/acceptance/post_pay", [
-            'source' => [
-                'identifier' => $cardToken,
-                'subtype' => 'CARD',
-            ],
-            'payment_token' => $paymentKey,
-        ]);
+        $response = Http::withHeaders($this->authHeaders())
+            ->post("{$this->baseUrl}/v1/intention/{$clientSecret}/charge", [
+                'source' => [
+                    'identifier' => $cardToken,
+                    'subtype' => 'CARD',
+                ],
+                'payment_method' => (int) $this->integrationId,
+            ]);
 
         $response->throw();
 
         return $response->json();
-    }
-
-    public function createOrder(string $token, float $amountCents, string $currency = 'EGP', ?int $merchantOrderId = null, array $items = []): array
-    {
-        $payload = [
-            'auth_token' => $token,
-            'delivery_needed' => false,
-            'amount_cents' => (int) round($amountCents),
-            'currency' => $currency,
-            'items' => $items,
-        ];
-
-        if ($merchantOrderId) {
-            $payload['merchant_order_id'] = $merchantOrderId;
-        }
-
-        $response = Http::post("{$this->baseUrl}/ecommerce/orders", $payload);
-        $response->throw();
-
-        return $response->json();
-    }
-
-    public function getPaymentKey(string $token, int $amountCents, string $currency, int $paymobOrderId, array $billingData): string
-    {
-        $payload = [
-            'auth_token' => $token,
-            'amount_cents' => $amountCents,
-            'expiration' => 3600,
-            'order_id' => $paymobOrderId,
-            'billing_data' => $billingData,
-            'currency' => $currency,
-            'integration_id' => (int) $this->integrationId,
-            'lock_order_when_paid' => false,
-        ];
-
-        $response = Http::post("{$this->baseUrl}/acceptance/payments/payment_keys", $payload);
-        $response->throw();
-
-        return $response->json()['token'];
-    }
-
-    public function getIframeUrl(string $paymentToken): string
-    {
-        return "https://accept.paymob.com/api/acceptance/iframes/{$this->iframeId}?payment_token={$paymentToken}";
     }
 
     public function buildBillingData(array $data): array
@@ -165,20 +162,25 @@ class PaymobService
         $hmacType = $data['type'] ?? null;
 
         if ($hmacType === 'TRANSACTION') {
-            $computedHmac = $this->calculateHmac($data['obj']);
+            $obj = $data['obj'] ?? [];
 
-            if ($computedHmac !== ($data['hmac'] ?? null)) {
-                Log::warning('PayMob HMAC mismatch', [
-                    'expected' => $data['hmac'] ?? null,
-                    'computed' => $computedHmac,
-                ]);
-                return null;
+            if (! empty($this->hmac) && isset($data['hmac'])) {
+                $computedHmac = $this->calculateHmac($obj);
+
+                if ($computedHmac !== $data['hmac']) {
+                    Log::warning('PayMob HMAC mismatch', [
+                        'expected' => $data['hmac'],
+                        'computed' => $computedHmac,
+                    ]);
+
+                    return null;
+                }
             }
 
-            return $data['obj'];
+            return $obj;
         }
 
-        return null;
+        return $data['obj'] ?? $data;
     }
 
     public function calculateHmac(array $obj): string
@@ -204,13 +206,9 @@ class PaymobService
         $sourceDataSubType = $obj['source_data']['sub_type'] ?? '';
         $success = $obj['success'] ?? false;
 
-        $txnId = $id;
-        $txnId = $this->padLeftZeros($txnId);
-
+        $txnId = $this->padLeftZeros($id);
         $orderId = $this->padLeftZeros($orderId);
-
         $sourceDataPan = $this->padLeftZeros($sourceDataPan);
-
         $cleanedCreatedAt = str_replace([':', '.'], '', $createdAt);
 
         $data = "{$amountCents}{$cleanedCreatedAt}{$currency}{$errorOccurred}{$hasParentTransaction}{$txnId}{$integrationId}{$isAuth}{$isCapture}{$isRefunded}{$isStandalonePayment}{$is3DSecure}{$isVoid}{$orderId}{$owner}{$pending}{$sourceDataPan}{$sourceDataType}{$sourceDataSubType}{$success}";

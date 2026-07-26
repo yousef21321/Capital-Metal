@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\SubscriptionPlan;
-use App\Models\UserSubscription;
 use App\Models\User;
+use App\Models\UserSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,18 +20,18 @@ class SubscriptionController extends Controller
     {
         $sub = $request->user()->activeSubscription()->with('plan', 'approver')->first();
 
-        if (!$sub) {
+        if (! $sub) {
             return response()->json(['message' => 'No active subscription.'], 404);
         }
 
         return response()->json([
-            'subscription'         => $sub,
-            'tickets_remaining'   => $sub->tickets_remaining,
-            'tickets_used'        => $sub->tickets_used,
+            'subscription' => $sub,
+            'tickets_remaining' => $sub->tickets_remaining,
+            'tickets_used' => $sub->tickets_used,
             'can_publish_to_store' => $sub->canPublishToStore(),
-            'is_active'           => $sub->isActive(),
-            'approval_status'    => $sub->approval_status,
-            'expires_at'         => $sub->end_date,
+            'is_active' => $sub->isActive(),
+            'approval_status' => $sub->approval_status,
+            'expires_at' => $sub->end_date,
         ]);
     }
 
@@ -58,19 +59,19 @@ class SubscriptionController extends Controller
             $end = $plan->duration_days ? $start->copy()->addDays($plan->duration_days) : null;
 
             $subscription = UserSubscription::create([
-                'user_id'           => $user->id,
-                'plan_id'           => $plan->id,
-                'start_date'        => $start,
-                'end_date'          => $end,
-                'status'            => 'active',
-                'approval_status'   => 'pending',
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'start_date' => $start,
+                'end_date' => $end,
+                'status' => 'active',
+                'approval_status' => 'pending',
                 'tickets_remaining' => $plan->ticket_limit,
-                'tickets_used'      => 0,
+                'tickets_used' => 0,
             ]);
 
             $this->notifyRole('admin', 'subscription.pending', 'New subscription awaiting approval', [
                 'subscription_id' => $subscription->id,
-                'user_id'         => $user->id,
+                'user_id' => $user->id,
             ]);
 
             return response()->json($subscription->load('plan'), 201);
@@ -99,8 +100,8 @@ class SubscriptionController extends Controller
 
         $sub->update([
             'approval_status' => 'approved',
-            'approved_by'    => $user->id,
-            'approved_at'    => now(),
+            'approved_by' => $user->id,
+            'approved_at' => now(),
         ]);
 
         $this->notify($sub->user_id, 'subscription.approved', 'Your subscription was approved', [
@@ -119,16 +120,16 @@ class SubscriptionController extends Controller
         $sub = UserSubscription::where('approval_status', 'pending')->findOrFail($id);
 
         $sub->update([
-            'approval_status'  => 'rejected',
-            'approved_by'      => $user->id,
-            'approved_at'      => now(),
+            'approval_status' => 'rejected',
+            'approved_by' => $user->id,
+            'approved_at' => now(),
             'rejection_reason' => $data['rejection_reason'] ?? null,
-            'status'           => 'cancelled',
+            'status' => 'cancelled',
         ]);
 
         $this->notify($sub->user_id, 'subscription.rejected', 'Your subscription was rejected', [
             'subscription_id' => $sub->id,
-            'reason'          => $data['rejection_reason'] ?? null,
+            'reason' => $data['rejection_reason'] ?? null,
         ]);
 
         return response()->json($sub->fresh(['user', 'plan', 'approver']));
@@ -147,6 +148,7 @@ class SubscriptionController extends Controller
             'discount_percent' => 'nullable|numeric|min:0|max:100',
         ]);
         $plan = SubscriptionPlan::create($data);
+
         return response()->json($plan, 201);
     }
 
@@ -164,6 +166,7 @@ class SubscriptionController extends Controller
             'discount_percent' => 'nullable|numeric|min:0|max:100',
         ]);
         $plan->update($data);
+
         return response()->json($plan);
     }
 
@@ -175,16 +178,17 @@ class SubscriptionController extends Controller
             abort(422, 'Cannot delete a plan that has active subscriptions.');
         }
         $plan->delete();
+
         return response()->json(['message' => 'Plan deleted.']);
     }
 
     protected function notify(int $userId, string $type, string $title, array $data = []): void
     {
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $userId,
-            'type'    => $type,
-            'title'   => $title,
-            'data'    => $data,
+            'type' => $type,
+            'title' => $title,
+            'data' => $data,
         ]);
     }
 

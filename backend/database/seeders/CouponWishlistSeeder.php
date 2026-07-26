@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Coupon;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Wishlist;
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class CouponWishlistSeeder extends Seeder
