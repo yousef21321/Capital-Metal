@@ -81,6 +81,49 @@ async function downloadDesignFile(product) {
   }
 }
 
+async function downloadDigitalFile(product, file) {
+  downloading.value = file.id
+  try {
+    const { data } = await api.get(`/api/tester/products/${product.id}/files/${file.id}/download`, {
+      responseType: 'blob',
+    })
+    const url = window.URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = product.name + '_' + (file.file_url.split('/').pop() || 'file')
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    alert(e.response?.data?.message || 'Download failed')
+  } finally {
+    downloading.value = null
+  }
+}
+
+async function downloadAllFiles(product) {
+  const key = 'all-' + product.id
+  downloading.value = key
+  try {
+    const { data } = await api.get(`/api/tester/products/${product.id}/download-all`, {
+      responseType: 'blob',
+    })
+    const url = window.URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = product.name + '_design_files.zip'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    alert(e.response?.data?.message || 'Download failed')
+  } finally {
+    downloading.value = null
+  }
+}
+
 function startConvert(ticket) {
   convertingTicket.value = ticket
   convertForm.value = {
@@ -303,8 +346,24 @@ onMounted(fetchProducts)
                   </div>
                 </div>
 
-                <!-- Design File Download -->
-                <div v-if="p.design_file_path" class="mb-3">
+                <!-- Design Files Download -->
+                <div v-if="p.digital_files?.length" class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <small class="fw-semibold">Design Files ({{ p.digital_files.length }})</small>
+                    <CButton color="primary" size="sm" :disabled="downloading === 'all-' + p.id" @click="downloadAllFiles(p)">
+                      <CSpinner v-if="downloading === 'all-' + p.id" size="sm" class="me-1" />
+                      <CIcon icon="cil-cloud-download" class="me-1" />
+                      Download All
+                    </CButton>
+                  </div>
+                  <div v-for="f in p.digital_files" :key="f.id" class="d-flex align-items-center gap-2 p-2 mb-1 rounded" style="background: var(--cui-tertiary-bg, #f8f9fa);">
+                    <CIcon icon="cil-file" class="text-primary flex-shrink-0" />
+                    <div class="flex-grow-1 min-w-0">
+                      <small class="d-block text-truncate">{{ f.file_url?.split('/').pop() || 'file' }}</small>
+                    </div>
+                  </div>
+                </div>
+                <div v-else-if="p.design_file_path" class="mb-3">
                   <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: var(--cui-tertiary-bg, #f8f9fa);">
                     <CIcon icon="cil-file" class="text-primary" />
                     <div class="flex-grow-1 min-w-0">

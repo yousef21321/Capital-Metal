@@ -15,6 +15,7 @@ class Product extends Model
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
         'ticket_id', 'stox_product_id',
+        'lemonsqueezy_product_id', 'lemonsqueezy_variant_id',
     ];
 
     protected function casts(): array

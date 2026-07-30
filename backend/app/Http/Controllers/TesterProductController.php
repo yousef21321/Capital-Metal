@@ -12,7 +12,7 @@ class TesterProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['designer', 'images', 'ticket'])
+        $products = Product::with(['designer', 'images', 'ticket', 'digitalFiles'])
             ->where('status', 'pending_tester_review')
             ->orWhere('status', 'modification_requested')
             ->orderBy('created_at', 'desc')
@@ -103,7 +103,7 @@ class TesterProductController extends Controller
             'note' => 'Ticket converted to digital product by tester for review',
         ]);
 
-        return response()->json($product->load('images', 'ticket'), 201);
+        return response()->json($product->load('images', 'ticket', 'digitalFiles'), 201);
     }
 
     public function approve($id)
@@ -174,5 +174,58 @@ class TesterProductController extends Controller
             ->count();
 
         return response()->json(['count' => $productCount + $ticketCount]);
+    }
+
+    public function downloadDigitalFile($productId, $fileId)
+    {
+        $product = Product::findOrFail($productId);
+        abort_unless(in_array($product->status, ['pending_tester_review', 'modification_requested']), 403,
+            'Product is not pending review.');
+
+        $file = $product->digitalFiles()->findOrFail($fileId);
+
+        if (! Storage::disk('public')->exists($file->file_url)) {
+            return response()->json(['message' => 'File not available.'], 404);
+        }
+
+        return Storage::disk('public')->download($file->file_url, $product->name.'_'.basename($file->file_url));
+    }
+
+    public function downloadAllDigitalFiles($productId)
+    {
+        $product = Product::findOrFail($productId);
+        abort_unless(in_array($product->status, ['pending_tester_review', 'modification_requested']), 403,
+            'Product is not pending review.');
+
+        $files = $product->digitalFiles;
+
+        if ($files->isEmpty()) {
+            return response()->json(['message' => 'No design files available.'], 404);
+        }
+
+        if ($files->count() === 1) {
+            $file = $files->first();
+            if (! Storage::disk('public')->exists($file->file_url)) {
+                return response()->json(['message' => 'File not available.'], 404);
+            }
+            return Storage::disk('public')->download($file->file_url, $product->name.'_'.basename($file->file_url));
+        }
+
+        $zipName = str_replace(' ', '_', $product->name) . '_design_files.zip';
+        $zipPath = tempnam(sys_get_temp_dir(), 'zip');
+        $zip = new \ZipArchive;
+        if ($zip->open($zipPath, \ZipArchive::CREATE) !== true) {
+            return response()->json(['message' => 'Could not create zip.'], 500);
+        }
+
+        foreach ($files as $df) {
+            $diskPath = Storage::disk('public')->path($df->file_url);
+            if (file_exists($diskPath)) {
+                $zip->addFile($diskPath, basename($df->file_url));
+            }
+        }
+        $zip->close();
+
+        return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
     }
 }

@@ -13,6 +13,7 @@ use App\Models\TicketPriceHistory;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\ImageOptimizer;
+use App\Services\LemonSqueezyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -899,9 +900,11 @@ class TicketController extends Controller
             'manufacturing_method' => 'nullable|string|max:100',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
-            'images' => 'nullable|array|max:2',
+            'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'design_file' => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
+            'design_files' => 'nullable|array',
+            'design_files.*' => 'file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
         ]);
 
         $product = Product::create(array_merge($data, [
@@ -910,6 +913,11 @@ class TicketController extends Controller
             'status' => $data['status'] ?? 'pending_tester_review',
             'publish_date' => now(),
         ]));
+
+        $defaultVariantId = app(LemonSqueezyService::class)->getDefaultVariantId();
+        if ($defaultVariantId) {
+            $product->update(['lemonsqueezy_variant_id' => $defaultVariantId]);
+        }
 
         if ($request->hasFile('images')) {
             $optimizer = app(ImageOptimizer::class);
@@ -922,12 +930,37 @@ class TicketController extends Controller
             }
         }
 
-        if ($request->hasFile('design_file')) {
-            $path = $request->file('design_file')->store("products/{$product->id}/design", 'public');
+        $uploadedFiles = $request->file('design_files');
+        if ($uploadedFiles) {
+            $uploadedFiles = is_array($uploadedFiles) ? $uploadedFiles : [$uploadedFiles];
+            foreach ($uploadedFiles as $i => $file) {
+                if (! $file || ! $file->isValid()) continue;
+                $originalName = $file->getClientOriginalName();
+                $path = $file->storeAs("products/{$product->id}/design", $originalName, 'public');
+                if ($i === 0 && ! $product->design_file_path) {
+                    $product->update(['design_file_path' => $path]);
+                }
+                $product->digitalFiles()->create([
+                    'file_url' => $path,
+                    'version' => '1.0',
+                    'license_type' => 'commercial',
+                ]);
+            }
+        }
+
+        if (! $uploadedFiles && $request->hasFile('design_file')) {
+            $file = $request->file('design_file');
+            $originalName = $file->getClientOriginalName();
+            $path = $file->storeAs("products/{$product->id}/design", $originalName, 'public');
+            $product->digitalFiles()->create([
+                'file_url' => $path,
+                'version' => '1.0',
+                'license_type' => 'commercial',
+            ]);
             $product->update(['design_file_path' => $path]);
         }
 
-        return response()->json($product->load('images', 'inventory'), 201);
+        return response()->json($product->load('images', 'inventory', 'digitalFiles'), 201);
     }
 
     protected function transition(Ticket $ticket, string $action, ?\Closure $mutate = null, ?User $changedBy = null): Ticket
@@ -1195,6 +1228,8 @@ class TicketController extends Controller
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'design_file' => 'nullable|file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
+            'design_files' => 'nullable|array',
+            'design_files.*' => 'file|mimes:pdf,zip,ai,eps,svg,dxf,psd,png,jpg,jpeg|max:51200',
         ]);
 
         $product->update(array_merge($data, [
@@ -1202,7 +1237,7 @@ class TicketController extends Controller
         ]));
 
         if ($request->hasFile('images')) {
-            $request->validate(['images' => 'nullable|array|max:2']);
+            $request->validate(['images' => 'nullable|array']);
             $product->images()->delete();
             $optimizer = app(ImageOptimizer::class);
             foreach ($request->file('images') as $i => $image) {
@@ -1214,11 +1249,37 @@ class TicketController extends Controller
             }
         }
 
-        if ($request->hasFile('design_file')) {
-            $path = $request->file('design_file')->store("products/{$product->id}/design", 'public');
+        $uploadedFiles = $request->file('design_files');
+        if ($uploadedFiles) {
+            $product->digitalFiles()->delete();
+            $uploadedFiles = is_array($uploadedFiles) ? $uploadedFiles : [$uploadedFiles];
+            foreach ($uploadedFiles as $i => $file) {
+                if (! $file || ! $file->isValid()) continue;
+                $originalName = $file->getClientOriginalName();
+                $path = $file->storeAs("products/{$product->id}/design", $originalName, 'public');
+                if ($i === 0) {
+                    $product->update(['design_file_path' => $path]);
+                }
+                $product->digitalFiles()->create([
+                    'file_url' => $path,
+                    'version' => '1.0',
+                    'license_type' => 'commercial',
+                ]);
+            }
+        }
+
+        if (! $uploadedFiles && $request->hasFile('design_file')) {
+            $file = $request->file('design_file');
+            $originalName = $file->getClientOriginalName();
+            $path = $file->storeAs("products/{$product->id}/design", $originalName, 'public');
+            $product->digitalFiles()->create([
+                'file_url' => $path,
+                'version' => '1.0',
+                'license_type' => 'commercial',
+            ]);
             $product->update(['design_file_path' => $path]);
         }
 
-        return response()->json($product->fresh()->load('images'));
+        return response()->json($product->fresh()->load('images', 'digitalFiles'));
     }
 }

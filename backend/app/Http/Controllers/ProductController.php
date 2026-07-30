@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SyncStoxProductJob;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ImageOptimizer;
-use App\Services\StoxService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -109,7 +109,10 @@ class ProductController extends Controller
             $storedImageUrls[] = $path;
         }
 
-        $this->createStoxProduct($product, $sku, $storedImageUrls);
+        if ($product->product_type === 'physical') {
+            $dispatchSku = $sku ?: $product->slug;
+            SyncStoxProductJob::dispatch($product->id, $dispatchSku, $storedImageUrls);
+        }
 
         return response()->json(['product' => $product->load('images', 'inventory')], 201);
     }
@@ -251,69 +254,12 @@ class ProductController extends Controller
         return response()->json($file, 201);
     }
 
-    private function createStoxProduct(Product $product, ?string $sku, array $imagePaths = []): void
-    {
-        if ($product->product_type !== 'physical') {
-            return;
-        }
-
-        /** @var StoxService $stox */
-        $stox = app(StoxService::class);
-
-        if (! $stox->isConfigured()) {
-            return;
-        }
-
-        $stoxSku = $sku ?: $product->slug;
-        $stoxName = $product->name ?: $product->slug;
-
-        $imageUrls = array_map(fn ($path) => $stox->buildImageUrl($path), $imagePaths);
-
-        $result = $stox->createProduct(
-            name: $stoxName,
-            sku: $stoxSku,
-            description: $product->description,
-            images: $imageUrls,
-        );
-
-        if ($result && isset($result['id'])) {
-            $product->update(['stox_product_id' => $result['id']]);
-        } elseif (! $result) {
-            $fallbackSku = strtoupper(str_replace(' ', '-', $product->slug)).'-'.$product->id;
-            $result = $stox->createProduct(
-                name: $stoxName,
-                sku: $fallbackSku,
-                description: $product->description,
-                images: $imageUrls,
-            );
-            if ($result && isset($result['id'])) {
-                $product->update(['stox_product_id' => $result['id']]);
-            }
-        }
-    }
-
     private function syncImagesToStox(Product $product): void
     {
         if ($product->product_type !== 'physical' || ! $product->stox_product_id) {
             return;
         }
 
-        /** @var StoxService $stox */
-        $stox = app(StoxService::class);
-
-        if (! $stox->isConfigured()) {
-            return;
-        }
-
-        $images = $product->images()->orderBy('sort_order')->get();
-
-        $imageUrls = $images->map(fn ($img) => $stox->buildImageUrl($img->image_url))->toArray();
-
-        $stox->createProduct(
-            name: $product->name ?: $product->slug,
-            sku: $product->inventory?->sku ?: $product->slug,
-            description: $product->description,
-            images: $imageUrls,
-        );
+        SyncStoxProductJob::dispatch($product->id);
     }
 }

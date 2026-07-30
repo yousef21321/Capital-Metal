@@ -9,6 +9,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\HeroController;
+use App\Http\Controllers\LemonSqueezyController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
@@ -62,6 +63,9 @@ Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
 
 // PayMob webhook (no auth)
 Route::post('/paymob/callback', [PayMobController::class, 'callback']);
+
+// LemonSqueezy webhook (no auth)
+Route::post('/lemonsqueezy/webhook', [LemonSqueezyController::class, 'webhook']);
 
 // Cart (public — supports guest_token)
 Route::get('/cart', [CartController::class, 'show']);
@@ -233,6 +237,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/tester/products/pending', [TesterProductController::class, 'index']);
         Route::get('/tester/products/pending-count', [TesterProductController::class, 'pendingCount']);
         Route::get('/tester/products/{id}/download', [TesterProductController::class, 'downloadDesignFile']);
+        Route::get('/tester/products/{id}/files/{fileId}/download', [TesterProductController::class, 'downloadDigitalFile']);
+        Route::get('/tester/products/{id}/download-all', [TesterProductController::class, 'downloadAllDigitalFiles']);
         Route::post('/tester/products/{id}/approve', [TesterProductController::class, 'approve']);
         Route::post('/tester/products/{id}/return', [TesterProductController::class, 'returnWithFeedback']);
         Route::post('/tester/tickets/{ticketId}/convert-to-product', [TesterProductController::class, 'convertTicketToProduct']);

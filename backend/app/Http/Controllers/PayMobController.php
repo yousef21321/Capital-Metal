@@ -9,6 +9,7 @@ use App\Models\SavedCard;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserSubscription;
+use App\Services\LemonSqueezyService;
 use App\Services\PaymobService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,11 @@ class PayMobController extends Controller
 
             if ($order->payment_status === 'paid') {
                 return response()->json(['message' => 'Order is already paid.'], 422);
+            }
+
+            // USD orders go through LemonSqueezy
+            if ($order->currency === 'USD') {
+                return app(LemonSqueezyController::class)->initiatePayment($request);
             }
 
             $amountCents = (int) (round($order->total_amount, 2) * 100);
@@ -258,6 +264,9 @@ class PayMobController extends Controller
                 $amountCents,
                 $currency,
                 $billingData,
+                [],
+                config('services.paymob.callback_url'),
+                config('services.paymob.redirect_url'),
             );
 
             $intentionOrderId = $intention['intention_order_id'] ?? $intention['id'] ?? null;
@@ -324,6 +333,9 @@ class PayMobController extends Controller
                 $amountCents,
                 $currency,
                 $billingData,
+                [],
+                config('services.paymob.callback_url'),
+                config('services.paymob.redirect_url'),
             );
 
             $intentionOrderId = $intention['intention_order_id'] ?? $intention['id'] ?? null;

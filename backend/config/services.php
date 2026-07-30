@@ -42,6 +42,8 @@ return [
         'integration_id' => env('PAYMOB_INTEGRATION_ID'),
         'iframe_id' => env('PAYMOB_IFRAME_ID'),
         'hmac' => env('PAYMOB_HMAC'),
+        'callback_url' => env('PAYMOB_CALLBACK_URL'),
+        'redirect_url' => env('PAYMOB_REDIRECT_URL'),
     ],
 
     'stox' => [
@@ -77,6 +79,14 @@ return [
             'north sinai' => null,
             'south sinai' => null,
         ],
+    ],
+
+    'lemonsqueezy' => [
+        'api_key' => env('LEMONSQUEEZY_API_KEY'),
+        'store_id' => env('LEMONSQUEEZY_STORE_ID'),
+        'webhook_secret' => env('LEMONSQUEEZY_WEBHOOK_SECRET'),
+        'redirect_url' => env('LEMONSQUEEZY_REDIRECT_URL'),
+        'default_variant_id' => env('LEMONSQUEEZY_DEFAULT_VARIANT_ID'),
     ],
 
     'google' => [
