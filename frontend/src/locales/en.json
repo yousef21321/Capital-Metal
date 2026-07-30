@@ -143,7 +143,7 @@
 
   "admin_products.title": "Product Management",
   "admin_products.desc": "Create, edit, and manage all products.",
-  "admin_products.add": "Add Degital Product",
+  "admin_products.add": "Add Product",
   "admin_products.search": "Search products...",
   "admin_products.no_products": "No products yet",
   "admin_products.create_first": "Create your first product",
@@ -156,7 +156,7 @@
   "admin_products.previous": "Previous",
   "admin_products.next": "Next",
   "admin_products.edit_title": "Edit Product",
-  "admin_products.add_title": "Add Degital Product",
+  "admin_products.add_title": "Add Product",
   "admin_products.name_label": "Name",
   "admin_products.name_placeholder": "Product name",
   "admin_products.slug": "Slug",
