@@ -19,6 +19,16 @@ api.interceptors.request.use((config) => {
     config.headers['X-Guest-Token'] = guestToken
   }
 
+  // Cloudflare caches API GET responses (e.g. /api/cart) by URL for 31 days,
+  // which returns stale/empty carts. Add a unique query param so the CDN
+  // cache never matches and every GET hits the fresh backend response.
+  if (config.method?.toLowerCase() === 'get') {
+    config.params = {
+      ...(config.params || {}),
+      _: Date.now(),
+    }
+  }
+
   return config
 })
 
@@ -33,7 +43,8 @@ api.interceptors.response.use(
         || error.config?.url?.includes('/api/orders')
       if (isAuthRoute) {
         localStorage.removeItem('auth-token')
-        window.location.href = '/pages/login'
+        const currentPath = window.location.pathname + window.location.search
+        window.location.href = '/pages/login?redirect=' + encodeURIComponent(currentPath)
       }
     }
     return Promise.reject(error)

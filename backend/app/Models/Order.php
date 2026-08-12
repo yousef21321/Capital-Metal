@@ -10,7 +10,8 @@ class Order extends Model
         'user_id', 'guest_token', 'order_number', 'affiliate_id', 'currency', 'subtotal',
         'shipping_cost', 'discount', 'coupon_id', 'total_amount',
         'payment_status', 'order_status', 'shipping_tracking_number', 'stox_order_id', 'notes',
-        'guest_name', 'guest_phone', 'guest_governorate', 'guest_city',
+        'address_id',
+        'guest_name', 'guest_email', 'guest_phone', 'guest_governorate', 'guest_city',
         'guest_address_line', 'guest_postal_code',
     ];
 
@@ -62,5 +63,10 @@ class Order extends Model
     public function financialAnalytics()
     {
         return $this->hasOne(FinancialAnalytics::class);
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
     }
 }

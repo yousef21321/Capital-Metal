@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import api from '@/api'
 import { useToastStore } from '@/stores/toast'
+import { thumbImageUrl } from '@/utils/image'
 
 const toast = useToastStore()
 const images = ref([])
@@ -187,7 +188,7 @@ onMounted(fetchImages)
             </div>
             <img
               v-else
-              :src="`/storage/${item.image_url}`"
+              :src="thumbImageUrl(item)"
               class="w-100 rounded-top"
               style="height: 180px; object-fit: cover;"
               :alt="item.alt_text || ''"

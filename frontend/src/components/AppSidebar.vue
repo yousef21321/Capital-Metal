@@ -5,8 +5,8 @@ import { RouterLink } from 'vue-router'
 import { AppSidebarNav } from '@/components/AppSidebarNav.js'
 import { useSidebarStore } from '@/stores/sidebar.js'
 import { useThemeStore } from '@/stores/theme.js'
-import logoLight from '@/assets/images/logo.webp'
-import logoDark from '@/assets/images/logodark.webp'
+import logoLight from '@/assets/images/logo-small.webp'
+import logoDark from '@/assets/images/logodark-small.webp'
 
 const sidebar = useSidebarStore()
 const themeStore = useThemeStore()

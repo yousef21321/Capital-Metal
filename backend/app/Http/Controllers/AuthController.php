@@ -160,15 +160,23 @@ class AuthController extends Controller
         foreach ($guestCart->items as $item) {
             $existing = $userCart->items()
                 ->where('product_id', $item->product_id)
+                ->where('variant_id', $item->variant_id)
                 ->where('license_type', $item->license_type)
                 ->first();
 
+            $quantity = $item->product?->product_type === 'digital' ? 1 : $item->quantity;
+
             if ($existing) {
-                $existing->increment('quantity', $item->quantity);
+                if ($item->product?->product_type === 'digital') {
+                    $existing->update(['quantity' => 1]);
+                } else {
+                    $existing->increment('quantity', $quantity);
+                }
             } else {
                 $userCart->items()->create([
                     'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
+                    'variant_id' => $item->variant_id,
+                    'quantity' => $quantity,
                     'license_type' => $item->license_type,
                 ]);
             }

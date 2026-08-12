@@ -207,7 +207,7 @@ async function submit() {
   }
 
   for (const f of designFiles.value) {
-    fd.append('design_file', f)
+    fd.append('design_files[]', f)
   }
 
   try {

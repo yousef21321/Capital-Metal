@@ -29,5 +29,10 @@ php artisan migrate --force
 echo "[7] Running seeders..."
 php artisan db:seed --force 2>/dev/null || true
 
-echo "[8] Starting Laravel server..."
+echo "[8] Starting queue worker..."
+php artisan queue:work --sleep=3 --tries=3 --daemon &
+QUEUE_PID=$!
+echo "  Queue worker started (PID: $QUEUE_PID)"
+
+echo "[9] Starting Laravel server..."
 php artisan serve --host=0.0.0.0 --port=8000

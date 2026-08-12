@@ -22,11 +22,20 @@ class LemonSqueezyController extends Controller
             'order_id' => 'required|exists:orders,id',
         ]);
 
-        $user = $request->user();
+        $user = $request->user() ?? auth('sanctum')->user();
+        $guestToken = $request->header('X-Guest-Token', $request->input('guest_token'));
         $order = Order::findOrFail($validated['order_id']);
 
-        if ($order->user_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        if ($user) {
+            if ($order->user_id !== $user->id) {
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
+        } else {
+            if ($order->user_id !== null
+                || $order->guest_token === null
+                || $order->guest_token !== $guestToken) {
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
         }
 
         if ($order->payment_status === 'paid') {
@@ -46,19 +55,21 @@ class LemonSqueezyController extends Controller
             return response()->json(['message' => 'No LemonSqueezy variant configured. Contact support.'], 422);
         }
 
-        $rate = (float) \Illuminate\Support\Facades\DB::table('settings')
-            ->where('key', 'egp_to_usd_rate')
-            ->value('value');
-        $amountUsd = $order->total_amount * $rate;
+        // Order total is already in USD (EGP ÷ exchange rate at checkout).
+        $amountUsd = (float) $order->total_amount;
 
         try {
+            $customerEmail = $user->email
+                ?? $order->guest_email
+                ?? sprintf('guest-%s@flfl-design.com', strtolower($order->order_number));
+
             $result = $this->lemonsqueezy->createCheckout(
                 variantId: $variantId,
                 orderId: $order->id,
                 orderNumber: $order->order_number,
                 amount: $amountUsd,
-                customerEmail: $user->email ?? $order->guest_name,
-                customerName: $user->name ?? $order->guest_name,
+                customerEmail: $customerEmail,
+                customerName: $user->name ?? $order->guest_name ?? 'Guest',
                 redirectUrl: config('services.lemonsqueezy.redirect_url')
             );
 
@@ -96,11 +107,12 @@ class LemonSqueezyController extends Controller
     public function webhook(Request $request)
     {
         $signature = $request->header('X-Signature');
+        $rawBody = $request->getContent();
         $payload = $request->all();
 
         Log::debug('LemonSqueezy webhook received', ['payload' => $payload]);
 
-        if (! $this->lemonsqueezy->verifyWebhook($payload, $signature)) {
+        if (! $this->lemonsqueezy->verifyWebhook($rawBody, $signature)) {
             Log::warning('LemonSqueezy webhook signature verification failed');
             return response()->json(['message' => 'Invalid signature.'], 403);
         }
@@ -116,7 +128,7 @@ class LemonSqueezyController extends Controller
 
     protected function handleOrderCreated(array $payload): void
     {
-        $customData = $payload['data']['attributes']['custom_data'] ?? [];
+        $customData = $payload['meta']['custom_data'] ?? $payload['data']['attributes']['custom_data'] ?? [];
         $orderId = $customData['order_id'] ?? null;
         $status = $payload['data']['attributes']['status'] ?? '';
 
@@ -144,7 +156,10 @@ class LemonSqueezyController extends Controller
             ]);
         }
 
-        $order->update(['payment_status' => $isPaid ? 'paid' : 'failed']);
+        $order->update([
+            'payment_status' => $isPaid ? 'paid' : 'failed',
+            'order_status' => $isPaid ? 'confirmed' : 'pending',
+        ]);
 
         Log::info('LemonSqueezy order processed', [
             'order_id' => $orderId,

@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import logoLight from '@/assets/images/logo.webp'
-import logoDark from '@/assets/images/logodark.webp'
+import logoLight from '@/assets/images/logo-small.webp'
+import logoDark from '@/assets/images/logodark-small.webp'
 import { RouterLink, useRoute } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
@@ -56,6 +56,13 @@ async function fetchDesignerModificationCount() {
   } catch {}
 }
 
+async function exitImpersonation() {
+  const ok = await auth.exitImpersonation()
+  if (ok) {
+    window.location.href = '/admin/users'
+  }
+}
+
 const canSee = (item) => {
   const role = auth.userRole
   if (!role) return !item.roles || item.roles.length === 0
@@ -69,6 +76,7 @@ function setCurrency(currency) {
     auth.updateCurrency(currency).catch(() => {})
   } else {
     auth.detectedCurrency = currency
+    localStorage.setItem('guest-currency', currency)
   }
 }
 
@@ -94,7 +102,7 @@ onMounted(() => {
     } else {
       headerClassNames.value = 'mb-4 p-0'
     }
-  })
+  }, { passive: true })
 
   if (auth.isAuthenticated) {
     notif.startPolling(30000)
@@ -112,6 +120,15 @@ onMounted(() => {
 
 <template>
   <CHeader position="sticky" :class="['modern-header', headerClassNames]">
+    <div v-if="auth.impersonating" class="impersonation-banner w-100 d-flex align-items-center justify-content-between px-4 py-1">
+      <span class="impersonation-text">
+        <CIcon icon="cil-account-login" class="me-1" />
+        {{ $t('header.impersonating') }} <strong>{{ auth.userName }}</strong>
+      </span>
+      <CButton color="light" size="sm" class="impersonation-back" @click="exitImpersonation">
+        <CIcon icon="cil-arrow-left" class="me-1" /> {{ $t('header.back_to_admin') }}
+      </CButton>
+    </div>
     <CContainer class="border-bottom px-4" fluid>
       <CHeaderToggler @click="sidebar.toggleVisible()" style="margin-inline-start: -14px">
       </CHeaderToggler>
@@ -127,9 +144,9 @@ onMounted(() => {
         </button>
       </div>
       <CHeaderNav class="ms-auto">
-        <CNavItem>
+        <CNavItem class="cart-fly-zone">
           <RouterLink custom to="/cart" v-slot="{ href, navigate, isActive }">
-            <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative" :aria-label="$t('header.cart')">
+            <CNavLink :href="href" @click="navigate" :active="isActive" class="cart-fly-link position-relative" :aria-label="$t('header.cart')">
               <CIcon icon="cil-basket" size="lg" />
               <CBadge
                 v-if="cart.count > 0"
@@ -140,6 +157,13 @@ onMounted(() => {
               >
                 {{ cart.count }}
               </CBadge>
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="['industor','admin'].includes(auth.userRole)">
+          <RouterLink custom to="/plans" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.plans')">
+              <CIcon icon="cil-layers" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
@@ -214,6 +238,13 @@ onMounted(() => {
           <RouterLink custom to="/admin/shipping-rates" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.shippingRates')">
               <CIcon icon="cil-truck" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+        <CNavItem v-if="auth.userRole === 'admin'">
+          <RouterLink custom to="/admin/users" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.users')">
+              <CIcon icon="cil-user" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
@@ -413,6 +444,20 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.impersonation-banner {
+  background: linear-gradient(90deg, #b81300, #8f0e00);
+  color: #fff;
+}
+
+.impersonation-text {
+  font-size: 0.85rem;
+}
+
+.impersonation-back {
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
 .notif-dropdown-menu {
   min-width: 320px;
 }

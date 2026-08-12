@@ -10,6 +10,14 @@ function loadUser() {
   }
 }
 
+function loadDetectedCurrency() {
+  try {
+    return localStorage.getItem('guest-currency') || null
+  } catch {
+    return null
+  }
+}
+
 function generateUUID() {
   if (typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID()
@@ -40,53 +48,13 @@ function ensureGuestToken() {
   return token
 }
 
-async function detectViaGPS() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) return reject('no geolocation')
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const res = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`
-          )
-          const data = await res.json()
-          const countryCode = data?.countryCode?.toLowerCase()
-          resolve(countryCode === 'eg' ? 'EGP' : 'USD')
-        } catch {
-          reject('reverse-geocode failed')
-        }
-      },
-      () => reject('permission denied or timeout'),
-      { enableHighAccuracy: true, timeout: 5000 }
-    )
-  })
-}
-
-export async function detectCurrency() {
-  try {
-    const currency = await detectViaGPS()
-    return currency
-  } catch {
-    // fallback to IP-based detection
-  }
-  try {
-    const res = await fetch('https://ip-api.com/json/')
-    if (!res.ok) return 'EGP'
-    const data = await res.json()
-    const countryCode = data?.countryCode?.toLowerCase()
-    return countryCode === 'eg' ? 'EGP' : 'USD'
-  } catch {
-    return 'EGP'
-  }
-}
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: loadUser(),
     token: localStorage.getItem('auth-token') || null,
     loading: false,
     exchangeRate: null,
-    detectedCurrency: null,
+    detectedCurrency: loadDetectedCurrency(),
     guestToken: generateGuestToken(),
   }),
 
@@ -96,6 +64,7 @@ export const useAuthStore = defineStore('auth', {
     userName: (state) => state.user?.name || '',
     userEmail: (state) => state.user?.email || '',
     userCurrency: (state) => state.user?.currency_preference || state.detectedCurrency || 'EGP',
+    impersonating: (state) => !!localStorage.getItem('impersonation-admin'),
   },
 
   actions: {
@@ -116,11 +85,6 @@ export const useAuthStore = defineStore('auth', {
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
         localStorage.removeItem('guest-token')
-        const detected = await detectCurrency()
-        this.detectedCurrency = detected
-        if (detected !== (data.user?.currency_preference || 'EGP')) {
-          try { await this.updateCurrency(detected) } catch {}
-        }
         this.fetchExchangeRate()
         return true
       } catch (error) {
@@ -134,13 +98,12 @@ export const useAuthStore = defineStore('auth', {
     async register(name, email, password, passwordConfirmation, currencyPreference) {
       this.loading = true
       try {
-        const detected = currencyPreference || await detectCurrency()
         const { data } = await api.post('/api/register', {
           name,
           email,
           password,
           password_confirmation: passwordConfirmation,
-          currency_preference: detected,
+          currency_preference: currencyPreference,
         })
         this.token = data.token
         this.persistUser(data.user)
@@ -164,11 +127,6 @@ export const useAuthStore = defineStore('auth', {
         this.persistUser(data.user)
         localStorage.setItem('auth-token', data.token)
         localStorage.removeItem('guest-token')
-        const detected = await detectCurrency()
-        this.detectedCurrency = detected
-        if (detected !== (data.user?.currency_preference || 'EGP')) {
-          try { await this.updateCurrency(detected) } catch {}
-        }
         this.fetchExchangeRate()
         return true
       } catch (error) {
@@ -188,6 +146,33 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    detectAndSetCurrency() {
+      if (this.user?.currency_preference) {
+        this.detectedCurrency = this.user.currency_preference
+        return this.user.currency_preference
+      }
+      const saved = loadDetectedCurrency()
+      if (saved) {
+        this.detectedCurrency = saved
+        return saved
+      }
+      this.detectedCurrency = 'EGP'
+      return 'EGP'
+    },
+
+    async fetchUser() {
+      try {
+        const { data } = await api.get('/api/me')
+        this.persistUser(data)
+        return data
+      } catch (error) {
+        if (error.response?.status === 401) {
+          this.logout()
+        }
+        throw error
+      }
+    },
+
     async updateCurrency(currency) {
       const { data } = await api.put('/api/me/currency', { currency_preference: currency })
       this.persistUser(data)
@@ -202,26 +187,6 @@ export const useAuthStore = defineStore('auth', {
       return data
     },
 
-    async detectAndSetCurrency() {
-      const currency = await detectCurrency()
-      this.detectedCurrency = currency
-      if (this.user && currency !== this.user.currency_preference) {
-        try { await this.updateCurrency(currency) } catch {}
-      }
-    },
-
-    async fetchUser() {
-      if (!this.token) return null
-      try {
-        const { data } = await api.get('/api/me')
-        this.persistUser(data)
-        return data
-      } catch {
-        this.logout()
-        return null
-      }
-    },
-
     async logout() {
       try {
         await api.post('/api/logout')
@@ -231,7 +196,43 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.persistUser(null)
       localStorage.removeItem('auth-token')
+      localStorage.removeItem('impersonation-admin')
       this.guestToken = ensureGuestToken()
+    },
+
+    async impersonate(user) {
+      const { data } = await api.post(`/api/admin/users/${user.id}/impersonate`)
+      const prev = {
+        token: this.token,
+        user: this.user,
+      }
+      localStorage.setItem('impersonation-admin', JSON.stringify(prev))
+      this.token = data.token
+      this.persistUser(data.user)
+      localStorage.setItem('auth-token', data.token)
+      localStorage.removeItem('guest-token')
+      this.fetchExchangeRate()
+      return data.user
+    },
+
+    async exitImpersonation() {
+      const raw = localStorage.getItem('impersonation-admin')
+      if (!raw) return false
+      try {
+        const prev = JSON.parse(raw)
+        localStorage.removeItem('impersonation-admin')
+        if (prev?.token) {
+          this.token = prev.token
+          this.persistUser(prev.user)
+          localStorage.setItem('auth-token', prev.token)
+          localStorage.removeItem('guest-token')
+          this.fetchExchangeRate()
+          return true
+        }
+      } catch {
+        // ignore
+      }
+      return false
     },
   },
 })

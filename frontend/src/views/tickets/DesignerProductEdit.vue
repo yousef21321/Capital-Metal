@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { formatPrice } from '@/utils/price'
+import { thumbImageUrl } from '@/utils/image'
 
 const route = useRoute()
 const router = useRouter()
@@ -227,9 +228,7 @@ async function submit() {
   for (const img of images.value) fd.append('images[]', img)
 
   if (designFiles.value.length) {
-    for (const f of designFiles.value) fd.append('design_file', f)
-  } else if (!existingDesignFile.value) {
-    fd.append('design_file', '')
+    for (const f of designFiles.value) fd.append('design_files[]', f)
   }
 
   try {
@@ -321,7 +320,7 @@ onMounted(async () => {
                 <CFormLabel class="fw-semibold">Product Images</CFormLabel>
                 <div v-if="existingImages.length" class="d-flex gap-2 mb-2 flex-wrap">
                   <div v-for="img in existingImages" :key="img.id" class="position-relative" style="width: 100px; height: 100px;">
-                    <img :src="'/storage/' + img.image_url" class="rounded border w-100 h-100" style="object-fit: cover;" />
+                    <img :src="thumbImageUrl(img)" class="rounded border w-100 h-100" style="object-fit: cover;" />
                     <span role="button" class="position-absolute top-0 end-0 badge bg-danger rounded-circle" style="cursor: pointer; transform: translate(25%, -25%);" @click="removeExistingImage(img.id)">&times;</span>
                   </div>
                 </div>

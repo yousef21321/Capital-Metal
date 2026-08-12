@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
 import { loadLocale } from '@/i18n'
+import FloatingCart from '@/components/FloatingCart.vue'
 
 const currentTheme = useThemeStore()
 const authStore = useAuthStore()
@@ -41,10 +42,10 @@ onBeforeMount(async () => {
   currentTheme.toggleTheme(currentTheme.theme)
 
   if (authStore.token) {
-    await authStore.fetchUser()
+    await authStore.fetchUser().catch(() => {})
   }
 
-  await Promise.all([
+  await Promise.allSettled([
     authStore.detectAndSetCurrency(),
     authStore.fetchExchangeRate(),
   ])
@@ -53,6 +54,7 @@ onBeforeMount(async () => {
 
 <template>
   <router-view />
+  <FloatingCart />
   <a
     href="https://wa.me/201109055371"
     target="_blank"

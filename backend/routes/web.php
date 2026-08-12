@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FacebookFeedController;
 use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,3 +9,5 @@ Route::get('/', function () {
 });
 
 Route::get('/products/{slug}', [SeoController::class, 'productShow']);
+
+Route::get('/facebook/products.xml', [FacebookFeedController::class, 'products']);

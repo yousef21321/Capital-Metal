@@ -21,6 +21,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
+import { fbPixelInit } from '@/utils/fbPixel'
 
 // CoreUI Vue components and icons
 import CoreuiVue from '@coreui/vue'
@@ -50,3 +51,5 @@ app.component('DocsExample', DocsExample)
 
 // Mount application to DOM
 app.mount('#app')
+
+fbPixelInit()

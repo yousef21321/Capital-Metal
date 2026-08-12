@@ -95,4 +95,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT', '/auth/google/callback'),
     ],
 
+    'facebook' => [
+        'pixel_id' => env('FACEBOOK_PIXEL_ID'),
+        'catalog_id' => env('FACEBOOK_CATALOG_ID'),
+        'access_token' => env('FACEBOOK_ACCESS_TOKEN'),
+        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v21.0'),
+        'feed_currency' => env('FACEBOOK_FEED_CURRENCY', 'EGP'),
+    ],
+
 ];

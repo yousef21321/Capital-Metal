@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import fbPixel from '@/utils/fbPixel'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -51,8 +52,13 @@ async function fetchPaymentMethods() {
   try {
     const { data } = await api.get('/api/payment-methods')
     paymentMethods.value = data
+    const cc = data.find(p => p.name === 'Credit Card')
     const cod = data.find(p => p.name === 'Cash on Delivery')
-    if (cod) form.value.payment_method_id = cod.id
+    if (isDigitalOnly.value) {
+      if (cc) form.value.payment_method_id = cc.id
+    } else if (cod) {
+      form.value.payment_method_id = cod.id
+    }
   } catch (e) {
     console.error('Failed to load payment methods', e)
   }
@@ -65,6 +71,7 @@ const form = ref({
   payment_method_id: null,
   notes: '',
   guest_name: '',
+  guest_email: '',
   guest_phone: '',
   guest_governorate: '',
   guest_city: '',
@@ -191,10 +198,29 @@ const isDigitalOnly = computed(() => {
   return cart.value.items.every(item => item.product?.product_type === 'digital')
 })
 
+const requiresLoginForDigital = computed(() => !auth.isAuthenticated && isDigitalOnly.value)
+
 const hasPhysicalProducts = computed(() => {
   if (!cart.value?.items?.length) return false
   return cart.value.items.some(item => item.product?.product_type === 'physical')
 })
+
+const physicalWithUsd = computed(() => hasPhysicalProducts.value && form.value.currency === 'USD')
+
+const displayPaymentMethods = computed(() => {
+  if (!paymentMethods.value.length) return []
+  if (isDigitalOnly.value) {
+    return paymentMethods.value.filter(pm => pm.name === 'Credit Card')
+  }
+  return paymentMethods.value.filter(pm => ['Cash on Delivery', 'Credit Card'].includes(pm.name))
+})
+
+const paymentMethodLabel = (pm) => {
+  if (pm.name === 'Credit Card') {
+    return 'الدفع أونلاين / Pay Online'
+  }
+  return pm.name
+}
 
 const selectedAddress = computed(() => {
   if (!form.value.address_id || !addresses.value.length) return null
@@ -232,8 +258,8 @@ const isAddressValid = computed(() => addressErrors.value.length === 0)
 const checkoutItemPrice = (item, currency) => {
   const source = item.variant || item.product
   if (currency === 'USD') {
-    if (parseFloat(source?.price_usd) > 0) return parseFloat(source.price_usd)
     if (parseFloat(source?.price_egp) > 0) return parseFloat(source.price_egp) / (auth.exchangeRate || 30)
+    if (parseFloat(source?.price_usd) > 0) return parseFloat(source.price_usd)
     return 0
   }
   return parseFloat(source?.price_egp || 0)
@@ -300,10 +326,26 @@ function removeCoupon() {
 async function placeOrder() {
   error.value = ''
   success.value = ''
+
+  if (requiresLoginForDigital.value) {
+    router.push({ path: '/pages/login', query: { redirect: '/checkout' } })
+    return
+  }
+
+  if (physicalWithUsd.value) {
+    error.value = 'المنتجات المادية متاحة للشراء في مصر فقط / Physical products can only be purchased in Egypt (EGP).'
+    return
+  }
+  if (!auth.isAuthenticated && form.value.currency === 'USD' && !form.value.guest_email?.trim()) {
+    error.value = 'Please provide your email address to pay in USD / برجاء إدخال البريد الإلكتروني للدفع بالدولار.'
+    return
+  }
   submitting.value = true
   try {
+    trackInitiateCheckout()
     const payload = {
       currency: form.value.currency,
+      exchange_rate: form.value.currency === 'USD' ? (auth.exchangeRate || 30) : undefined,
       shipping_cost: isDigitalOnly.value ? 0 : (form.value.currency === 'USD'
         ? parseFloat((form.value.shipping_cost / (auth.exchangeRate || 30)).toFixed(4))
         : form.value.shipping_cost),
@@ -313,13 +355,16 @@ async function placeOrder() {
       payment_method_id: form.value.payment_method_id || undefined,
     }
 
-    if (!auth.isAuthenticated && !isDigitalOnly.value) {
-      payload.guest_name = form.value.guest_name
-      payload.guest_phone = form.value.guest_phone
-      payload.guest_governorate = form.value.guest_governorate
-      payload.guest_city = form.value.guest_city
-      payload.guest_address_line = form.value.guest_address_line
-      payload.guest_postal_code = form.value.guest_postal_code
+    if (!auth.isAuthenticated) {
+      payload.guest_email = form.value.guest_email
+      if (!isDigitalOnly.value) {
+        payload.guest_name = form.value.guest_name
+        payload.guest_phone = form.value.guest_phone
+        payload.guest_governorate = form.value.guest_governorate
+        payload.guest_city = form.value.guest_city
+        payload.guest_address_line = form.value.guest_address_line
+        payload.guest_postal_code = form.value.guest_postal_code
+      }
     }
 
     const { data } = await api.post('/api/checkout', payload)
@@ -330,6 +375,7 @@ async function placeOrder() {
 
     if (isCod) {
       success.value = `Order #${orderNumber} created! Will be delivered with cash on delivery.`
+      trackPurchase(data)
       setTimeout(() => router.push('/orders'), 1500)
       return
     }
@@ -345,6 +391,7 @@ async function placeOrder() {
 
       if (payRes.data?.paid) {
         success.value = `Order #${orderNumber} paid successfully!`
+        trackPurchase(data)
         setTimeout(() => router.push('/orders'), 1500)
         return
       }
@@ -360,6 +407,35 @@ async function placeOrder() {
   } finally {
     submitting.value = false
   }
+}
+
+function trackInitiateCheckout() {
+  if (!cart.value?.items?.length) return
+  const contents = cart.value.items.map((item) => {
+    const source = item.variant || item.product
+    return {
+      id: String(item.product_id),
+      quantity: item.quantity,
+      item_price: parseFloat(checkoutItemPrice(item, form.value.currency) || 0),
+    }
+  })
+  fbPixel.initiateCheckout({
+    content_type: 'product',
+    contents,
+    value: parseFloat(subtotal.value || 0),
+    currency: form.value.currency,
+    num_items: cart.value.items.reduce((s, i) => s + i.quantity, 0),
+  })
+}
+
+function trackPurchase(order) {
+  fbPixel.purchase({
+    content_ids: cart.value?.items?.map((i) => String(i.product_id)) || [],
+    content_type: 'product',
+    value: parseFloat(order?.total_amount || 0),
+    currency: order?.currency || form.value.currency,
+    num_items: cart.value?.items?.reduce((s, i) => s + i.quantity, 0) || 0,
+  })
 }
 
 onMounted(async () => {
@@ -402,8 +478,32 @@ onMounted(async () => {
           <span>هذا طلب منتج رقمي — لا يتطلب عنوان شحن / This is a digital product — no shipping address required.</span>
         </CAlert>
 
+        <!-- Guest must login/register to buy digital products -->
+        <CCard v-if="requiresLoginForDigital" class="mb-4 shadow-sm border-warning">
+          <CCardHeader class="bg-body">
+            <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
+              <CIcon icon="cil-user" /> تسجيل الدخول مطلوب / Login Required
+            </h4>
+          </CCardHeader>
+          <CCardBody>
+            <p class="mb-3">
+              <CIcon icon="cil-lock-locked" class="me-1 text-warning" />
+              المنتجات الرقمية تتطلب حساباً لإتمام الشراء. سلة التسوق الخاصة بك محفوظة وستظهر بعد تسجيل الدخول.
+              Digital products require an account to complete your purchase. Your cart is saved and will appear after you login.
+            </p>
+            <div class="d-flex gap-2 flex-wrap">
+              <CButton color="primary" @click="router.push({ path: '/pages/login', query: { redirect: '/checkout' } })">
+                <CIcon icon="cil-account-login" class="me-1" /> تسجيل الدخول / Login
+              </CButton>
+              <CButton color="primary" variant="outline" @click="router.push({ path: '/pages/register', query: { redirect: '/checkout' } })">
+                <CIcon icon="cil-user-plus" class="me-1" /> إنشاء حساب / Register
+              </CButton>
+            </div>
+          </CCardBody>
+        </CCard>
+
         <!-- Guest name/phone fields -->
-        <CCard v-if="!auth.isAuthenticated && !isDigitalOnly" class="mb-4 shadow-sm">
+        <CCard v-if="!auth.isAuthenticated && !requiresLoginForDigital" class="mb-4 shadow-sm">
           <CCardHeader class="bg-body">
             <h4 class="mb-0 d-flex align-items-center gap-2 fs-5">
               <CIcon icon="cil-user" /> معلوماتك / Your Information
@@ -411,13 +511,19 @@ onMounted(async () => {
           </CCardHeader>
           <CCardBody>
             <CRow>
-              <CCol :sm="6" class="mb-3">
-                <CFormLabel class="small fw-semibold">الاسم بالكامل / Full Name <span class="text-danger">*</span></CFormLabel>
-                <CFormInput v-model="form.guest_name" placeholder="Your full name" />
-              </CCol>
-              <CCol :sm="6" class="mb-3">
-                <CFormLabel class="small fw-semibold">رقم التليفون / Phone Number <span class="text-danger">*</span></CFormLabel>
-                <CFormInput v-model="form.guest_phone" placeholder="Phone number" />
+              <template v-if="!isDigitalOnly">
+                <CCol :sm="6" class="mb-3">
+                  <CFormLabel class="small fw-semibold">الاسم بالكامل / Full Name <span class="text-danger">*</span></CFormLabel>
+                  <CFormInput v-model="form.guest_name" placeholder="Your full name" />
+                </CCol>
+                <CCol :sm="6" class="mb-3">
+                  <CFormLabel class="small fw-semibold">رقم التليفون / Phone Number <span class="text-danger">*</span></CFormLabel>
+                  <CFormInput v-model="form.guest_phone" placeholder="Phone number" />
+                </CCol>
+              </template>
+              <CCol :sm="isDigitalOnly ? 12 : 6" class="mb-3">
+                <CFormLabel class="small fw-semibold">البريد الإلكتروني / Email <span class="text-danger">*</span></CFormLabel>
+                <CFormInput v-model="form.guest_email" type="email" placeholder="you@example.com" />
               </CCol>
             </CRow>
             <p class="text-body-secondary small mb-0">
@@ -603,9 +709,9 @@ onMounted(async () => {
             <!-- Payment Method -->
             <div class="mb-3">
               <label class="form-label small fw-semibold mb-2">طريقة الدفع / Payment Method</label>
-              <div v-for="pm in paymentMethods" :key="pm.id" class="form-check mb-1">
+              <div v-for="pm in displayPaymentMethods" :key="pm.id" class="form-check mb-1">
                 <input type="radio" class="form-check-input" :value="pm.id" v-model="form.payment_method_id" :id="'pm-' + pm.id" />
-                <label class="form-check-label small" :for="'pm-' + pm.id">{{ pm.name }}</label>
+                <label class="form-check-label small" :for="'pm-' + pm.id">{{ paymentMethodLabel(pm) }}</label>
               </div>
             </div>
 
@@ -646,6 +752,11 @@ onMounted(async () => {
               </div>
             </div>
 
+            <CAlert v-if="physicalWithUsd" color="danger" class="mb-3 d-flex align-items-center">
+              <CIcon icon="cil-warning" class="me-2 fs-5" />
+              <span>المنتجات المادية متاحة للشراء في مصر فقط بالجنيه المصري / Physical products can only be purchased in Egypt (EGP). Please switch to EGP currency.</span>
+            </CAlert>
+
             <CAlert v-if="error" color="danger" class="mb-3">{{ error }}</CAlert>
             <CAlert v-if="success" color="success" class="mb-3">{{ success }}</CAlert>
             <CAlert v-if="addressErrors.length" color="warning" class="mb-3">
@@ -662,7 +773,7 @@ onMounted(async () => {
               color="primary"
               class="w-100"
               size="lg"
-              :disabled="submitting || !isAddressValid"
+              :disabled="submitting || requiresLoginForDigital || !isAddressValid || physicalWithUsd"
               @click="placeOrder"
             >
               <CSpinner v-if="submitting" size="sm" class="me-2" />

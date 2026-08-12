@@ -15,13 +15,24 @@ class ImageOptimizer
 
     private int $quality;
 
+    private int $thumbWidth;
+
+    private int $thumbQuality;
+
     private ImageManager $manager;
 
-    public function __construct(int $maxWidth = 1200, int $maxHeight = 1200, int $quality = 80)
-    {
+    public function __construct(
+        int $maxWidth = 1200,
+        int $maxHeight = 1200,
+        int $quality = 80,
+        int $thumbWidth = 480,
+        int $thumbQuality = 75,
+    ) {
         $this->maxWidth = $maxWidth;
         $this->maxHeight = $maxHeight;
         $this->quality = $quality;
+        $this->thumbWidth = $thumbWidth;
+        $this->thumbQuality = $thumbQuality;
         $this->manager = new ImageManager(new Driver);
     }
 
@@ -44,6 +55,8 @@ class ImageOptimizer
 
         $encoded = $img->toWebp($this->quality)->toString();
         Storage::disk($disk)->put($path, $encoded);
+
+        $this->writeThumbnail($img, $path, $disk);
 
         return $path;
     }
@@ -73,6 +86,47 @@ class ImageOptimizer
         $encoded = $img->toWebp($this->quality)->toString();
         Storage::disk($disk)->put($webpPath, $encoded);
 
+        $this->writeThumbnail($img, $webpPath, $disk);
+
         return $webpPath;
+    }
+
+    public function generateThumbnail(string $relativePath, int $size = 0, string $disk = 'public'): ?string
+    {
+        $fullPath = Storage::disk($disk)->path($relativePath);
+
+        if (! file_exists($fullPath)) {
+            return null;
+        }
+
+        $mime = mime_content_type($fullPath);
+
+        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
+            return null;
+        }
+
+        $img = $this->manager->read($fullPath);
+        $this->writeThumbnail($img, $relativePath, $disk, $size);
+
+        return $this->thumbnailPath($relativePath);
+    }
+
+    private function writeThumbnail(\Intervention\Image\Interfaces\ImageInterface $img, string $sourcePath, string $disk = 'public', int $size = 0): void
+    {
+        $thumbWidth = $size > 0 ? $size : $this->thumbWidth;
+
+        if ($img->width() <= $thumbWidth) {
+            return;
+        }
+
+        $thumb = clone $img;
+        $thumb->scaleDown(width: $thumbWidth);
+
+        Storage::disk($disk)->put($this->thumbnailPath($sourcePath), $thumb->toWebp($this->thumbQuality)->toString());
+    }
+
+    public function thumbnailPath(string $relativePath): string
+    {
+        return preg_replace('/\.(webp|jpe?g|png|gif)$/i', '_thumb.webp', $relativePath);
     }
 }

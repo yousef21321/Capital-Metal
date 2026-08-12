@@ -1,16 +1,22 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
-import logoLight from '@/assets/images/logo.webp'
-import logoDark from '@/assets/images/logodark.webp'
+import logoLight from '@/assets/images/logo-small.webp'
+import logoDark from '@/assets/images/logodark-small.webp'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const colorMode = computed(() => themeStore.theme)
 const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 const router = useRouter()
+const route = useRoute()
+
+function afterAuth() {
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  router.push(redirect && redirect.startsWith('/') ? redirect : '/products')
+}
 
 const email = ref('')
 const password = ref('')
@@ -45,7 +51,7 @@ async function handleGoogleCredential(response) {
   loading.value = true
   try {
     await authStore.googleLogin(response.credential)
-    router.push('/products')
+    afterAuth()
   } catch (e) {
     error.value = e.message
   } finally {
@@ -58,7 +64,7 @@ async function handleLogin() {
   loading.value = true
   try {
     await authStore.login(email.value, password.value)
-    router.push('/products')
+    afterAuth()
   } catch (e) {
     error.value = e.message
   } finally {
@@ -89,7 +95,7 @@ async function handleLogin() {
                   <p class="auth-brand-desc">{{ $t('register.platform_desc') }}</p>
                   <div class="auth-brand-divider"></div>
                   <p class="auth-brand-question">{{ $t('login.no_account') }}</p>
-                  <CButton color="light" variant="outline" class="auth-brand-btn" @click="router.push('/pages/register')">
+                  <CButton color="light" variant="outline" class="auth-brand-btn" @click="router.push({ path: '/pages/register', query: route.query })">
                     {{ $t('login.register') }}
                   </CButton>
                 </div>
@@ -137,7 +143,7 @@ async function handleLogin() {
                       <div id="google-signin-btn" class="d-flex justify-content-center"></div>
                     </div>
                     <div class="text-center">
-                      <CButton color="link" class="auth-link p-0" @click="router.push('/pages/register')">
+                      <CButton color="link" class="auth-link p-0" @click="router.push({ path: '/pages/register', query: route.query })">
                         {{ $t('login.register') }}
                       </CButton>
                     </div>

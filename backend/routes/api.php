@@ -25,6 +25,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TesterProductController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -64,8 +65,15 @@ Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
 // PayMob webhook (no auth)
 Route::post('/paymob/callback', [PayMobController::class, 'callback']);
 
+// Payment initiation (auth or guest — ownership verified inside the controller)
+Route::post('/paymob/intent', [PayMobController::class, 'initiatePayment']);
+Route::get('/paymob/redirect', [PayMobController::class, 'redirect']);
+
 // LemonSqueezy webhook (no auth)
 Route::post('/lemonsqueezy/webhook', [LemonSqueezyController::class, 'webhook']);
+
+// Payment status check (public — used by callback page)
+Route::get('/payment-status', [PaymentController::class, 'status']);
 
 // Cart (public — supports guest_token)
 Route::get('/cart', [CartController::class, 'show']);
@@ -79,6 +87,7 @@ Route::post('/checkout', [OrderController::class, 'checkout']);
 Route::get('/shipping-rates/{governorate}', [ShippingRateController::class, 'byGovernorate']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/orders/my', [OrderController::class, 'myOrders']);
+Route::middleware(['auth:sanctum', 'role:admin'])->get('/orders/export', [OrderController::class, 'export']);
 Route::get('/orders/{id}', [OrderController::class, 'show']);
 Route::get('/orders/{orderId}/items/{itemId}/download', [OrderController::class, 'downloadItem']);
 Route::middleware(['auth:sanctum', 'role:admin'])->put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
@@ -148,10 +157,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Payments
     Route::get('/payments', [PaymentController::class, 'index']);
     Route::post('/payments', [PaymentController::class, 'store']);
-
-    // PayMob payment initiation
-    Route::post('/paymob/intent', [PayMobController::class, 'initiatePayment']);
-    Route::get('/paymob/redirect', [PayMobController::class, 'redirect']);
 
     // Saved payment cards (Paymob tokenization)
     Route::get('/saved-cards', [SavedCardController::class, 'index']);
@@ -284,8 +289,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'subscribe']);
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/subscriptions', [SubscriptionController::class, 'adminIndex']);
         Route::get('/admin/subscriptions/pending', [SubscriptionController::class, 'pendingApprovals']);
         Route::post('/admin/subscriptions/{id}/approve', [SubscriptionController::class, 'approve']);
         Route::post('/admin/subscriptions/{id}/reject', [SubscriptionController::class, 'reject']);
+        Route::put('/admin/subscriptions/{id}/tickets', [SubscriptionController::class, 'updateTickets']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/users', [UserController::class, 'adminIndex']);
+        Route::post('/admin/users', [UserController::class, 'adminStore']);
+        Route::put('/admin/users/{id}', [UserController::class, 'adminUpdate']);
+        Route::put('/admin/users/{id}/password', [UserController::class, 'adminResetPassword']);
+        Route::post('/admin/users/{id}/impersonate', [UserController::class, 'adminImpersonate']);
     });
 });

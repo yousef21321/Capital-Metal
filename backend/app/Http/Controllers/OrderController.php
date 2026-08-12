@@ -58,33 +58,222 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $query = Order::with(['items.product', 'items.variant', 'payments', 'user']);
+        $query = Order::with(['items.product', 'items.variant', 'payments.paymentMethod', 'user', 'address']);
 
-        $user = $request->user();
+        $userId = $this->resolveUser($request);
+        $user = $userId ? User::with('role')->find($userId) : null;
 
         if ($user) {
-            if ($user->role->name !== 'admin') {
+            if (optional($user->role)->name !== 'admin') {
                 $query->where('user_id', $user->id);
             }
         } else {
-            $token = $this->guestToken($request);
+            $guestToken = $this->guestToken($request);
 
-            if ($token) {
+            if ($guestToken) {
                 $query->whereNull('user_id')->where('guest_name', '!=', '');
             } else {
                 return response()->json(['data' => [], 'meta' => ['current_page' => 1, 'last_page' => 1]]);
             }
         }
 
-        if ($request->status) {
+        $this->applyFilters($query, $request);
+
+        return response()->json($query->latest()->paginate($request->per_page ?? 50));
+    }
+
+    public function export(Request $request)
+    {
+        $query = Order::with(['items.product', 'items.variant', 'payments.paymentMethod', 'user', 'address']);
+
+        $userId = $this->resolveUser($request);
+        $user = $userId ? User::with('role')->find($userId) : null;
+
+        if (! $user || optional($user->role)->name !== 'admin') {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $this->applyFilters($query, $request);
+
+        $orders = $query->latest()->get();
+
+        $rows = [[
+            'Order #', 'Date', 'Customer Name', 'Phone', 'Email',
+            'Governorate', 'City', 'Address', 'Postal Code',
+            'Payment Method', 'Order Status', 'Payment Status',
+            'Product Name', 'Product Type', 'Variant', 'Qty', 'Item Price',
+            'Subtotal', 'Shipping', 'Discount', 'Total',
+            'Currency', 'Tracking', 'Notes',
+        ]];
+
+        foreach ($orders as $order) {
+            $phone = $order->address?->phone ?? $order->user?->phone ?? $order->guest_phone ?? '';
+            $gov = $order->address?->governorate ?? $order->guest_governorate ?? '';
+            $city = $order->address?->city ?? $order->guest_city ?? '';
+            $addrLine = $order->address?->address_line ?? $order->guest_address_line ?? '';
+            $postal = $order->address?->postal_code ?? $order->guest_postal_code ?? '';
+            $paymentMethod = $order->payments->first()?->paymentMethod?->name ?? 'N/A';
+            $customerName = $order->user?->name ?? $order->guest_name ?? '';
+            $email = $order->user?->email ?? $order->guest_email ?? '';
+
+            $items = $order->items->isEmpty() ? [null] : $order->items;
+
+            foreach ($items as $item) {
+                $rows[] = [
+                    $order->order_number,
+                    $order->created_at->format('Y-m-d H:i'),
+                    $customerName,
+                    $phone,
+                    $email,
+                    $gov,
+                    $city,
+                    $addrLine,
+                    $postal,
+                    $paymentMethod,
+                    $order->order_status,
+                    $order->payment_status,
+                    $item?->product?->name ?? '',
+                    $item?->product?->product_type ?? '',
+                    $item?->variant?->name ?? '',
+                    $item?->quantity ?? 0,
+                    $item?->price ?? 0,
+                    $order->subtotal,
+                    $order->shipping_cost,
+                    $order->discount,
+                    $order->total_amount,
+                    $order->currency,
+                    $order->shipping_tracking_number ?? '',
+                    $order->notes ?? '',
+                ];
+            }
+        }
+
+        $file = $this->buildXlsx($rows);
+
+        return response($file, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="orders_'.date('Ymd_His').'.xlsx"',
+        ]);
+    }
+
+    /**
+     * Build a real .xlsx file (no external library) from a [][] of rows.
+     * Phone / postal code columns are kept as text so leading zeros survive.
+     */
+    private function buildXlsx(array $rows): string
+    {
+        $forceTextCols = [3, 8]; // Phone, Postal Code
+        $numericCols = [15, 16, 17, 18, 19, 20]; // Qty, Item Price, Subtotal, Shipping, Discount, Total
+
+        $shared = [];
+        $sharedMap = [];
+        $sheetXml = '';
+
+        foreach ($rows as $rowIndex => $row) {
+            $cells = '';
+            foreach ($row as $colIndex => $value) {
+                $value = $value ?? '';
+                if ($value === '') {
+                    $cells .= '<c/>';
+                    continue;
+                }
+
+                if (! in_array($colIndex, $forceTextCols, true) && in_array($colIndex, $numericCols, true) && is_numeric($value)) {
+                    $cells .= '<c t="n"><v>'.$value.'</v></c>';
+                    continue;
+                }
+
+                $value = (string) $value;
+                if (! isset($sharedMap[$value])) {
+                    $sharedMap[$value] = count($shared);
+                    $shared[] = $value;
+                }
+                $cells .= '<c t="s"><v>'.$sharedMap[$value].'</v></c>';
+            }
+            $sheetXml .= '<row>'.$cells.'</row>';
+        }
+
+        $esc = fn ($s) => htmlspecialchars($s, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+
+        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            .'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            .'<Default Extension="xml" ContentType="application/xml"/>'
+            .'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+            .'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            .'<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+            .'</Types>';
+
+        $rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            .'</Relationships>';
+
+        $workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            .'<sheets><sheet name="Orders" sheetId="1" r:id="rId1"/></sheets>'
+            .'</workbook>';
+
+        $workbookRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            .'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+            .'</Relationships>';
+
+        $worksheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
+            .$sheetXml
+            .'</sheetData></worksheet>';
+
+        $sharedStrings = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="'.count($shared).'" uniqueCount="'.count($shared).'">'
+            .implode('', array_map(fn ($s) => '<si><t xml:space="preserve">'.$esc($s).'</t></si>', $shared))
+            .'</sst>';
+
+        $tmpPath = tempnam(sys_get_temp_dir(), 'orders_');
+
+        $zip = new ZipArchive;
+        $zip->open($tmpPath, ZipArchive::OVERWRITE);
+        $zip->addFromString('[Content_Types].xml', $contentTypes);
+        $zip->addFromString('_rels/.rels', $rootRels);
+        $zip->addFromString('xl/workbook.xml', $workbook);
+        $zip->addFromString('xl/_rels/workbook.xml.rels', $workbookRels);
+        $zip->addFromString('xl/worksheets/sheet1.xml', $worksheet);
+        $zip->addFromString('xl/sharedStrings.xml', $sharedStrings);
+        $zip->close();
+
+        $xlsx = file_get_contents($tmpPath);
+        @unlink($tmpPath);
+
+        return $xlsx;
+    }
+
+    private function applyFilters($query, Request $request): void
+    {
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$search}%"))
+                    ->orWhere('guest_name', 'like', "%{$search}%")
+                    ->orWhere('order_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->filled('status')) {
             $query->where('order_status', $request->status);
         }
 
-        if ($request->payment_status) {
+        if ($request->filled('payment_status')) {
             $query->where('payment_status', $request->payment_status);
         }
-
-        return response()->json($query->latest()->paginate($request->per_page ?? 20));
     }
 
     public function show($id, Request $request)
@@ -94,9 +283,14 @@ class OrderController extends Controller
             'refunds', 'user', 'affiliate',
         ])->findOrFail($id);
 
-        $user = $request->user();
+        $userId = $this->resolveUser($request);
+        $user = $userId ? User::with('role')->find($userId) : null;
 
-        if ($user && $user->role->name === 'user' && $order->user_id !== $user->id) {
+        if ($user?->role?->name === 'admin') {
+            return response()->json($order);
+        }
+
+        if ($user && $order->user_id !== $user->id) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -111,12 +305,14 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'currency' => 'required|in:EGP,USD',
+            'exchange_rate' => 'nullable|numeric|min:0.01',
             'shipping_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'address_id' => 'nullable|exists:addresses,id',
             'coupon_code' => 'nullable|string|max:100',
             'payment_method_id' => 'nullable|exists:payment_methods,id',
             'guest_name' => 'nullable|string|max:255',
+            'guest_email' => 'nullable|email|max:255',
             'guest_phone' => 'nullable|string|max:50',
             'guest_governorate' => 'nullable|string|max:100',
             'guest_city' => 'nullable|string|max:100',
@@ -148,6 +344,18 @@ class OrderController extends Controller
             return ($item->product->product_type ?? null) === 'physical';
         });
         $isDigitalOnly = ! $hasPhysical;
+
+        if ($isDigitalOnly && ! $userId) {
+            return response()->json([
+                'message' => 'المنتجات الرقمية تتطلب تسجيل الدخول لإتمام الشراء. سلة التسوق الخاصة بك محفوظة. / Digital products require an account to purchase. Your cart has been saved.',
+            ], 401);
+        }
+
+        if ($hasPhysical && $validated['currency'] === 'USD') {
+            return response()->json([
+                'message' => 'المنتجات المادية متاحة للشراء في مصر فقط / Physical products can only be purchased in Egypt (EGP).',
+            ], 422);
+        }
 
         if ($hasPhysical) {
             $hasAddressId = ! empty($validated['address_id']);
@@ -186,9 +394,16 @@ class OrderController extends Controller
         $subtotal = 0;
         $orderItems = [];
 
+        $exchangeRate = (float) \App\Models\Setting::getValue('egp_to_usd_rate', 30);
+        if ($validated['currency'] === 'USD' && ! empty($validated['exchange_rate'])) {
+            $exchangeRate = (float) $validated['exchange_rate'];
+        }
+
         foreach ($cart->items as $item) {
             $source = $item->variant ?? $item->product;
-            $price = $validated['currency'] === 'EGP' ? $source->price_egp : $source->price_usd;
+            $price = $validated['currency'] === 'EGP'
+                ? (float) $source->price_egp
+                : (float) $source->price_egp / $exchangeRate;
             $subtotal += $price * $item->quantity;
             $orderItems[] = [
                 'product_id' => $item->product_id,
@@ -212,6 +427,9 @@ class OrderController extends Controller
             if ($governorate) {
                 $rate = ShippingRate::where('governorate', $governorate)->first();
                 $shippingCost = $rate ? (float) $rate->cost : 0;
+            }
+            if ($validated['currency'] === 'USD' && $shippingCost > 0) {
+                $shippingCost = $shippingCost / $exchangeRate;
             }
         }
 
@@ -243,6 +461,7 @@ class OrderController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'address_id' => $validated['address_id'] ?? null,
                 'guest_name' => $validated['guest_name'] ?? null,
+                'guest_email' => $validated['guest_email'] ?? null,
                 'guest_phone' => $validated['guest_phone'] ?? null,
                 'guest_governorate' => $validated['guest_governorate'] ?? null,
                 'guest_city' => $validated['guest_city'] ?? null,
@@ -504,7 +723,12 @@ class OrderController extends Controller
         $digitalFiles = $product->digitalFiles;
 
         if ($digitalFiles->count() > 1) {
-            $zipPath = storage_path("app/public/downloads/order-{$orderId}-item-{$itemId}.zip");
+            $downloadDir = storage_path("app/public/downloads");
+            if (! File::isDirectory($downloadDir)) {
+                File::makeDirectory($downloadDir, 0755, true);
+            }
+
+            $zipPath = "{$downloadDir}/order-{$orderId}-item-{$itemId}.zip";
 
             if (! File::exists($zipPath)) {
                 $zip = new ZipArchive;

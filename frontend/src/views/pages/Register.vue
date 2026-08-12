@@ -1,24 +1,28 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useThemeStore } from '@/stores/theme.js'
-import { useAuthStore, detectCurrency } from '@/stores/auth'
-import logoLight from '@/assets/images/logo.webp'
-import logoDark from '@/assets/images/logodark.webp'
+import { useAuthStore } from '@/stores/auth'
+import logoLight from '@/assets/images/logo-small.webp'
+import logoDark from '@/assets/images/logodark-small.webp'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const colorMode = computed(() => themeStore.theme)
 const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
 const router = useRouter()
+const route = useRoute()
+
+function afterAuth() {
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  router.push(redirect && redirect.startsWith('/') ? redirect : '/products')
+}
 
 const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const currency = ref('EGP')
-
-detectCurrency().then(c => currency.value = c)
 const error = ref('')
 const loading = ref(false)
 
@@ -50,7 +54,7 @@ async function handleGoogleCredential(response) {
   loading.value = true
   try {
     await authStore.googleLogin(response.credential)
-    router.push('/products')
+    afterAuth()
   } catch (e) {
     error.value = e.message
   } finally {
@@ -67,7 +71,7 @@ async function handleRegister() {
   loading.value = true
   try {
     await authStore.register(name.value, email.value, password.value, confirmPassword.value, currency.value)
-    router.push('/products')
+    afterAuth()
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   } finally {
@@ -98,7 +102,7 @@ async function handleRegister() {
                   <p class="auth-brand-desc">منصة التصميم والتصنيع</p>
                   <div class="auth-brand-divider"></div>
                   <p class="auth-brand-question">Already have an account?</p>
-                  <CButton color="light" variant="outline" class="auth-brand-btn" @click="router.push('/pages/login')">
+                  <CButton color="light" variant="outline" class="auth-brand-btn" @click="router.push({ path: '/pages/login', query: route.query })">
                     Login
                   </CButton>
                 </div>
@@ -176,7 +180,7 @@ async function handleRegister() {
 
                     <div class="text-center mt-3 d-md-none">
                       <span class="small" style="color: rgba(255,255,255,0.5);">لديك حساب بالفعل؟ / </span>
-                      <CButton color="link" class="auth-link p-0" @click="router.push('/pages/login')">
+                      <CButton color="link" class="auth-link p-0" @click="router.push({ path: '/pages/login', query: route.query })">
                         تسجيل الدخول / Login
                       </CButton>
                     </div>

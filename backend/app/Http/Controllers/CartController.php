@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -43,6 +44,18 @@ class CartController extends Controller
             ->where($identifier)
             ->firstOrCreate($identifier);
 
+        $normalized = false;
+        foreach ($cart->items as $cartItem) {
+            if ($cartItem->product?->product_type === 'digital' && (int) $cartItem->quantity !== 1) {
+                $cartItem->update(['quantity' => 1]);
+                $normalized = true;
+            }
+        }
+
+        if ($normalized) {
+            $cart->load('items.product.images', 'items.variant.images');
+        }
+
         return response()->json($cart);
     }
 
@@ -58,9 +71,12 @@ class CartController extends Controller
         $identifier = $this->cartIdentifier($request);
         $cart = Cart::firstOrCreate($identifier);
 
+        $product = Product::findOrFail($validated['product_id']);
+        $quantity = $product->product_type === 'digital' ? 1 : $validated['quantity'];
+
         $item = $cart->items()->updateOrCreate(
             ['product_id' => $validated['product_id'], 'variant_id' => $validated['variant_id'] ?? null],
-            ['quantity' => $validated['quantity'], 'license_type' => $validated['license_type'] ?? null]
+            ['quantity' => $quantity, 'license_type' => $validated['license_type'] ?? null]
         );
 
         return response()->json($cart->load('items.product.images', 'items.variant.images'), 201);
@@ -79,7 +95,12 @@ class CartController extends Controller
             $q->where($identifier);
         })->findOrFail($itemId);
 
-        $item->update($validated);
+        $quantity = $item->product?->product_type === 'digital' ? 1 : $validated['quantity'];
+
+        $item->update([
+            'quantity' => $quantity,
+            'license_type' => $validated['license_type'] ?? null,
+        ]);
 
         return response()->json($item->cart->load('items.product.images', 'items.variant.images'));
     }

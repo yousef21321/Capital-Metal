@@ -171,6 +171,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Users',
+    to: '/admin/users',
+    icon: 'cil-user',
+    translationKey: 'nav.users',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Plans',
     to: '/plans',
     icon: 'cil-layers',

@@ -6,6 +6,7 @@ import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { formatProductPrice } from '@/utils/price'
+import { imageSrcSet, thumbImageUrl } from '@/utils/image'
 
 const router = useRouter()
 const cart = useCartStore()
@@ -94,7 +95,9 @@ onMounted(fetchWishlist)
           <div class="product-img-wrapper text-center bg-light" style="height: 200px; overflow: hidden; cursor: pointer;" @click="router.push(`/products/${item.product?.slug}`)">
             <img
               v-if="productImage(item.product)"
-              :src="productImage(item.product)"
+              :src="thumbImageUrl(item.product?.images?.[0])"
+              :srcset="imageSrcSet(item.product?.images?.[0])"
+              sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, (max-width: 1199px) 31vw, 24vw"
               :alt="item.product?.name"
               class="w-100 h-100"
               style="object-fit: cover;"

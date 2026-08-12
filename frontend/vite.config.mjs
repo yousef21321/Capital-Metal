@@ -4,10 +4,25 @@ import path from 'node:path'
 import autoprefixer from 'autoprefixer'
 import viteSharp from 'vite-plugin-sharp'
 
+// Load the entry stylesheet without blocking first render (async CSS pattern).
+// The app shell is empty until the deferred module script mounts Vue, so the
+// stylesheet normally applies before any content is painted.
+const deferEntryCss = () => ({
+  name: 'defer-entry-css',
+  transformIndexHtml(html) {
+    return html.replace(
+      /<link rel="stylesheet" crossorigin href="([^"]+\.css)">/,
+      (match, href) =>
+        `<link rel="stylesheet" crossorigin href="${href}" media="print" onload="this.media='all'">\n    <noscript><link rel="stylesheet" crossorigin href="${href}"></noscript>`,
+    )
+  },
+})
+
 export default defineConfig(() => {
   return {
     plugins: [
       vue(),
+      deferEntryCss(),
       viteSharp({
         compress: {
           jpeg: { quality: 80 },

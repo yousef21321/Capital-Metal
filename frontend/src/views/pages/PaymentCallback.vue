@@ -8,30 +8,47 @@ const router = useRouter()
 const status = ref('processing')
 const message = ref('Processing your payment...')
 
-onMounted(async () => {
-  const success = route.query.success === 'true' || route.query.success === true
-  const orderId = route.query.order
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-  if (success) {
+onMounted(async () => {
+  const urlSuccess = route.query.success === 'true' || route.query.success === true
+  const orderId = route.query.order || route.query.order_id
+
+  if (urlSuccess) {
     status.value = 'success'
     message.value = 'Payment received successfully!'
-  } else {
-    status.value = 'failed'
-    message.value = 'Payment was cancelled or failed.'
   }
 
   if (orderId) {
-    try {
-      const { data } = await api.get('/api/paymob/redirect', {
-        params: { success, order: orderId },
-      })
-      if (data.success) {
-        status.value = 'success'
-        message.value = 'Payment received successfully!'
+    // Poll a few times so the payment gateway webhook / status API can catch up.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const { data } = await api.get('/api/payment-status', {
+          params: { order_id: orderId },
+        })
+        if (data.payment_status === 'paid' || data.latest_payment_status === 'paid') {
+          status.value = 'success'
+          message.value = 'Payment received successfully!'
+          break
+        }
+        if (data.payment_status === 'failed' || data.latest_payment_status === 'failed') {
+          status.value = 'failed'
+          message.value = 'Payment was cancelled or failed.'
+          break
+        }
+      } catch (e) {
+        // ignore transient errors, keep polling
       }
-    } catch (e) {
-      // ignore
+      await sleep(1500)
     }
+
+    if (status.value === 'processing') {
+      status.value = 'failed'
+      message.value = 'Payment was cancelled or failed.'
+    }
+  } else if (!urlSuccess) {
+    status.value = 'failed'
+    message.value = 'Payment was cancelled or failed.'
   }
 
   setTimeout(() => {

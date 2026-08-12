@@ -13,7 +13,7 @@ class PaymobService
 
     protected string $merchantId;
 
-    protected string $integrationId;
+    protected array $integrationIds;
 
     protected string $iframeId;
 
@@ -26,7 +26,8 @@ class PaymobService
         $this->secretKey = config('services.paymob.api_key');
         $this->publicKey = config('services.paymob.public_key');
         $this->merchantId = config('services.paymob.merchant_id');
-        $this->integrationId = config('services.paymob.integration_id');
+        $raw = config('services.paymob.integration_id');
+        $this->integrationIds = array_map('intval', array_filter(explode(',', $raw)));
         $this->iframeId = config('services.paymob.iframe_id');
         $this->hmac = config('services.paymob.hmac');
         $this->baseUrl = 'https://accept.paymob.com';
@@ -34,7 +35,7 @@ class PaymobService
 
     protected function ensureConfigured(): void
     {
-        if (empty($this->secretKey) || empty($this->integrationId)) {
+        if (empty($this->secretKey) || empty($this->integrationIds)) {
             throw new \RuntimeException(
                 'Paymob is not configured. Set PAYMOB_API_KEY and PAYMOB_INTEGRATION_ID in your .env.'
             );
@@ -56,7 +57,7 @@ class PaymobService
         $payload = [
             'amount' => $amountCents,
             'currency' => $currency,
-            'payment_methods' => [(int) $this->integrationId],
+            'payment_methods' => $this->integrationIds,
             'items' => $items ?: [
                 [
                     'name' => 'Payment',
@@ -130,7 +131,7 @@ class PaymobService
                     'identifier' => $cardToken,
                     'subtype' => 'CARD',
                 ],
-                'payment_method' => (int) $this->integrationId,
+                'payment_method' => $this->integrationIds[0],
             ]);
 
         $response->throw();
@@ -185,35 +186,40 @@ class PaymobService
 
     public function calculateHmac(array $obj): string
     {
-        $amountCents = $obj['amount_cents'] ?? 0;
+        $errorOccurred = $this->signatureValue($obj['error_occurred'] ?? $obj['error_occured'] ?? false);
+        $hasParentTransaction = $this->signatureValue($obj['has_parent_transaction'] ?? (isset($obj['parent_transaction_id']) ? $obj['parent_transaction_id'] : ''));
+        $is3DSecure = $this->signatureValue($obj['is_3d_secure'] ?? false);
+        $isAuth = $this->signatureValue($obj['is_auth'] ?? false);
+        $isCapture = $this->signatureValue($obj['is_capture'] ?? false);
+        $isRefunded = $this->signatureValue($obj['is_refunded'] ?? false);
+        $isStandalonePayment = $this->signatureValue($obj['is_standalone_payment'] ?? false);
+        $isVoided = $this->signatureValue($obj['is_voided'] ?? $obj['is_void'] ?? false);
+        $pending = $this->signatureValue($obj['pending'] ?? false);
+        $success = $this->signatureValue($obj['success'] ?? false);
+
+        $amountCents = $obj['amount_cents'] ?? '';
         $createdAt = $obj['created_at'] ?? '';
         $currency = $obj['currency'] ?? '';
-        $errorOccurred = $obj['error_occurred'] ?? false;
-        $hasParentTransaction = isset($obj['parent_transaction_id']) ? $obj['parent_transaction_id'] : '';
-        $id = $obj['id'] ?? 0;
-        $integrationId = $obj['integration_id'] ?? 0;
-        $isAuth = $obj['is_auth'] ?? false;
-        $isCapture = $obj['is_capture'] ?? false;
-        $isRefunded = $obj['is_refunded'] ?? false;
-        $isStandalonePayment = $obj['is_standalone_payment'] ?? false;
-        $is3DSecure = $obj['is_3d_secure'] ?? false;
-        $isVoid = $obj['is_void'] ?? false;
-        $orderId = $obj['order'] ?? $obj['order_id'] ?? 0;
-        $owner = $obj['owner'] ?? 0;
-        $pending = $obj['pending'] ?? false;
+        $txnId = $obj['id'] ?? '';
+        $integrationId = $obj['integration_id'] ?? '';
+        $orderId = $obj['order']['id'] ?? $obj['order_id'] ?? $obj['order'] ?? '';
+        $owner = $obj['owner'] ?? '';
         $sourceDataPan = $obj['source_data']['pan'] ?? '';
-        $sourceDataType = $obj['source_data']['type'] ?? '';
         $sourceDataSubType = $obj['source_data']['sub_type'] ?? '';
-        $success = $obj['success'] ?? false;
+        $sourceDataType = $obj['source_data']['type'] ?? '';
 
-        $txnId = $this->padLeftZeros($id);
-        $orderId = $this->padLeftZeros($orderId);
-        $sourceDataPan = $this->padLeftZeros($sourceDataPan);
-        $cleanedCreatedAt = str_replace([':', '.'], '', $createdAt);
-
-        $data = "{$amountCents}{$cleanedCreatedAt}{$currency}{$errorOccurred}{$hasParentTransaction}{$txnId}{$integrationId}{$isAuth}{$isCapture}{$isRefunded}{$isStandalonePayment}{$is3DSecure}{$isVoid}{$orderId}{$owner}{$pending}{$sourceDataPan}{$sourceDataType}{$sourceDataSubType}{$success}";
+        $data = "{$amountCents}{$createdAt}{$currency}{$errorOccurred}{$hasParentTransaction}{$txnId}{$integrationId}{$is3DSecure}{$isAuth}{$isCapture}{$isRefunded}{$isStandalonePayment}{$isVoided}{$orderId}{$owner}{$pending}{$sourceDataPan}{$sourceDataSubType}{$sourceDataType}{$success}";
 
         return hash_hmac('SHA512', $data, $this->hmac);
+    }
+
+    protected function signatureValue(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        return (string) $value;
     }
 
     protected function padLeftZeros(mixed $value, int $length = 7): string

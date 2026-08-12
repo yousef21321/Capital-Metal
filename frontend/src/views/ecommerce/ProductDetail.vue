@@ -1,11 +1,14 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { formatProductPrice } from '@/utils/price'
+import { imageSrcSet, thumbImageUrl } from '@/utils/image'
+import { flyToCart } from '@/utils/flyToCart'
+import fbPixel from '@/utils/fbPixel'
 
 const route = useRoute()
 const router = useRouter()
@@ -29,6 +32,7 @@ const isZooming = ref(false)
 const zoomX = ref(0)
 const zoomY = ref(0)
 const galleryRef = ref(null)
+const galleryRect = ref(null)
 
 function zoomIn() {
   zoomLevel.value = Math.min(zoomLevel.value + zoomStep, zoomMax)
@@ -38,9 +42,20 @@ function zoomOut() {
   zoomLevel.value = Math.max(zoomLevel.value - zoomStep, zoomMin)
 }
 
+let rectRafId = null
+
+function refreshGalleryRect() {
+  rectRafId = null
+  galleryRect.value = galleryRef.value ? galleryRef.value.getBoundingClientRect() : null
+}
+
+function scheduleGalleryRectRefresh() {
+  if (rectRafId === null) rectRafId = requestAnimationFrame(refreshGalleryRect)
+}
+
 function onGalleryMouseMove(e) {
-  if (!galleryRef.value) return
-  const rect = galleryRef.value.getBoundingClientRect()
+  const rect = galleryRect.value
+  if (!rect) return
   const x = e.clientX - rect.left
   const y = e.clientY - rect.top
   zoomX.value = (x / rect.width) * 100
@@ -48,10 +63,15 @@ function onGalleryMouseMove(e) {
 }
 
 function onGalleryEnter() {
+  refreshGalleryRect()
+  window.addEventListener('resize', scheduleGalleryRectRefresh, { passive: true })
+  window.addEventListener('scroll', scheduleGalleryRectRefresh, { passive: true })
   isZooming.value = true
 }
 
 function onGalleryLeave() {
+  window.removeEventListener('resize', scheduleGalleryRectRefresh)
+  window.removeEventListener('scroll', scheduleGalleryRectRefresh)
   isZooming.value = false
 }
 
@@ -135,11 +155,25 @@ async function fetchProduct() {
     selectedImage.value = 0
     await fetchReviews()
     await fetchRelated()
+    trackViewContent(data)
   } catch (e) {
     error.value = 'Failed to load product'
   } finally {
     loading.value = false
   }
+}
+
+function trackViewContent(p) {
+  const value = parseFloat(p.price_usd) > 0 ? p.price_usd : p.price_egp
+  const currency = parseFloat(p.price_usd) > 0 ? 'USD' : 'EGP'
+  fbPixel.viewContent({
+    content_name: p.name,
+    content_category: p.product_type,
+    content_ids: [String(p.id)],
+    content_type: 'product',
+    value: parseFloat(value || 0),
+    currency,
+  })
 }
 
 async function fetchReviews() {
@@ -156,12 +190,13 @@ async function fetchRelated() {
   } catch (_) {}
 }
 
-async function addToCart() {
+async function addToCart(event) {
   if (!product.value) return
   adding.value = true
   try {
     const variantId = selectedVariant.value?.id || null
     await cart.addItem(product.value.id, quantity.value, variantId)
+    flyToCart({ from: event?.currentTarget || null, imageSrc: currentImage.value })
     toast.success(`"${product.value.name}" added to cart.`)
     quantity.value = 1
   } catch (e) {
@@ -172,6 +207,12 @@ async function addToCart() {
 }
 
 onMounted(fetchProduct)
+
+onUnmounted(() => {
+  if (rectRafId !== null) cancelAnimationFrame(rectRafId)
+  window.removeEventListener('resize', scheduleGalleryRectRefresh)
+  window.removeEventListener('scroll', scheduleGalleryRectRefresh)
+})
 
 watch(() => route.params.slug, (newSlug) => {
   if (newSlug) {
@@ -212,7 +253,9 @@ watch(() => route.params.slug, (newSlug) => {
             >
               <img
                 v-if="currentImage"
-                :src="currentImage"
+                :src="thumbImageUrl(currentImages[selectedImage])"
+                :srcset="imageSrcSet(currentImages[selectedImage])"
+                sizes="(max-width: 991px) 92vw, 600px"
                 :alt="product.name"
                 class="gallery-img"
                 width="800"
@@ -260,7 +303,7 @@ watch(() => route.params.slug, (newSlug) => {
               :class="{ active: selectedImage === idx }"
               @click="selectedImage = idx"
             >
-              <img :src="`/storage/${img.image_url}`" :alt="'Thumbnail ' + (idx + 1)" class="thumb-img" loading="lazy" width="64" height="64" />
+              <img :src="thumbImageUrl(img)" :alt="'Thumbnail ' + (idx + 1)" class="thumb-img" loading="lazy" width="64" height="64" />
             </button>
           </div>
         </CCol>
@@ -341,12 +384,12 @@ watch(() => route.params.slug, (newSlug) => {
             </div>
 
             <div class="d-flex align-items-center gap-3 mb-4">
-              <div class="quantity-selector">
+              <div v-if="product.product_type !== 'digital'" class="quantity-selector">
                 <button class="qty-btn" :disabled="quantity <= 1" @click="quantity--">-</button>
                 <span class="qty-value">{{ quantity }}</span>
                 <button class="qty-btn" @click="quantity++">+</button>
               </div>
-              <CButton color="primary" size="lg" class="btn-add-cart-detail flex-grow-1" :disabled="adding" @click="addToCart">
+              <CButton color="primary" size="lg" class="btn-add-cart-detail flex-grow-1" :disabled="adding" @click="(e) => addToCart(e)">
                 <CSpinner v-if="adding" size="sm" class="me-2" />
                 <CIcon v-else icon="cil-cart" class="me-2" />
                 Add to Cart
@@ -438,7 +481,9 @@ watch(() => route.params.slug, (newSlug) => {
                 <div class="related-img-wrapper">
                   <img
                     v-if="p.images?.[0]"
-                    :src="`/storage/${p.images[0].image_url}`"
+                    :src="thumbImageUrl(p.images[0])"
+                    :srcset="imageSrcSet(p.images[0])"
+                    sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 23vw"
                     :alt="p.name"
                     class="related-img"
                     loading="lazy"

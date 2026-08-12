@@ -31,7 +31,10 @@ async function removeItem(itemId) {
 }
 
 async function updateQuantity(itemId, quantity) {
-  if (quantity < 1) return
+  if (quantity < 1) {
+    await removeItem(itemId)
+    return
+  }
   try {
     await api.put(`/api/cart/items/${itemId}`, { quantity })
     await fetchCart()
@@ -52,14 +55,12 @@ async function clearCart() {
 const itemPrice = (item) => {
   const currency = auth.userCurrency
   const source = item.variant || item.product
-  if (currency === 'USD' && parseFloat(source?.price_usd) > 0) return parseFloat(source.price_usd)
-  if (parseFloat(source?.price_egp) > 0) {
-    if (currency === 'USD') {
-      const rate = auth.exchangeRate || 30
-      return parseFloat(source.price_egp) / rate
-    }
-    return parseFloat(source.price_egp)
+  if (currency === 'USD' && parseFloat(source?.price_egp) > 0) {
+    const rate = auth.exchangeRate || 30
+    return parseFloat(source.price_egp) / rate
   }
+  if (parseFloat(source?.price_egp) > 0) return parseFloat(source.price_egp)
+  if (currency === 'USD' && parseFloat(source?.price_usd) > 0) return parseFloat(source.price_usd)
   return 0
 }
 
@@ -107,16 +108,18 @@ onMounted(fetchCart)
                 </CBadge>
                 <CBadge v-if="item.variant" color="warning" size="sm">{{ item.variant.name }}</CBadge>
               </div>
-              <div class="mt-2 d-flex align-items-center gap-2">
-                <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity - 1)">-</CButton>
-                <span class="fw-bold px-2">{{ item.quantity }}</span>
-                <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity + 1)">+</CButton>
+              <div class="mt-2 d-flex align-items-center">
+                <div v-if="item.product?.product_type !== 'digital'" class="d-flex align-items-center gap-2">
+                  <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity - 1)">-</CButton>
+                  <span class="fw-bold px-2">{{ item.quantity }}</span>
+                  <CButton size="sm" color="outline-secondary" @click="updateQuantity(item.id, item.quantity + 1)">+</CButton>
+                </div>
                 <span class="ms-3 fw-bold text-primary fs-5">{{ itemPrice(item).toFixed(2) }} {{ auth.userCurrency }}</span>
               </div>
             </div>
             <CButton color="danger" size="sm" variant="ghost" @click="removeItem(item.id)">
               <CIcon icon="cil-trash" />
-            </CButton>
+{{ $t('cart.clear') }}            </CButton>
           </CCardBody>
         </CCard>
       </CCol>

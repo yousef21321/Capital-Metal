@@ -113,6 +113,37 @@ async function subscribe(planId) {
   }
 }
 
+async function continuePayment() {
+  const sub = subscription.value?.subscription
+  if (!sub) return
+  subscribing.value = sub.id
+  error.value = ''
+  try {
+    const payRes = await api.post('/api/paymob/intent', {
+      subscription_id: sub.id,
+    }).catch((e) => e.response)
+
+    if (payRes?.data?.payment_url) {
+      window.location.href = payRes.data.payment_url
+      return
+    }
+
+    if (payRes?.data?.paid) {
+      toast.success('Subscription paid and approved!')
+    } else {
+      toast.error(payRes?.data?.message || 'Subscription payment failed.')
+    }
+
+    await load()
+  } catch (e) {
+    error.value = e.response?.data?.message || 'Could not continue payment.'
+  } finally {
+    subscribing.value = null
+  }
+}
+
+const currentSub = computed(() => subscription.value?.subscription ?? null)
+
 const money = (p) => formatPrice(p.price)
 
 const approvalBadge = (status) => {
@@ -155,6 +186,15 @@ onMounted(load)
               <small class="text-body-secondary">{{ $t('plans.store_publishing') }}</small>
             </div>
           </template>
+          <CButton
+            v-if="subscription.approval_status === 'pending'"
+            color="primary"
+            :disabled="subscribing === subscription.subscription.id"
+            @click="continuePayment()"
+          >
+            <CSpinner v-if="subscribing === subscription.subscription.id" size="sm" class="me-1" />
+            {{ $t('plans.complete_payment') }}
+          </CButton>
         </div>
       </CCardBody>
     </CCard>
@@ -202,7 +242,7 @@ onMounted(load)
     </CCard>
 
     <!-- Industor card view -->
-    <CRow v-else>
+    <CRow v-else-if="isIndustor()">
       <CCol v-for="plan in plans" :key="plan.id" md="6" lg="4" class="mb-4">
         <CCard class="h-100 shadow-sm">
           <CCardHeader class="bg-body text-center">
@@ -226,11 +266,14 @@ onMounted(load)
               v-if="isIndustor()"
               color="primary"
               class="w-100 mt-auto"
-              :disabled="subscribing === plan.id || subscription?.subscription?.plan_id === plan.id"
-              @click="subscribe(plan.id)"
+              :disabled="subscribing === plan.id || (subscription?.subscription?.plan_id === plan.id && subscription?.approval_status === 'approved')"
+              @click="subscription?.subscription?.plan_id === plan.id && subscription?.approval_status === 'pending' ? continuePayment() : subscribe(plan.id)"
             >
-              <CSpinner v-if="subscribing === plan.id" size="sm" class="me-1" />
-              {{ subscription?.subscription?.plan_id === plan.id ? $t('plans.current_plan') : $t('plans.subscribe') }}
+              <CSpinner v-if="subscribing === plan.id || subscribing === subscription?.subscription?.id" size="sm" class="me-1" />
+              <template v-if="subscription?.subscription?.plan_id === plan.id">
+                {{ subscription?.approval_status === 'approved' ? $t('plans.current_plan') : $t('plans.complete_payment') }}
+              </template>
+              <template v-else>{{ $t('plans.subscribe') }}</template>
             </CButton>
           </CCardBody>
         </CCard>

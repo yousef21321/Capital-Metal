@@ -103,7 +103,7 @@ class LemonSqueezyService
         ];
     }
 
-    public function verifyWebhook(array $payload, string $signature): bool
+    public function verifyWebhook(string $rawBody, string $signature): bool
     {
         $secret = config('services.lemonsqueezy.webhook_secret');
         if (! $secret) {
@@ -111,7 +111,7 @@ class LemonSqueezyService
             return true;
         }
 
-        $computed = hash_hmac('sha256', json_encode($payload), $secret);
+        $computed = hash_hmac('sha256', $rawBody, $secret);
         return hash_equals($computed, $signature);
     }
 }

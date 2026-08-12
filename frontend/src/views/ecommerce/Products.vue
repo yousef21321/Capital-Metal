@@ -7,6 +7,9 @@ import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { formatProductPrice } from '@/utils/price'
+import { imageSrcSet, thumbImageUrl } from '@/utils/image'
+import { flyToCart } from '@/utils/flyToCart'
+import fbPixel from '@/utils/fbPixel'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -33,6 +36,9 @@ async function fetchProducts() {
     currentPage.value = data.current_page
     lastPage.value = data.last_page
     await fetchWishlistIds()
+    if (search.value.trim()) {
+      fbPixel.search({ search_string: search.value.trim() })
+    }
   } catch (e) {
     toast.error('Failed to load products.')
   } finally {
@@ -73,6 +79,8 @@ async function toggleWishlist(productId) {
 const formatPrice = formatProductPrice
 
 function productPriceLabel(product) {
+  const hasBasePrice = parseFloat(product.price_egp) > 0 || parseFloat(product.price_usd) > 0
+  if (hasBasePrice) return formatPrice(product)
   const variants = (product.variants || []).filter(v => v.is_active)
   if (variants.length === 0) return formatPrice(product)
   const prices = variants.map(v => parseFloat(v.price_egp || 0)).filter(p => p > 0)
@@ -98,7 +106,7 @@ const productImage = (product) => {
   return null
 }
 
-async function addToCart(product) {
+async function addToCart(product, event) {
   const variants = (product.variants || []).filter(v => v.is_active)
   if (variants.length > 0) {
     viewProduct(product.slug)
@@ -107,6 +115,7 @@ async function addToCart(product) {
   addingId.value = product.id
   try {
     await cart.addItem(product.id, 1)
+    flyToCart({ from: event?.currentTarget || null, imageSrc: product.images?.[0]?.image_url ? `/storage/${product.images[0].image_url}` : null })
     toast.success(`"${product.name}" added to cart.`)
   } catch (e) {
     toast.error(e.response?.data?.message || 'Failed to add to cart.')
@@ -208,7 +217,9 @@ onMounted(fetchProducts)
           <div class="product-img-wrapper" @click="viewProduct(product.slug)">
             <img
               v-if="productImage(product)"
-              :src="productImage(product)"
+              :src="thumbImageUrl(product.images?.[0])"
+              :srcset="imageSrcSet(product.images?.[0])"
+              sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, (max-width: 1199px) 31vw, 24vw"
               :alt="product.name"
               class="product-img"
               loading="lazy"
@@ -254,7 +265,7 @@ onMounted(fetchProducts)
                 size="sm"
                 class="action-btn action-cart"
                 :disabled="addingId === product.id"
-                @click.stop="addToCart(product)"
+                @click.stop="addToCart(product, $event)"
               >
                 <CSpinner v-if="addingId === product.id" size="sm" />
                 <CIcon v-else icon="cil-cart" />

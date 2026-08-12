@@ -4,6 +4,7 @@ import api from '@/api'
 import { useToastStore } from '@/stores/toast'
 import { useAuthStore } from '@/stores/auth'
 import { formatProductPrice } from '@/utils/price'
+import { thumbImageUrl } from '@/utils/image'
 
 const toast = useToastStore()
 const authStore = useAuthStore()
@@ -632,7 +633,7 @@ onMounted(() => {
             <CTableBody>
               <CTableRow v-for="p in archivedProducts" :key="p.id">
                 <CTableDataCell>
-                  <img v-if="productImage(p)" :src="productImage(p)" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
+                  <img v-if="productImage(p)" :src="thumbImageUrl(p.images?.[0])" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
                   <CIcon v-else icon="cil-image" class="text-body-secondary" />
                 </CTableDataCell>
                 <CTableDataCell class="fw-semibold">{{ p.name }}</CTableDataCell>
@@ -678,7 +679,7 @@ onMounted(() => {
           <CTableBody>
             <CTableRow v-for="p in activeProducts" :key="p.id">
               <CTableDataCell>
-                <img v-if="productImage(p)" :src="productImage(p)" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
+                <img v-if="productImage(p)" :src="thumbImageUrl(p.images?.[0])" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
                 <CIcon v-else icon="cil-image" class="text-body-secondary" />
               </CTableDataCell>
               <CTableDataCell class="fw-semibold">{{ p.name }}</CTableDataCell>
@@ -918,7 +919,7 @@ onMounted(() => {
                   <!-- Variant Images -->
                   <div v-if="variant.images?.length" class="mt-2 d-flex gap-1 flex-wrap">
                     <div v-for="(img, idx) in variant.images" :key="img.id" class="position-relative variant-thumb">
-                      <img :src="`/storage/${img.image_url}`" class="rounded" style="width: 48px; height: 48px; object-fit: cover;" />
+                      <img :src="thumbImageUrl(img)" class="rounded" style="width: 48px; height: 48px; object-fit: cover;" />
                       <div class="variant-thumb-arrows">
                         <button class="arrow-btn-sm" :disabled="idx === 0" @click="moveVariantImage(detailProduct.id, variant.id, variant.images, idx, -1)">&#9650;</button>
                         <button class="arrow-btn-sm" :disabled="idx === variant.images.length - 1" @click="moveVariantImage(detailProduct.id, variant.id, variant.images, idx, 1)">&#9660;</button>
@@ -949,7 +950,7 @@ onMounted(() => {
         <CRow v-if="detailProduct.images?.length">
           <CCol v-for="(img, idx) in detailProduct.images" :key="img.id" sm="6" md="4" class="mb-3">
             <div class="position-relative">
-              <img :src="`/storage/${img.image_url}`" class="w-100 rounded" style="height: 120px; object-fit: cover;" />
+              <img :src="thumbImageUrl(img)" class="w-100 rounded" style="height: 120px; object-fit: cover;" />
               <div v-if="idx === 0" class="position-absolute top-0 start-0 m-1">
                 <span class="badge bg-dark">Main</span>
               </div>

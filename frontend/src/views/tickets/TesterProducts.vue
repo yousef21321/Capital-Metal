@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/api'
+import { thumbImageUrl } from '@/utils/image'
 
 const products = ref([])
 const tickets = ref([])
@@ -305,7 +306,7 @@ onMounted(fetchProducts)
               <CCardBody>
                 <div class="d-flex align-items-start gap-3 mb-3">
                   <div v-if="p.images?.length" style="width: 80px; height: 80px; flex-shrink: 0;">
-                    <img :src="'/storage/' + p.images[0].image_url" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="80" height="80" />
+                    <img :src="thumbImageUrl(p.images[0])" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="80" height="80" />
                   </div>
                   <div class="flex-grow-1 min-w-0">
                     <h4 class="mb-1 text-truncate fs-6">{{ p.name }}</h4>
@@ -341,7 +342,7 @@ onMounted(fetchProducts)
                       style="width: 100px; height: 100px; flex-shrink: 0; cursor: pointer;"
                       @click="window.open('/storage/' + img.image_url, '_blank')"
                     >
-                      <img :src="'/storage/' + img.image_url" class="rounded border w-100 h-100" style="object-fit: cover;" loading="lazy" width="100" height="100" />
+                      <img :src="thumbImageUrl(img)" class="rounded border w-100 h-100" style="object-fit: cover;" loading="lazy" width="100" height="100" />
                     </div>
                   </div>
                 </div>

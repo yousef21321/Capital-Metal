@@ -16,6 +16,10 @@ class RoleMiddleware
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
+        if ($user->role->name === 'admin') {
+            return $next($request);
+        }
+
         if (! in_array($user->role->name, $roles)) {
             return response()->json(['message' => 'Forbidden: insufficient permissions.'], 403);
         }

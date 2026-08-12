@@ -69,9 +69,9 @@ class SubscriptionController extends Controller
                 'tickets_used' => 0,
             ]);
 
-            $this->notifyRole('admin', 'subscription.pending', 'New subscription awaiting approval', [
+            $this->notify($user->id, 'subscription.pending', 'Subscription created — waiting for payment', [
                 'subscription_id' => $subscription->id,
-                'user_id' => $user->id,
+                'plan_name' => $plan->name,
             ]);
 
             return response()->json($subscription->load('plan'), 201);
@@ -89,6 +89,58 @@ class SubscriptionController extends Controller
             ->paginate($request->per_page ?? 20);
 
         return response()->json($subs);
+    }
+
+    public function adminIndex(Request $request)
+    {
+        $user = $request->user();
+        abort_unless($user->hasRole('admin'), 403);
+
+        $query = UserSubscription::with(['user', 'plan']);
+
+        if ($request->approval_status) {
+            $query->where('approval_status', $request->approval_status);
+        }
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->search) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return response()->json($query->latest('id')->paginate($request->per_page ?? 20));
+    }
+
+    public function updateTickets(Request $request, $id)
+    {
+        $user = $request->user();
+        abort_unless($user->hasRole('admin'), 403);
+
+        $data = $request->validate([
+            'tickets_remaining' => 'required|integer|min:0',
+        ]);
+
+        $sub = UserSubscription::findOrFail($id);
+
+        $used = (int) $sub->tickets_used;
+        $newRemaining = (int) $data['tickets_remaining'];
+        $sub->update([
+            'tickets_remaining' => $newRemaining,
+            'tickets_used' => $used,
+        ]);
+
+        $this->notify($sub->user_id, 'subscription.tickets_updated', 'Your subscription ticket balance was updated', [
+            'subscription_id' => $sub->id,
+            'tickets_remaining' => $newRemaining,
+        ]);
+
+        return response()->json($sub->fresh(['user', 'plan']));
     }
 
     public function approve(Request $request, $id)

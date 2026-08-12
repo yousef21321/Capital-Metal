@@ -29,20 +29,27 @@ class PayMobController extends Controller
             'ticket_id' => 'nullable|exists:tickets,id',
         ]);
 
-        $user = $request->user();
+        $user = $request->user() ?? auth('sanctum')->user();
+        $guestToken = $request->header('X-Guest-Token', $request->input('guest_token'));
 
         if (! isset($validated['order_id']) && ! isset($validated['subscription_id']) && ! isset($validated['ticket_id'])) {
             return response()->json(['message' => 'Provide order_id, subscription_id, or ticket_id.'], 422);
         }
 
+        if (isset($validated['ticket_id']) || isset($validated['subscription_id'])) {
+            if (! $user) {
+                return response()->json(['message' => 'Authentication required.'], 401);
+            }
+        }
+
         if (isset($validated['ticket_id'])) {
-            return $this->initiateTicketPayment($request->user(), $validated['ticket_id']);
+            return $this->initiateTicketPayment($user, $validated['ticket_id']);
         }
 
         if (isset($validated['order_id'])) {
             $order = Order::with('user')->findOrFail($validated['order_id']);
 
-            if ($order->user_id !== $user->id) {
+            if (! $this->canManageOrder($order, $user, $guestToken)) {
                 return response()->json(['message' => 'Forbidden.'], 403);
             }
 
@@ -77,7 +84,10 @@ class PayMobController extends Controller
                     'payment_status' => $success ? 'paid' : 'failed',
                 ]);
 
-                $order->update(['payment_status' => $success ? 'paid' : 'failed']);
+                $order->update([
+                    'payment_status' => $success ? 'paid' : 'failed',
+                    'order_status' => $success ? 'confirmed' : 'pending',
+                ]);
 
                 $this->notifyUser($order->user_id, $success ? 'payment.success' : 'payment.failed', $success ? 'Payment received' : 'Payment failed', [
                     'order_id' => $order->id,
@@ -85,7 +95,7 @@ class PayMobController extends Controller
                 ]);
             };
 
-            $savedCard = $user->defaultSavedCard;
+            $savedCard = $user?->defaultSavedCard;
 
             if ($savedCard) {
                 return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
@@ -238,9 +248,9 @@ class PayMobController extends Controller
             }
         };
 
-        $savedCard = $user->defaultSavedCard;
+            $savedCard = $user?->defaultSavedCard;
 
-        if ($savedCard) {
+            if ($savedCard) {
             return $this->chargeWithSavedCard($savedCard, $amountCents, $currency, $billingData, $onRegistered, $onResult);
         }
 
@@ -383,7 +393,7 @@ class PayMobController extends Controller
             return response()->json(['message' => 'Invalid callback'], 400);
         }
 
-        $paymobOrderId = $transaction['order'] ?? $transaction['order_id'] ?? null;
+        $paymobOrderId = $transaction['order']['id'] ?? $transaction['order_id'] ?? $transaction['order'] ?? null;
         $success = $transaction['success'] ?? false;
         $txnId = $transaction['id'] ?? null;
         $amountCents = $transaction['amount_cents'] ?? 0;
@@ -434,14 +444,20 @@ class PayMobController extends Controller
                 }
 
                 if ($success) {
-                    $payment->order->update(['payment_status' => 'paid']);
+                    $payment->order->update([
+                        'payment_status' => 'paid',
+                        'order_status' => 'confirmed',
+                    ]);
 
                     $this->notifyUser($payment->order->user_id, 'payment.success', 'Payment received', [
                         'order_id' => $payment->order_id,
                         'order_number' => $payment->order->order_number,
                     ]);
                 } else {
-                    $payment->order->update(['payment_status' => 'failed']);
+                    $payment->order->update([
+                        'payment_status' => 'failed',
+                        'order_status' => 'pending',
+                    ]);
 
                     $this->notifyUser($payment->order->user_id, 'payment.failed', 'Payment failed', [
                         'order_id' => $payment->order_id,
@@ -501,7 +517,7 @@ class PayMobController extends Controller
     public function redirect(Request $request)
     {
         $success = $request->query('success', false);
-        $orderId = $request->query('order');
+        $orderId = $request->query('order', $request->query('order_id'));
         $txnId = $request->query('txn_id');
 
         $payment = null;
@@ -517,25 +533,54 @@ class PayMobController extends Controller
         ]);
     }
 
+    protected function canManageOrder(Order $order, $user, ?string $guestToken): bool
+    {
+        if ($user) {
+            return $order->user_id === $user->id;
+        }
+
+        return $order->user_id === null
+            && $order->guest_token !== null
+            && $order->guest_token === $guestToken;
+    }
+
     protected function buildBillingData($user, $order = null): array
     {
-        $address = $order?->address ?? $user->addresses()?->where('is_default', true)?->first();
+        $address = $order?->address ?? $user?->addresses()?->where('is_default', true)?->first();
+
+        if ($user) {
+            return $this->paymob->buildBillingData([
+                'first_name' => $user->name ?? explode(' ', $user->email)[0],
+                'last_name' => $user->name ?? 'User',
+                'email' => $user->email,
+                'phone_number' => $user->phone ?? '0000000000',
+                'city' => $address?->city ?? 'Cairo',
+                'country' => $address?->country ?? 'EG',
+                'state' => $address?->governorate ?? 'Cairo',
+                'street' => $address?->address_line ?? 'N/A',
+                'postal_code' => $address?->postal_code ?? 'N/A',
+            ]);
+        }
 
         return $this->paymob->buildBillingData([
-            'first_name' => $user->name ?? explode(' ', $user->email)[0],
-            'last_name' => $user->name ?? 'User',
-            'email' => $user->email,
-            'phone_number' => $user->phone ?? '0000000000',
-            'city' => $address?->city ?? 'Cairo',
-            'country' => $address?->country ?? 'EG',
-            'state' => $address?->governorate ?? 'Cairo',
-            'street' => $address?->address_line ?? 'N/A',
-            'postal_code' => $address?->postal_code ?? 'N/A',
+            'first_name' => $order?->guest_name ?? 'Guest',
+            'last_name' => 'Guest',
+            'email' => $order?->guest_email ?? 'guest@flfl-design.com',
+            'phone_number' => $order?->guest_phone ?? '0000000000',
+            'city' => $order?->guest_city ?? 'Cairo',
+            'country' => 'EG',
+            'state' => $order?->guest_governorate ?? 'Cairo',
+            'street' => $order?->guest_address_line ?? 'N/A',
+            'postal_code' => $order?->guest_postal_code ?? 'N/A',
         ]);
     }
 
     protected function notifyUser(int $userId, string $type, string $title, array $data = []): void
     {
+        if (! $userId) {
+            return;
+        }
+
         Notification::create([
             'user_id' => $userId,
             'type' => $type,

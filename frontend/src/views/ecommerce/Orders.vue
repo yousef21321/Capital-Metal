@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { thumbImageUrl } from '@/utils/image'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -148,7 +149,7 @@ onMounted(fetchOrders)
           <div v-if="order.items?.length">
             <div v-for="item in order.items" :key="item.id" class="d-flex align-items-center gap-3 mb-3">
               <div v-if="item.variant?.images?.length || item.product?.images?.length" style="width: 60px; height: 60px; flex-shrink: 0;">
-                <img :src="'/storage/' + (item.variant?.images?.[0]?.image_url || item.product?.images?.[0]?.image_url)" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="60" height="60" />
+                <img :src="thumbImageUrl(item.variant?.images?.[0] || item.product?.images?.[0])" class="rounded w-100 h-100" style="object-fit: cover;" loading="lazy" width="60" height="60" />
               </div>
               <div class="flex-grow-1 min-w-0">
                 <RouterLink :to="`/products/${item.product?.slug}`" class="fw-semibold text-decoration-none">
@@ -160,18 +161,18 @@ onMounted(fetchOrders)
               <div class="text-end flex-shrink-0">
                 <div class="fw-semibold">{{ item.price }} {{ order.currency }}</div>
                 <div v-if="item.quantity > 1" class="text-body-secondary small">{{ item.price }} each</div>
-                <CButton
-                  v-if="order.payment_status === 'paid' && (item.product?.design_file_path || item.product?.digital_files?.length)"
-                  color="success"
-                  size="sm"
-                  class="mt-1"
-                  :disabled="downloading === item.id"
-                  @click="downloadFile(order, item)"
-                >
-                  <CSpinner v-if="downloading === item.id" size="sm" class="me-1" />
-                  <CIcon icon="cil-cloud-download" class="me-1" />
-                  Download {{ item.product?.digital_files?.length > 1 ? '(' + item.product.digital_files.length + ' files)' : '' }}
-                </CButton>
+                  <CButton
+                    v-if="order.payment_status === 'paid' && (item.product?.design_file_path || item.product?.digital_files?.length)"
+                    color="success"
+                    size="sm"
+                    class="mt-1"
+                    :disabled="downloading === item.id"
+                    @click="downloadFile(order, item)"
+                  >
+                    <CSpinner v-if="downloading === item.id" size="sm" class="me-1" />
+                    <CIcon icon="cil-cloud-download" class="me-1" />
+                    Download {{ item.product?.digital_files?.length > 1 ? '(' + item.product.digital_files.length + ' files)' : '' }}
+                  </CButton>
               </div>
             </div>
           </div>

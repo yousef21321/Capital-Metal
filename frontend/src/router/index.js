@@ -136,6 +136,12 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: '/admin/users',
+        name: 'AdminUsers',
+        component: () => import('@/views/pages/AdminUsers.vue'),
+        meta: { requiresAuth: true, roles: ['admin'] },
+      },
+      {
         path: '/designer/products',
         name: 'DesignerProducts',
         component: () => import('@/views/tickets/DesignerProducts.vue'),
@@ -163,7 +169,7 @@ const routes = [
         path: '/plans',
         name: 'Plans',
         component: () => import('@/views/tickets/Plans.vue'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, roles: ['industor', 'admin'] },
       },
       {
         path: '/profile',
@@ -462,9 +468,12 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ path: '/pages/login' })
+    next({ path: '/pages/login', query: { redirect: to.fullPath } })
   } else if (to.meta.guest && authStore.isAuthenticated) {
-    next({ path: '/products' })
+    const redirect = typeof to.query.redirect === 'string' ? to.query.redirect : ''
+    next(redirect && redirect.startsWith('/') ? redirect : '/products')
+  } else if (to.meta.roles && !to.meta.roles.includes(authStore.userRole)) {
+    next({ path: '/dashboard' })
   } else {
     next()
   }

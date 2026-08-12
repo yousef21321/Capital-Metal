@@ -78,7 +78,7 @@ class SeoController extends Controller
         $image = $product->images->first();
 
         if (! $image || ! $image->image_url) {
-            return $baseUrl . '/icon.ico';
+            return $baseUrl . '/og-image.png';
         }
 
         $diskUrl = Storage::disk('public')->url($image->image_url);

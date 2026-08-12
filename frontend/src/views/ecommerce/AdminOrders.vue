@@ -9,6 +9,28 @@ const loading = ref(true)
 const detailOrder = ref(null)
 const detailVisible = ref(false)
 const statusUpdating = ref(null)
+const exporting = ref(false)
+const applyLoading = ref(false)
+
+const search = ref('')
+const dateFrom = ref('')
+const dateTo = ref('')
+
+const orderPhone = (order) => order.address?.phone || order.user?.phone || order.guest_phone || '—'
+const orderPayment = (order) => order.payments?.[0]?.payment_method?.name || 'N/A'
+const orderProducts = (order) => (order.items || []).map((i) => i.product?.name || i.variant?.name || 'Product').join(', ')
+const orderQty = (order) => (order.items || []).reduce((sum, i) => sum + (Number(i.quantity) || 0), 0)
+const orderTypes = (order) => {
+  const types = [...new Set((order.items || []).map((i) => i.product?.product_type).filter(Boolean))]
+  return types.length ? types.join(', ') : '—'
+}
+const orderAddress = (order) => {
+  const a = order.address
+  const line = a?.address_line || order.guest_address_line || ''
+  const city = a?.city || order.guest_city || ''
+  const gov = a?.governorate || order.guest_governorate || ''
+  return [line, city, gov].filter(Boolean).join('، ')
+}
 
 const statusColors = {
   pending: 'warning',
@@ -30,12 +52,60 @@ const paymentColors = {
 async function fetchOrders() {
   loading.value = true
   try {
-    const { data } = await api.get('/api/orders')
+    const params = {
+      search: search.value || undefined,
+      date_from: dateFrom.value || undefined,
+      date_to: dateTo.value || undefined,
+    }
+    const { data } = await api.get('/api/orders', { params })
     orders.value = data.data || []
   } catch (e) {
     toast.error('Failed to load orders.')
   } finally {
     loading.value = false
+  }
+}
+
+async function applyFilters() {
+  applyLoading.value = true
+  try {
+    await fetchOrders()
+  } finally {
+    applyLoading.value = false
+  }
+}
+
+function resetFilters() {
+  search.value = ''
+  dateFrom.value = ''
+  dateTo.value = ''
+  fetchOrders()
+}
+
+async function exportExcel() {
+  exporting.value = true
+  try {
+    const { data } = await api.get('/api/orders/export', {
+      params: {
+        search: search.value || undefined,
+        date_from: dateFrom.value || undefined,
+        date_to: dateTo.value || undefined,
+      },
+      responseType: 'blob',
+    })
+    const url = URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `orders_${new Date().toISOString().slice(0, 10)}.xlsx`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    toast.success('Excel file downloaded.')
+  } catch (e) {
+    toast.error('Failed to export orders.')
+  } finally {
+    exporting.value = false
   }
 }
 
@@ -81,12 +151,48 @@ onMounted(fetchOrders)
 
 <template>
   <div>
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
         <h3 class="mb-1">Orders</h3>
         <p class="text-body-secondary mb-0">Manage all orders.</p>
       </div>
+      <CButton color="success" :disabled="exporting" @click="exportExcel">
+        <CIcon icon="cil-cloud-download" class="me-1" />
+        {{ exporting ? 'Exporting...' : 'Export to Excel' }}
+      </CButton>
     </div>
+
+    <CCard class="shadow-sm mb-3">
+      <CCardBody>
+        <CRow class="g-3 align-items-end">
+          <CCol :sm="12" :md="4">
+            <CFormLabel class="small fw-semibold">Customer Name</CFormLabel>
+            <CFormInput
+              v-model="search"
+              type="text"
+              placeholder="Search by customer name or order #..."
+              @keyup.enter="applyFilters"
+            />
+          </CCol>
+          <CCol :sm="6" :md="3">
+            <CFormLabel class="small fw-semibold">From Date</CFormLabel>
+            <CFormInput v-model="dateFrom" type="date" />
+          </CCol>
+          <CCol :sm="6" :md="3">
+            <CFormLabel class="small fw-semibold">To Date</CFormLabel>
+            <CFormInput v-model="dateTo" type="date" />
+          </CCol>
+          <CCol :sm="12" :md="2" class="d-flex gap-2">
+            <CButton color="primary" class="flex-grow-1" :disabled="applyLoading" @click="applyFilters">
+              <CIcon icon="cil-filter" class="me-1" /> Filter
+            </CButton>
+            <CButton color="secondary" @click="resetFilters">
+              <CIcon icon="cil-reload" />
+            </CButton>
+          </CCol>
+        </CRow>
+      </CCardBody>
+    </CCard>
 
     <div v-if="loading" class="text-center py-5"><CSpinner /></div>
 
@@ -100,12 +206,18 @@ onMounted(fetchOrders)
         <CTable hover responsive align="middle">
           <CTableHead>
             <CTableRow>
-              <CTableHeaderCell>Order</CTableHeaderCell>
+              <CTableHeaderCell>Order #</CTableHeaderCell>
               <CTableHeaderCell>Customer</CTableHeaderCell>
+              <CTableHeaderCell>Phone</CTableHeaderCell>
+              <CTableHeaderCell>Address</CTableHeaderCell>
+              <CTableHeaderCell>Payment</CTableHeaderCell>
+              <CTableHeaderCell>Product</CTableHeaderCell>
+              <CTableHeaderCell>Type</CTableHeaderCell>
+              <CTableHeaderCell>Qty</CTableHeaderCell>
               <CTableHeaderCell>Date</CTableHeaderCell>
               <CTableHeaderCell>Total</CTableHeaderCell>
               <CTableHeaderCell>Status</CTableHeaderCell>
-              <CTableHeaderCell>Payment</CTableHeaderCell>
+              <CTableHeaderCell>Payment Status</CTableHeaderCell>
               <CTableHeaderCell class="text-end">Actions</CTableHeaderCell>
             </CTableRow>
           </CTableHead>
@@ -115,6 +227,12 @@ onMounted(fetchOrders)
               <CTableDataCell>
                 {{ order.user?.name || order.guest_name || '—' }}
               </CTableDataCell>
+              <CTableDataCell dir="ltr">{{ orderPhone(order) }}</CTableDataCell>
+              <CTableDataCell>{{ orderAddress(order) }}</CTableDataCell>
+              <CTableDataCell>{{ orderPayment(order) }}</CTableDataCell>
+              <CTableDataCell>{{ orderProducts(order) }}</CTableDataCell>
+              <CTableDataCell>{{ orderTypes(order) }}</CTableDataCell>
+              <CTableDataCell>{{ orderQty(order) }}</CTableDataCell>
               <CTableDataCell>{{ new Date(order.created_at).toLocaleDateString() }}</CTableDataCell>
               <CTableDataCell>{{ order.total_amount }} {{ order.currency }}</CTableDataCell>
               <CTableDataCell>

@@ -1,12 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore, detectCurrency } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 
-const autoDetect = ref(false)
 const selectedCurrency = ref(authStore.userCurrency || 'EGP')
 const saving = ref(false)
 const success = ref('')
@@ -16,28 +15,8 @@ onMounted(() => {
   selectedCurrency.value = authStore.userCurrency || 'EGP'
 })
 
-async function toggleAutoDetect() {
-  autoDetect.value = !autoDetect.value
-  if (autoDetect.value) {
-    saving.value = true
-    error.value = ''
-    success.value = ''
-    try {
-      const currency = await detectCurrency()
-      selectedCurrency.value = currency
-      await authStore.updateCurrency(currency)
-      success.value = t('settings.auto_detected', { currency })
-    } catch {
-      error.value = t('settings.update_failed')
-    } finally {
-      saving.value = false
-    }
-  }
-}
-
 async function setCurrency(currency) {
   selectedCurrency.value = currency
-  autoDetect.value = false
   saving.value = true
   error.value = ''
   success.value = ''
@@ -65,38 +44,24 @@ async function setCurrency(currency) {
         <CIcon icon="cil-dollar" class="me-2" />{{ $t('settings.currency') }}
       </h5>
 
-      <div class="mb-4">
-        <CFormSwitch
-          :label="t('settings.auto_detect_label')"
-          id="autoDetectSwitch"
-          :model-value="autoDetect"
-          @update:model-value="toggleAutoDetect"
-          :disabled="saving"
-        />
-        <small class="text-body-secondary d-block mt-1">{{ $t('settings.auto_detect_help') }}</small>
-      </div>
-
       <div class="mb-3">
         <CFormLabel class="fw-semibold">{{ $t('settings.select_currency') }}</CFormLabel>
         <div class="d-flex gap-2 flex-wrap">
           <CButton
-            :color="selectedCurrency === 'EGP' && !autoDetect ? 'primary' : 'outline-primary'"
+            :color="selectedCurrency === 'EGP' ? 'primary' : 'outline-primary'"
             @click="setCurrency('EGP')"
-            :disabled="autoDetect || saving"
+            :disabled="saving"
           >
             EGP - {{ $t('settings.egyptian_pound') }}
           </CButton>
           <CButton
-            :color="selectedCurrency === 'USD' && !autoDetect ? 'primary' : 'outline-primary'"
+            :color="selectedCurrency === 'USD' ? 'primary' : 'outline-primary'"
             @click="setCurrency('USD')"
-            :disabled="autoDetect || saving"
+            :disabled="saving"
           >
             USD - {{ $t('settings.us_dollar') }}
           </CButton>
         </div>
-        <small v-if="autoDetect" class="text-info d-block mt-2">
-          <CIcon icon="cil-globe-alt" class="me-1" />{{ $t('settings.auto_detect_active') }}
-        </small>
       </div>
 
       <div class="mt-4 pt-3 border-top">

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useToastStore } from '@/stores/toast'
 import { formatProductPrice } from '@/utils/price'
+import { imageSrcSet, thumbImageUrl } from '@/utils/image'
 import api from '@/api'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
@@ -157,7 +158,7 @@ let notifInterval
     <div v-if="!authStore.isAuthenticated" class="guest-welcome">
       <div class="hero-section text-center">
         <div class="hero-bg-shapes">
-          <template v-for="media in heroImages" :key="media.id">
+          <template v-for="(media, mediaIdx) in heroImages" :key="media.id">
             <iframe
               v-if="media.media_type === 'video' && youtubeEmbedUrl(media.video_url)"
               :src="youtubeEmbedUrl(media.video_url)"
@@ -177,9 +178,12 @@ let notifInterval
             ></video>
             <img
               v-else-if="media.media_type === 'image'"
-              :src="`/storage/${media.image_url}`"
+              :src="thumbImageUrl(media)"
+              :srcset="imageSrcSet(media)"
+              sizes="(max-width: 992px) 100vw, 1200px"
               class="hero-bg-img"
-              loading="lazy"
+              :loading="mediaIdx === 0 ? 'eager' : 'lazy'"
+              :fetchpriority="mediaIdx === 0 ? 'high' : 'auto'"
               :alt="media.alt_text || ''"
             />
           </template>
@@ -231,7 +235,9 @@ let notifInterval
                 <div class="product-img-wrapper">
                   <img
                     v-if="productImage(product)"
-                    :src="productImage(product)"
+                    :src="thumbImageUrl(product.images?.[0])"
+                    :srcset="imageSrcSet(product.images?.[0])"
+                    sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 23vw"
                     :alt="product.name"
                     class="product-img"
                     loading="lazy"
