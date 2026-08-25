@@ -337,12 +337,12 @@ watch(() => route.params.slug, (newSlug) => {
 
             <div class="product-meta d-flex align-items-center gap-3 mb-3 flex-wrap">
               <div class="rating-display d-flex align-items-center gap-1">
-                <CIcon v-for="i in 5" :key="i" :icon="i <= (product.avg_rating || 4) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
-                <span class="small text-body-secondary ms-1">({{ reviews.length }})</span>
+                <CIcon v-for="i in 5" :key="i" :icon="i <= Math.round(displayProduct.star_rating || 0) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
+                <span class="small text-body-secondary ms-1">({{ displayProduct.star_rating || 0 }})</span>
               </div>
               <span class="vr"></span>
               <span class="small text-body-secondary">
-                <CIcon icon="cil-basket" class="me-1" />{{ product.order_items_count || 0 }} sold
+                <CIcon icon="cil-basket" class="me-1" />{{ displayProduct.sold_count || 0 }} sold
               </span>
             </div>
 
@@ -480,6 +480,8 @@ watch(() => route.params.slug, (newSlug) => {
               <div class="info-row"><span>Material</span><span>{{ selectedVariant?.material || product.material || 'N/A' }}</span></div>
               <div class="info-row"><span>Manufacturing</span><span>{{ selectedVariant?.manufacturing_method || product.manufacturing_method || 'N/A' }}</span></div>
               <div class="info-row"><span>Country</span><span>{{ product.country_availability || 'All' }}</span></div>
+              <div class="info-row"><span>Star Rating</span><span>{{ product.star_rating || 0 }}</span></div>
+              <div class="info-row"><span>Sold</span><span>{{ product.sold_count || 0 }}</span></div>
               <div class="info-row"><span>Published</span><span>{{ product.publish_date ? new Date(product.publish_date).toLocaleDateString() : 'N/A' }}</span></div>
             </CCardBody>
           </CCard>

@@ -310,8 +310,8 @@ onMounted(fetchProducts)
             </div>
             <CCardTitle class="product-name mb-1" @click="viewProduct(product.slug)">{{ product.name }}</CCardTitle>
             <div class="product-rating d-flex align-items-center gap-1 mb-1">
-              <CIcon v-for="i in 5" :key="i" :icon="i <= (product.rating || 4) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
-              <span class="small text-body-secondary ms-1">({{ product.reviews_count || 0 }})</span>
+              <CIcon v-for="i in 5" :key="i" :icon="i <= Math.round(product.star_rating || 0) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
+              <span class="small text-body-secondary ms-1">({{ product.star_rating || 0 }})</span>
             </div>
             <p class="product-desc text-body-secondary small flex-grow-1">
               {{ product.description?.slice(0, 70) || $t('products.no_description') }}{{ product.description?.length > 70 ? '...' : '' }}
