@@ -310,7 +310,20 @@ onMounted(fetchProducts)
             </div>
             <CCardTitle class="product-name mb-1" @click="viewProduct(product.slug)">{{ product.name }}</CCardTitle>
             <div class="product-rating d-flex align-items-center gap-1 mb-1">
-              <CIcon v-for="i in 5" :key="i" :icon="i <= Math.round(product.star_rating || 0) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
+              <template v-for="i in 5" :key="i">
+                <CIcon
+                  v-if="i <= Math.floor(product.star_rating || 0)"
+                  icon="cil-star" size="sm" class="star-icon"
+                />
+                <CIcon
+                  v-else-if="i === Math.ceil(product.star_rating || 0) && (product.star_rating || 0) % 1 !== 0"
+                  icon="cil-star-half" size="sm" class="star-icon"
+                />
+                <CIcon
+                  v-else
+                  icon="cil-star" size="sm" class="star-icon-empty"
+                />
+              </template>
               <span class="small text-body-secondary ms-1">({{ product.star_rating || 0 }})</span>
             </div>
             <p class="product-desc text-body-secondary small flex-grow-1">
@@ -345,3 +358,12 @@ onMounted(fetchProducts)
     </div>
   </div>
 </template>
+
+<style scoped>
+.star-icon {
+  color: #f9b115;
+}
+.star-icon-empty {
+  color: var(--cui-border-color, rgba(0,0,0,0.15));
+}
+</style>

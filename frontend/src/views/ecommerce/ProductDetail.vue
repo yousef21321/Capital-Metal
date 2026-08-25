@@ -337,7 +337,20 @@ watch(() => route.params.slug, (newSlug) => {
 
             <div class="product-meta d-flex align-items-center gap-3 mb-3 flex-wrap">
               <div class="rating-display d-flex align-items-center gap-1">
-                <CIcon v-for="i in 5" :key="i" :icon="i <= Math.round(displayProduct.star_rating || 0) ? 'cil-star' : 'cil-star-half'" size="sm" class="star-icon" />
+                <template v-for="i in 5" :key="i">
+                  <CIcon
+                    v-if="i <= Math.floor(displayProduct.star_rating || 0)"
+                    icon="cil-star" size="sm" class="star-icon"
+                  />
+                  <CIcon
+                    v-else-if="i === Math.ceil(displayProduct.star_rating || 0) && (displayProduct.star_rating || 0) % 1 !== 0"
+                    icon="cil-star-half" size="sm" class="star-icon"
+                  />
+                  <CIcon
+                    v-else
+                    icon="cil-star" size="sm" class="star-icon-empty"
+                  />
+                </template>
                 <span class="small text-body-secondary ms-1">({{ displayProduct.star_rating || 0 }})</span>
               </div>
               <span class="vr"></span>
@@ -628,5 +641,11 @@ watch(() => route.params.slug, (newSlug) => {
 .desc-list li {
   margin-bottom: 0.25rem;
   line-height: 1.6;
+}
+.star-icon {
+  color: #f9b115;
+}
+.star-icon-empty {
+  color: var(--cui-border-color, rgba(0,0,0,0.15));
 }
 </style>
