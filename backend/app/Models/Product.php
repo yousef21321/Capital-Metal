@@ -8,11 +8,13 @@ class Product extends Model
 {
     protected $fillable = [
         'name', 'slug', 'description', 'product_type', 'price_egp', 'price_usd',
+        'fake_price_egp', 'fake_price_usd',
         'platform_commission_egp', 'platform_commission_usd',
         'designer_price_egp', 'designer_price_usd',
         'tester_suggested_price_egp', 'tester_suggested_price_usd',
         'tester_comment', 'tested_by', 'tested_at',
         'cost', 'status', 'publish_date', 'country_availability', 'designer_id',
+        'main_category_id',
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
         'ticket_id', 'stox_product_id',
         'lemonsqueezy_product_id', 'lemonsqueezy_variant_id',
@@ -23,6 +25,8 @@ class Product extends Model
         return [
             'price_egp' => 'decimal:2',
             'price_usd' => 'decimal:2',
+            'fake_price_egp' => 'decimal:2',
+            'fake_price_usd' => 'decimal:2',
             'platform_commission_egp' => 'decimal:2',
             'platform_commission_usd' => 'decimal:2',
             'designer_price_egp' => 'decimal:2',
@@ -36,6 +40,11 @@ class Product extends Model
     public function designer()
     {
         return $this->belongsTo(User::class, 'designer_id');
+    }
+
+    public function mainCategory()
+    {
+        return $this->belongsTo(MainCategory::class, 'main_category_id');
     }
 
     public function ticket()

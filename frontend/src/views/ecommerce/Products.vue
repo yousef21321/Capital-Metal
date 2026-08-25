@@ -98,6 +98,36 @@ function productPriceLabel(product) {
   return min === max ? `${min.toFixed(2)} EGP` : `From ${min.toFixed(2)} EGP`
 }
 
+function productFakePriceLabel(product) {
+  const authStore = useAuthStore()
+  const currency = authStore.userCurrency || 'EGP'
+  const rate = authStore.exchangeRate || 30
+
+  const hasBaseFake = parseFloat(product.fake_price_egp) > 0 || parseFloat(product.fake_price_usd) > 0
+  if (!hasBaseFake) {
+    const variants = (product.variants || []).filter(v => v.is_active)
+    if (variants.length === 0) return null
+    const fakePrices = variants.map(v => parseFloat(v.fake_price_egp || 0)).filter(p => p > 0)
+    if (fakePrices.length === 0) return null
+    const min = Math.min(...fakePrices)
+    const max = Math.max(...fakePrices)
+    if (currency === 'USD') {
+      const minUsd = (min / rate).toFixed(2)
+      const maxUsd = (max / rate).toFixed(2)
+      return min === max ? `${minUsd} USD` : `From ${minUsd} USD`
+    }
+    return min === max ? `${min.toFixed(2)} EGP` : `From ${min.toFixed(2)} EGP`
+  }
+
+  if (currency === 'USD') {
+    if (parseFloat(product.fake_price_usd) > 0) return `${parseFloat(product.fake_price_usd).toFixed(2)} USD`
+    if (parseFloat(product.fake_price_egp) > 0) return `${(parseFloat(product.fake_price_egp) / rate).toFixed(2)} USD`
+  }
+  if (parseFloat(product.fake_price_egp) > 0) return `${parseFloat(product.fake_price_egp).toFixed(2)} EGP`
+  if (parseFloat(product.fake_price_usd) > 0) return `${(parseFloat(product.fake_price_usd) * rate).toFixed(2)} EGP`
+  return null
+}
+
 const productImage = (product) => {
   const img = product.images?.[0]
   if (img && img.image_url) {
@@ -289,7 +319,7 @@ onMounted(fetchProducts)
             <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
               <div class="product-price-row">
                 <h4 class="product-price mb-0 fs-5">{{ productPriceLabel(product) }}</h4>
-                <small v-if="product.compare_price" class="text-decoration-line-through text-body-secondary ms-1">{{ product.compare_price }}</small>
+                <small v-if="productFakePriceLabel(product)" class="fake-price text-decoration-line-through text-body-secondary ms-1">{{ productFakePriceLabel(product) }}</small>
               </div>
               <CButton
                 color="light"

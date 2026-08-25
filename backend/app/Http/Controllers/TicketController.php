@@ -27,7 +27,7 @@ class TicketController extends Controller
             'waiting_tester_review' => 'waiting_industor_approval',
         ],
         'industor_accept' => [
-            'waiting_industor_approval' => 'approved_by_tester',
+            'waiting_industor_approval' => 'pending_payment',
         ],
         'industor_accept_single' => [
             'waiting_industor_approval' => 'pending_payment',
@@ -36,13 +36,13 @@ class TicketController extends Controller
             'waiting_industor_approval' => 'waiting_tester_review',
         ],
         'tester_accept' => [
-            'waiting_tester_review' => 'approved_by_tester',
+            'waiting_tester_review' => 'pending_payment',
         ],
         'tester_accept_single' => [
             'waiting_tester_review' => 'pending_payment',
         ],
         'tester_accept_initial' => [
-            'pending_tester_review' => 'approved_by_tester',
+            'pending_tester_review' => 'pending_payment',
         ],
         'tester_accept_initial_single' => [
             'pending_tester_review' => 'pending_payment',
@@ -58,6 +58,7 @@ class TicketController extends Controller
             'pending_tester_review' => 'cancelled',
             'waiting_industor_approval' => 'cancelled',
             'waiting_tester_review' => 'cancelled',
+            'pending_payment' => 'cancelled',
             'approved_by_tester' => 'cancelled',
             'accepted' => 'cancelled',
             'modification_requested' => 'cancelled',
@@ -67,7 +68,6 @@ class TicketController extends Controller
 
     private const STATUS_TIMESTAMP = [
         'approved_by_tester' => 'reviewed_at',
-        'pending_payment' => 'reviewed_at',
         'accepted' => 'accepted_at',
         'in_progress' => 'started_at',
         'awaiting_qa' => 'uploaded_at',
@@ -786,7 +786,7 @@ class TicketController extends Controller
             $from = $ticket->status;
             $ticket = $this->transition($ticket, 'cancel', changedBy: $user);
 
-            if ($from === Ticket::STATUS_APPROVED_BY_TESTER && $ticket->subscription_id) {
+            if (in_array($from, [Ticket::STATUS_PENDING_PAYMENT, Ticket::STATUS_APPROVED_BY_TESTER]) && $ticket->subscription_id) {
                 $sub = $ticket->subscription()->lockForUpdate()->first();
                 $sub?->increment('tickets_remaining');
             }
@@ -1148,24 +1148,16 @@ class TicketController extends Controller
 
     protected function notifyPostAgreement(Ticket $ticket): void
     {
-        if ($ticket->is_single_purchase) {
-            $this->notify($ticket->industor_id, 'ticket.negotiation_agreed', 'Price & deadline agreed - payment required', [
-                'ticket_id' => $ticket->id,
-                'price' => $ticket->industor_price,
-                'deadline' => $ticket->final_deadline,
-            ]);
-        } else {
-            $this->notify($ticket->industor_id, 'ticket.negotiation_agreed', 'Price & deadline agreed - ticket is now available', [
-                'ticket_id' => $ticket->id,
-                'price' => $ticket->industor_price,
-                'deadline' => $ticket->final_deadline,
-            ]);
+        $type = $ticket->is_single_purchase ? 'ticket.negotiation_agreed' : 'ticket.negotiation_agreed_plan';
+        $title = $ticket->is_single_purchase
+            ? 'Price & deadline agreed - payment required'
+            : 'Price & deadline agreed - discounted payment required';
 
-            $this->notifyRole('designer', 'ticket.opened', 'New ticket available', [
-                'ticket_id' => $ticket->id,
-                'title' => $ticket->title,
-            ]);
-        }
+        $this->notify($ticket->industor_id, $type, $title, [
+            'ticket_id' => $ticket->id,
+            'price' => $ticket->industor_price,
+            'deadline' => $ticket->final_deadline,
+        ]);
     }
 
     protected function notify(int $userId, string $type, string $title, array $data = []): void

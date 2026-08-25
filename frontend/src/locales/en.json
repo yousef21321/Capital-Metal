@@ -24,7 +24,6 @@
   "nav.domain_verification": "Domain Verification",
   "nav.manage_materials": "Manage Materials",
   "nav.shipping_rates": "Shipping Rates",
-
   "header.login": "Login",
   "header.sign_up": "Sign Up",
   "header.notifications": "Notifications",
@@ -47,17 +46,14 @@
   "header.light": "Light",
   "header.dark": "Dark",
   "header.auto": "Auto",
-
   "account.profile": "Profile",
   "account.settings": "Settings",
   "account.logout": "Logout",
-
   "footer.all_rights": "All rights reserved.",
   "footer.privacy_policy": "Privacy Policy",
   "footer.refund_policy": "Refund Policy",
   "footer.shipping_policy": "Shipping Policy",
   "footer.contact_us": "Contact Us",
-
   "dashboard.welcome": "Welcome to FLFL Design",
   "dashboard.browse_products": "Browse Products",
   "dashboard.browse_products_desc": "Browse products and place orders without signing up",
@@ -98,7 +94,6 @@
   "dashboard.feature_inventory": "Inventory",
   "dashboard.feature_supply": "Supply Chain",
   "dashboard.purchased": "purchased",
-
   "login.title": "Welcome Back",
   "login.subtitle": "Sign in to your FLFL Design account",
   "login.email": "Email",
@@ -108,7 +103,6 @@
   "login.register": "Register Now!",
   "login.email_placeholder": "Enter your email",
   "login.password_placeholder": "Enter your password",
-
   "register.title": "Create Account / Register",
   "register.subtitle": "Create your FLFL Design account to start shopping",
   "register.full_name": "Full Name",
@@ -123,7 +117,6 @@
   "register.has_account": "Already have an account?",
   "register.login": "Login",
   "register.platform_desc": "Role-based platform for admin, user, tester, designer, and industor.",
-
   "products.title": "Products",
   "products.desc": "Browse and add products to your cart.",
   "products.search": "Search products...",
@@ -145,7 +138,6 @@
   "products.added_to_cart": "{product} added to cart.",
   "products.failed_to_load": "Failed to load products.",
   "products.failed_add_cart": "Failed to add to cart.",
-
   "admin_products.title": "Product Management",
   "admin_products.desc": "Create, edit, and manage all products.",
   "admin_products.add": "Add Product",
@@ -200,7 +192,6 @@
   "admin_products.image_removed": "Image removed.",
   "admin_products.image_remove_failed": "Failed to remove image.",
   "admin_products.free": "Free",
-
   "cart.title": "Shopping Cart",
   "cart.clear": "Clear Cart",
   "cart.empty": "Your cart is empty",
@@ -209,7 +200,6 @@
   "cart.summary": "Order Summary",
   "cart.checkout": "Proceed to Checkout",
   "cart.remove": "Remove",
-
   "orders.title": "My Orders",
   "orders.login_title": "Login to see your orders",
   "orders.login_desc": "Please log in to view your orders or track a new order.",
@@ -218,7 +208,6 @@
   "orders.empty": "No orders yet",
   "orders.empty_desc": "Start shopping to see your orders here.",
   "orders.pay": "Pay Now",
-
   "wishlist.title": "My Wishlist",
   "wishlist.desc": "Products you've saved for later.",
   "wishlist.refresh": "Refresh",
@@ -227,7 +216,6 @@
   "wishlist.browse": "Browse Products",
   "wishlist.no_description": "No description",
   "wishlist.add": "Add",
-
   "saved_cards.title": "Payment Methods",
   "saved_cards.desc": "Save a card once and it will be charged automatically at checkout or when subscribing to a plan.",
   "saved_cards.add_card": "Add Card",
@@ -250,7 +238,6 @@
   "saved_cards.default_badge": "Default",
   "saved_cards.set_default_btn": "Set Default",
   "saved_cards.remove": "Remove",
-
   "tickets.title": "Tickets",
   "tickets.my_requests": "My Requests",
   "tickets.qa_queue_title": "QA Queue",
@@ -284,7 +271,6 @@
   "tickets.no_open_tickets": "No open tickets",
   "tickets.check_later": "Check back later for new design requests.",
   "tickets.refresh": "Refresh",
-
   "ticket_create.back": "Back to Tickets",
   "ticket_create.title": "New Ticket",
   "ticket_create.no_subscription": "You don't have an active subscription. This ticket will be created as a single-purchase",
@@ -303,7 +289,7 @@
   "ticket_create.attachments": "Product Images (optional)",
   "ticket_create.up_to_2": "up to 2",
   "ticket_create.attachments_help": "Reference images for your project. You can also add more later from the ticket page.",
-  "ticket_create.design_file": "Design File (hidden until purchase)",
+  "ticket_create.design_file": "Design File proposal",
   "ticket_create.design_file_help": "Upload the final design file. It stays hidden and is only revealed to the buyer after purchase.",
   "ticket_create.remove": "Remove",
   "ticket_create.single_purchase_checkbox": "Create as single-purchase ticket (pay per ticket instead of using subscription)",
@@ -317,7 +303,6 @@
   "ticket_create.step4": "After approval, you pay the set price.",
   "ticket_create.step5": "Designers can then accept it, upload the deliverable, and QA reviews the final design.",
   "ticket_create.failed": "Failed to create ticket.",
-
   "review_queue.title": "Ticket Review Queue",
   "review_queue.desc": "New requests awaiting price, deadline & approval before designers can see them.",
   "review_queue.refresh": "Refresh",
@@ -331,7 +316,6 @@
   "review_queue.action": "Action",
   "review_queue.respond": "Respond",
   "review_queue.review": "Review",
-
   "designer_queue.title": "Available Tickets",
   "designer_queue.desc": "Open design requests you can accept. Urgent tickets are highlighted.",
   "designer_queue.refresh": "Refresh",
@@ -343,10 +327,10 @@
   "designer_queue.time_remaining": "Time Remaining",
   "designer_queue.time_used": "Time Used",
   "designer_queue.deadline_passed": "Deadline passed",
+  "designer_queue.no_deadline": "No deadline",
   "designer_queue.accept_urgent": "Accept Urgent",
   "designer_queue.accept": "Accept",
   "designer_queue.details": "Details",
-
   "qa_queue.title": "QA Review Queue",
   "qa_queue.desc": "Designs awaiting quality approval.",
   "qa_queue.refresh": "Refresh",
@@ -358,7 +342,6 @@
   "qa_queue.uploaded": "Uploaded",
   "qa_queue.action": "Action",
   "qa_queue.review": "Review",
-
   "admin_approvals.title": "Subscriptions",
   "admin_approvals.desc": "All user subscriptions. Ticket balances update automatically on payment and can be adjusted here.",
   "admin_approvals.refresh": "Refresh",
@@ -369,7 +352,6 @@
   "admin_approvals.approve": "Approve",
   "admin_approvals.reject_placeholder": "Rejection reason (optional)",
   "admin_approvals.reject": "Reject",
-
   "admin_users.title": "Users",
   "admin_users.desc": "Create user accounts, assign roles, and reset passwords.",
   "admin_users.add_user": "Add User",
@@ -397,7 +379,6 @@
   "admin_users.reset_desc": "Set a new password for",
   "admin_users.new_password": "New Password",
   "admin_users.login_as": "Login as",
-
   "plans.title": "Subscription Plans",
   "plans.desc": "Choose a plan to get tickets for design requests. Admin approval required.",
   "plans.current_plan": "Current Plan",
@@ -412,7 +393,6 @@
   "plans.pending_approval": "Pending Approval",
   "plans.approved": "Approved",
   "plans.rejected": "Rejected",
-
   "designer_product.back": "Back to Products",
   "designer_product.title": "Create Digital Product",
   "designer_product.product_name": "Product Name",
@@ -448,7 +428,6 @@
   "designer_product.sidebar_desc": "Products you create appear in the public store. Upload images to showcase your work. The design file stays hidden and is delivered to customers after purchase.",
   "designer_product.created": "Product created successfully.",
   "designer_product.failed": "Failed to create product.",
-
   "product_type.cotton": "Cotton",
   "product_type.polyester": "Polyester",
   "product_type.silk": "Silk",
@@ -476,7 +455,6 @@
   "product_type.cnc": "CNC",
   "product_type.laser_cut": "Laser Cut",
   "product_type.hand_crafted": "Hand Crafted",
-
   "profile.name": "Name",
   "profile.email": "Email",
   "profile.role": "Role",
@@ -486,7 +464,6 @@
   "profile.currency_updated": "Currency preference updated.",
   "profile.egyptian_pound": "Egyptian Pound",
   "profile.us_dollar": "US Dollar",
-
   "settings.currency": "Currency Settings",
   "settings.auto_detect_label": "Auto-detect currency via GPS",
   "settings.auto_detect_help": "Automatically detect your currency based on your location",
@@ -498,5 +475,7 @@
   "settings.currency_updated": "Currency updated successfully.",
   "settings.update_failed": "Failed to update currency.",
   "settings.current": "Current Settings",
-  "settings.display_currency": "Display Currency"
+  "settings.display_currency": "Display Currency",
+  "header.menu": "Menu",
+  "header.more": "More"
 }

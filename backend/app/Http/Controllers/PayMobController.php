@@ -194,10 +194,6 @@ class PayMobController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        if (! $ticket->is_single_purchase) {
-            return response()->json(['message' => 'This ticket does not require a separate payment.'], 422);
-        }
-
         if ($ticket->status !== Ticket::STATUS_PENDING_PAYMENT) {
             return response()->json(['message' => 'Ticket is not awaiting payment.'], 422);
         }
@@ -225,12 +221,15 @@ class PayMobController extends Controller
             ]);
 
             if ($success) {
-                $ticket->update(['status' => Ticket::STATUS_APPROVED_BY_TESTER]);
+                $ticket->update([
+                    'status' => Ticket::STATUS_APPROVED_BY_TESTER,
+                    'reviewed_at' => now(),
+                ]);
                 $ticket->histories()->create([
                     'from_status' => Ticket::STATUS_PENDING_PAYMENT,
                     'to_status' => Ticket::STATUS_APPROVED_BY_TESTER,
                     'changed_by' => $ticket->industor_id,
-                    'note' => 'Single-ticket payment confirmed',
+                    'note' => 'Ticket payment confirmed',
                 ]);
 
                 $this->notifyUser($ticket->industor_id, 'ticket.paid', 'Ticket payment confirmed', [
@@ -418,12 +417,15 @@ class PayMobController extends Controller
                     $ticket = $payment->ticket;
 
                     if ($success && $ticket && $ticket->status === Ticket::STATUS_PENDING_PAYMENT) {
-                        $ticket->update(['status' => Ticket::STATUS_APPROVED_BY_TESTER]);
+                        $ticket->update([
+                            'status' => Ticket::STATUS_APPROVED_BY_TESTER,
+                            'reviewed_at' => now(),
+                        ]);
                         $ticket->histories()->create([
                             'from_status' => Ticket::STATUS_PENDING_PAYMENT,
                             'to_status' => Ticket::STATUS_APPROVED_BY_TESTER,
                             'changed_by' => $ticket->industor_id,
-                            'note' => 'Single-ticket payment confirmed (callback)',
+                            'note' => 'Ticket payment confirmed (callback)',
                         ]);
 
                         $this->notifyUser($ticket->industor_id, 'ticket.paid', 'Ticket payment confirmed', [

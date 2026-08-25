@@ -16,6 +16,8 @@ const lastPage = ref(1)
 
 const showArchived = ref(false)
 
+const mainCategories = ref([])
+
 const activeProducts = computed(() => products.value.filter(p => p.status !== 'archived'))
 const archivedProducts = computed(() => products.value.filter(p => p.status === 'archived'))
 
@@ -115,6 +117,8 @@ function emptyVariantForm() {
     description: '',
     price_egp: 0,
     price_usd: 0,
+    fake_price_egp: '',
+    fake_price_usd: '',
     cost: 0,
     sku: '',
     material: '',
@@ -132,8 +136,11 @@ function emptyForm() {
     slug: '',
     description: '',
     product_type: 'physical',
+    main_category_id: '',
     price_egp: 0,
     price_usd: 0,
+    fake_price_egp: '',
+    fake_price_usd: '',
     cost: 0,
     status: 'published',
     publish_date: '',
@@ -167,6 +174,13 @@ async function fetchManufacturingMethods(materialSlug) {
   } catch (_) {
     availableManufacturingMethods.value = []
   }
+}
+
+async function fetchMainCategories() {
+  try {
+    const { data } = await api.get('/api/main-categories')
+    mainCategories.value = data
+  } catch (_) {}
 }
 
 watch(() => form.value.material, async (val) => {
@@ -248,8 +262,11 @@ async function save() {
         status: form.value.status || 'published',
         description: pointsToDescription(productPoints.value),
       }
+      if (form.value.main_category_id) payload.main_category_id = form.value.main_category_id
       if (form.value.price_egp) payload.price_egp = form.value.price_egp
       if (form.value.price_usd) payload.price_usd = form.value.price_usd
+      if (form.value.fake_price_egp) payload.fake_price_egp = form.value.fake_price_egp
+      if (form.value.fake_price_usd) payload.fake_price_usd = form.value.fake_price_usd
       if (form.value.cost) payload.cost = form.value.cost
       if (form.value.publish_date) payload.publish_date = form.value.publish_date
       if (form.value.country_availability) payload.country_availability = form.value.country_availability
@@ -269,11 +286,14 @@ async function save() {
       fd.append('slug', form.value.slug || slugify(form.value.name))
       fd.append('product_type', form.value.product_type)
       fd.append('status', form.value.status || 'published')
+      if (form.value.main_category_id) fd.append('main_category_id', form.value.main_category_id)
       if (form.value.description || productPoints.value.length) {
         fd.append('description', pointsToDescription(productPoints.value))
       }
       if (form.value.price_egp) fd.append('price_egp', form.value.price_egp)
       if (form.value.price_usd) fd.append('price_usd', form.value.price_usd)
+      if (form.value.fake_price_egp) fd.append('fake_price_egp', form.value.fake_price_egp)
+      if (form.value.fake_price_usd) fd.append('fake_price_usd', form.value.fake_price_usd)
       if (form.value.cost) fd.append('cost', form.value.cost)
       if (form.value.publish_date) fd.append('publish_date', form.value.publish_date)
       if (form.value.country_availability) fd.append('country_availability', form.value.country_availability)
@@ -570,6 +590,7 @@ function renderDescription(text) {
 onMounted(() => {
   fetchProducts()
   fetchMaterials()
+  fetchMainCategories()
   if (!authStore.exchangeRate) authStore.fetchExchangeRate()
 })
 </script>
@@ -742,6 +763,13 @@ onMounted(() => {
             </CFormSelect>
           </CCol>
           <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Main Category</CFormLabel>
+            <CFormSelect v-model="form.main_category_id">
+              <option value="">No Category</option>
+              <option v-for="cat in mainCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </CFormSelect>
+          </CCol>
+          <CCol :sm="6" class="mb-3">
             <CFormLabel class="fw-semibold">Type Sample</CFormLabel>
             <CFormInput v-model="form.type_sample" placeholder="e.g. sample type" />
           </CCol>
@@ -782,6 +810,15 @@ onMounted(() => {
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.cost') }}</CFormLabel>
             <CFormInput v-model.number="form.cost" type="text" inputmode="decimal" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Fake Price (EGP)</CFormLabel>
+            <CFormInput v-model="form.fake_price_egp" type="text" inputmode="decimal" placeholder="Optional" />
+            <small class="text-body-secondary">Strikethrough price, shown on card & detail</small>
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Fake Price (USD)</CFormLabel>
+            <CFormInput v-model="form.fake_price_usd" type="text" inputmode="decimal" placeholder="Optional" />
           </CCol>
           <CCol :sm="6" class="mb-3">
             <CFormLabel class="fw-semibold">{{ $t('admin_products.status') }}</CFormLabel>
@@ -908,8 +945,10 @@ onMounted(() => {
                   <div v-if="variant.description" class="small text-body-secondary mb-1" v-html="renderDescription(variant.description)"></div>
                   <div class="small">
                     <span class="fw-semibold">${{ parseFloat(variant.price_egp || 0).toFixed(2) }} EGP</span>
+                    <small v-if="variant.fake_price_egp" class="text-decoration-line-through text-body-secondary ms-1">${{ parseFloat(variant.fake_price_egp).toFixed(2) }} EGP</small>
                     <span class="text-body-secondary mx-1">/</span>
                     <span>${{ parseFloat(variant.price_usd || 0).toFixed(2) }} USD</span>
+                    <small v-if="variant.fake_price_usd" class="text-decoration-line-through text-body-secondary ms-1">${{ parseFloat(variant.fake_price_usd).toFixed(2) }} USD</small>
                     <span v-if="variant.sku" class="text-body-secondary ms-2">SKU: {{ variant.sku }}</span>
                   </div>
                   <div class="small text-body-secondary mt-1">
@@ -1017,6 +1056,15 @@ onMounted(() => {
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">Cost</CFormLabel>
             <CFormInput v-model.number="variantForm.cost" type="text" inputmode="decimal" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Fake Price (EGP)</CFormLabel>
+            <CFormInput v-model="variantForm.fake_price_egp" type="text" inputmode="decimal" placeholder="Optional" />
+            <small class="text-body-secondary">Strikethrough price</small>
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Fake Price (USD)</CFormLabel>
+            <CFormInput v-model="variantForm.fake_price_usd" type="text" inputmode="decimal" placeholder="Optional" />
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">SKU</CFormLabel>

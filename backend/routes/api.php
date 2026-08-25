@@ -11,6 +11,7 @@ use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\LemonSqueezyController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MainCategoryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
@@ -43,6 +44,11 @@ Route::get('/products/{slug}/reviews', [ReviewController::class, 'index']);
 Route::get('/materials', [MaterialController::class, 'indexMaterials']);
 Route::get('/manufacturing-methods', [MaterialController::class, 'indexManufacturingMethods']);
 Route::get('/materials/{slug}/manufacturing-methods', [MaterialController::class, 'manufacturingMethodsByMaterial']);
+
+// Main Categories (public)
+Route::get('/main-categories', [MainCategoryController::class, 'index']);
+Route::get('/main-categories/{slug}', [MainCategoryController::class, 'show']);
+
 Route::post('/coupons/verify', [CouponController::class, 'verify']);
 
 Route::get('/plans', [SubscriptionController::class, 'plans']);
@@ -132,6 +138,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/manufacturing-methods', [MaterialController::class, 'storeMethod']);
         Route::put('/manufacturing-methods/{id}', [MaterialController::class, 'updateMethod']);
         Route::delete('/manufacturing-methods/{id}', [MaterialController::class, 'destroyMethod']);
+
+        // Main Categories (admin)
+        Route::post('/main-categories', [MainCategoryController::class, 'store']);
+        Route::put('/main-categories/{id}', [MainCategoryController::class, 'update']);
+        Route::delete('/main-categories/{id}', [MainCategoryController::class, 'destroy']);
 
         // Shipping Rates (admin)
         Route::get('/shipping-rates', [ShippingRateController::class, 'index']);

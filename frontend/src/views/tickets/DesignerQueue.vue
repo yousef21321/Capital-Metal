@@ -72,23 +72,34 @@ function ticketMetrics(t) {
   const deadlineMs = t.deadline ? new Date(t.deadline).getTime() : 0
   const reviewedMs = t.reviewed_at ? new Date(t.reviewed_at).getTime() : 0
 
-  if (!deadlineMs || !reviewedMs) {
-    return { remaining: 0, percentage: 100, type: 'normal', parts: { days: 0, hours: 0, minutes: 0, seconds: 0 } }
+  if (!deadlineMs) {
+    return {
+      remaining: null,
+      percentage: null,
+      type: 'normal',
+      hasDeadline: false,
+      parts: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+    }
   }
 
-  const totalMs = deadlineMs - reviewedMs
   const remainingMs = Math.max(0, deadlineMs - now.value)
-  const percentage = totalMs > 0 ? (remainingMs / totalMs) * 100 : 0
-  const clampedPct = Math.max(0, Math.min(100, percentage))
-  const type = clampedPct > 50 ? 'normal' : 'urgent'
-
   const totalSec = Math.floor(remainingMs / 1000)
-  const days = Math.floor(totalSec / 86400)
-  const hours = Math.floor((totalSec % 86400) / 3600)
-  const minutes = Math.floor((totalSec % 3600) / 60)
-  const seconds = totalSec % 60
+  const parts = {
+    days: Math.floor(totalSec / 86400),
+    hours: Math.floor((totalSec % 86400) / 3600),
+    minutes: Math.floor((totalSec % 3600) / 60),
+    seconds: totalSec % 60,
+  }
 
-  return { remaining: remainingMs, percentage: clampedPct, type, parts: { days, hours, minutes, seconds } }
+  let percentage = null
+  if (reviewedMs && deadlineMs > reviewedMs) {
+    const totalMs = deadlineMs - reviewedMs
+    percentage = Math.max(0, Math.min(100, (remainingMs / totalMs) * 100))
+  }
+
+  const type = percentage === null ? 'normal' : (percentage > 50 ? 'normal' : 'urgent')
+
+  return { remaining: remainingMs, percentage, type, hasDeadline: true, parts }
 }
 
 const pad = (n) => String(n).padStart(2, '0')
@@ -97,6 +108,9 @@ const sortedTickets = computed(() => {
   return [...tickets.value].sort((a, b) => {
     const ma = ticketMetrics(a)
     const mb = ticketMetrics(b)
+    if (ma.remaining === null && mb.remaining === null) return 0
+    if (ma.remaining === null) return 1
+    if (mb.remaining === null) return -1
     if (ma.type !== mb.type) return ma.type === 'urgent' ? -1 : 1
     return ma.remaining - mb.remaining
   })
@@ -188,7 +202,10 @@ onMounted(fetchAvailable)
                 <CIcon :icon="ticketMetrics(t).type === 'urgent' ? 'cil-bell' : 'cil-clock'" class="me-1" />
                 {{ $t('designer_queue.time_remaining') }}
               </div>
-              <div class="countdown-digits">
+              <div v-if="!ticketMetrics(t).hasDeadline" class="countdown-empty">
+                <span>{{ $t('designer_queue.no_deadline') }}</span>
+              </div>
+              <div v-else class="countdown-digits">
                 <span v-if="ticketMetrics(t).parts.days > 0" class="countdown-unit">{{ ticketMetrics(t).parts.days }}<span class="unit-label">d</span></span>
                 <span class="countdown-unit">{{ pad(ticketMetrics(t).parts.hours) }}<span class="unit-label">h</span></span>
                 <span class="countdown-sep">:</span>
@@ -196,12 +213,12 @@ onMounted(fetchAvailable)
                 <span class="countdown-sep">:</span>
                 <span class="countdown-unit seconds-unit">{{ pad(ticketMetrics(t).parts.seconds) }}<span class="unit-label">s</span></span>
               </div>
-              <div v-if="ticketMetrics(t).remaining === 0" class="deadline-passed">
+              <div v-if="ticketMetrics(t).hasDeadline && ticketMetrics(t).remaining === 0" class="deadline-passed">
                 <CIcon icon="cil-clock-history" class="me-1" /> {{ $t('designer_queue.deadline_passed') }}
               </div>
             </div>
 
-            <div class="queue-progress-section">
+            <div v-if="ticketMetrics(t).percentage !== null" class="queue-progress-section">
               <div class="progress-header">
                 <span>{{ $t('designer_queue.time_used') }}</span>
                 <span class="progress-pct">{{ (100 - ticketMetrics(t).percentage).toFixed(0) }}%</span>
@@ -475,6 +492,16 @@ onMounted(fetchAvailable)
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.countdown-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cui-body-secondary, #6b7785);
 }
 
 .countdown-digits {

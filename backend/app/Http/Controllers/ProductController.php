@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\SyncStoxProductJob;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\MainCategory;
 use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +14,11 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['images', 'inventory', 'reviews', 'variants.images']);
+        $query = Product::with(['images', 'inventory', 'reviews', 'variants.images', 'mainCategory']);
+
+        if ($request->main_category_id) {
+            $query->where('main_category_id', $request->main_category_id);
+        }
 
         if ($request->product_type) {
             $query->where('product_type', $request->product_type);
@@ -57,7 +62,7 @@ class ProductController extends Controller
     {
         $product = Product::with([
             'images', 'inventory', 'digitalFiles', 'licenseAgreements',
-            'reviews.user', 'analytics', 'variants.images',
+            'reviews.user', 'analytics', 'variants.images', 'mainCategory',
         ])->where('slug', $slug)->firstOrFail();
 
         return response()->json($product);
@@ -70,8 +75,11 @@ class ProductController extends Controller
             'slug' => 'required|string|max:255|unique:products',
             'description' => 'nullable|string',
             'product_type' => 'required|in:physical,digital',
+            'main_category_id' => 'nullable|exists:main_categories,id',
             'price_egp' => 'nullable|numeric|min:0',
             'price_usd' => 'nullable|numeric|min:0',
+            'fake_price_egp' => 'nullable|numeric|min:0',
+            'fake_price_usd' => 'nullable|numeric|min:0',
             'cost' => 'nullable|numeric|min:0',
             'status' => 'nullable|string|max:50',
             'publish_date' => 'nullable|date',
@@ -126,8 +134,11 @@ class ProductController extends Controller
             'slug' => 'sometimes|string|max:255|unique:products,slug,'.$id,
             'description' => 'nullable|string',
             'product_type' => 'sometimes|in:physical,digital',
+            'main_category_id' => 'nullable|exists:main_categories,id',
             'price_egp' => 'nullable|numeric|min:0',
             'price_usd' => 'nullable|numeric|min:0',
+            'fake_price_egp' => 'nullable|numeric|min:0',
+            'fake_price_usd' => 'nullable|numeric|min:0',
             'cost' => 'nullable|numeric|min:0',
             'status' => 'nullable|string|max:50',
             'publish_date' => 'nullable|date',

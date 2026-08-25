@@ -24,7 +24,6 @@
   "nav.domain_verification": "التحقق من النطاق",
   "nav.manage_materials": "إدارة المواد",
   "nav.shipping_rates": "أسعار الشحن",
-
   "header.login": "تسجيل الدخول",
   "header.sign_up": "إنشاء حساب",
   "header.notifications": "الإشعارات",
@@ -47,17 +46,14 @@
   "header.light": "فاتح",
   "header.dark": "داكن",
   "header.auto": "تلقائي",
-
   "account.profile": "الملف الشخصي",
   "account.settings": "الإعدادات",
   "account.logout": "تسجيل الخروج",
-
   "footer.all_rights": "جميع الحقوق محفوظة.",
   "footer.privacy_policy": "سياسة الخصوصية",
   "footer.refund_policy": "سياسة الاسترجاع",
   "footer.shipping_policy": "سياسة الشحن",
   "footer.contact_us": "اتصل بنا",
-
   "dashboard.welcome": "مرحباً بك في FLFL Design",
   "dashboard.browse_products": "تصفح المنتجات",
   "dashboard.browse_products_desc": "تصفح المنتجات واطلب ما تريد بدون تسجيل دخول",
@@ -98,7 +94,6 @@
   "dashboard.feature_inventory": "المخزون",
   "dashboard.feature_supply": "سلسلة التوريد",
   "dashboard.purchased": "اشترى",
-
   "login.title": "مرحباً بعودتك",
   "login.subtitle": "تسجيل الدخول إلى حسابك في FLFL Design",
   "login.email": "البريد الإلكتروني",
@@ -108,7 +103,6 @@
   "login.register": "سجل الآن!",
   "login.email_placeholder": "أدخل بريدك الإلكتروني",
   "login.password_placeholder": "أدخل كلمة المرور",
-
   "register.title": "إنشاء حساب",
   "register.subtitle": "أنشئ حسابك في FLFL Design لبدء التسوق",
   "register.full_name": "الاسم الكامل",
@@ -123,7 +117,6 @@
   "register.has_account": "لديك حساب بالفعل؟",
   "register.login": "تسجيل الدخول",
   "register.platform_desc": "منصة التصميم والتصنيع",
-
   "products.title": "المنتجات",
   "products.desc": "تصفح وأضف المنتجات إلى سلة التسوق.",
   "products.search": "ابحث عن منتجات...",
@@ -142,7 +135,6 @@
   "products.free": "مجاني",
   "products.share": "مشاركة",
   "products.link_copied": "تم نسخ الرابط!",
-
   "admin_products.title": "إدارة المنتجات",
   "admin_products.desc": "إنشاء وتعديل وإدارة جميع المنتجات.",
   "admin_products.add": "إضافة منتج",
@@ -186,7 +178,6 @@
   "admin_products.no_images": "لم يتم رفع صور بعد.",
   "admin_products.add_image": "إضافة صورة",
   "admin_products.close": "إغلاق",
-
   "cart.title": "سلة التسوق",
   "cart.clear": "تفريغ السلة",
   "cart.empty": "سلة التسوق فارغة",
@@ -194,7 +185,6 @@
   "cart.browse": "تصفح المنتجات",
   "cart.summary": "ملخص الطلب",
   "cart.checkout": "إتمام الشراء",
-
   "orders.title": "طلباتي",
   "orders.login_title": "سجل دخولك لمشاهدة طلباتك",
   "orders.login_desc": "قم بتسجيل الدخول لمشاهدة طلباتك أو تتبع طلب جديد.",
@@ -203,7 +193,6 @@
   "orders.empty": "لا توجد طلبات بعد",
   "orders.empty_desc": "ابدأ التسوق لرؤية طلباتك هنا.",
   "orders.pay": "ادفع الآن",
-
   "wishlist.title": "المفضلة",
   "wishlist.desc": "المنتجات التي حفظتها لوقت لاحق.",
   "wishlist.refresh": "تحديث",
@@ -212,7 +201,6 @@
   "wishlist.browse": "تصفح المنتجات",
   "wishlist.no_description": "لا يوجد وصف",
   "wishlist.add": "إضافة",
-
   "saved_cards.title": "طرق الدفع",
   "saved_cards.desc": "احفظ بطاقة مرة واحدة وستتم محاسبتك تلقائياً عند الدفع أو الاشتراك في خطة.",
   "saved_cards.add_card": "إضافة بطاقة",
@@ -235,7 +223,6 @@
   "saved_cards.default_badge": "افتراضي",
   "saved_cards.set_default_btn": "تعيين افتراضي",
   "saved_cards.remove": "إزالة",
-
   "tickets.title": "التذاكر",
   "tickets.my_requests": "طلباتي",
   "tickets.qa_queue_title": "طابور المراجعة",
@@ -269,7 +256,6 @@
   "tickets.no_open_tickets": "لا توجد تذاكر مفتوحة",
   "tickets.check_later": "تحقق لاحقاً لطلب تصاميم جديد.",
   "tickets.refresh": "تحديث",
-
   "ticket_create.back": "العودة للتذاكر",
   "ticket_create.title": "تذكرة جديدة",
   "ticket_create.no_subscription": "ليس لديك اشتراك نشط. سيتم إنشاء هذه التذكرة كشراء فردي",
@@ -288,7 +274,7 @@
   "ticket_create.attachments": "صور المنتج (اختياري)",
   "ticket_create.up_to_2": "حد أقصى 2",
   "ticket_create.attachments_help": "صور مرجعية لمشروعك. يمكنك إضافة المزيد لاحقاً من صفحة التذكرة.",
-  "ticket_create.design_file": "ملف التصميم (مخفي حتى الشراء)",
+  "ticket_create.design_file": "ملف التصميم المقترح",
   "ticket_create.design_file_help": "ارفع ملف التصميم النهائي. يبقى مخفياً ولا يظهر للمشتري إلا بعد الشراء.",
   "ticket_create.remove": "إزالة",
   "ticket_create.single_purchase_checkbox": "إنشاء كتذكرة شراء فردي (ادفع لكل تذكرة بدلاً من استخدام الاشتراك)",
@@ -301,7 +287,6 @@
   "ticket_create.step3": "بمجرد الاتفاق على الموعد، يحدد المختبر السعر.",
   "ticket_create.step4": "بعد الموافقة، تدفع السعر المحدد.",
   "ticket_create.step5": "يمكن للمصممين بعد ذلك قبولها، تحميل التصميم النهائي، ويقوم فريق الجودة بمراجعة التصميم.",
-
   "review_queue.title": "طابور مراجعة التذاكر",
   "review_queue.desc": "طلبات جديدة تنتظر السعر والموعد والموافقة قبل أن يتمكن المصممون من رؤيتها.",
   "review_queue.refresh": "تحديث",
@@ -315,7 +300,6 @@
   "review_queue.action": "الإجراء",
   "review_queue.respond": "رد",
   "review_queue.review": "مراجعة",
-
   "designer_queue.title": "التذاكر المتاحة",
   "designer_queue.desc": "طلبات التصميم المفتوحة التي يمكنك قبولها. التذاكر العاجلة محددة.",
   "designer_queue.refresh": "تحديث",
@@ -327,10 +311,10 @@
   "designer_queue.time_remaining": "الوقت المتبقي",
   "designer_queue.time_used": "الوقت المستخدم",
   "designer_queue.deadline_passed": "انتهى الوقت",
+  "designer_queue.no_deadline": "لا يوجد موعد نهائي",
   "designer_queue.accept_urgent": "قبول عاجل",
   "designer_queue.accept": "قبول",
   "designer_queue.details": "تفاصيل",
-
   "qa_queue.title": "طابور مراجعة الجودة",
   "qa_queue.desc": "تصاميم تنتظر موافقة الجودة.",
   "qa_queue.refresh": "تحديث",
@@ -342,7 +326,6 @@
   "qa_queue.uploaded": "تاريخ الرفع",
   "qa_queue.action": "الإجراء",
   "qa_queue.review": "مراجعة",
-
   "admin_approvals.title": "الاشتراكات",
   "admin_approvals.desc": "جميع اشتراكات المستخدمين. تتحدث أرصدة التذاكر تلقائيًا عند الدفع ويمكن تعديلها هنا.",
   "admin_approvals.refresh": "تحديث",
@@ -353,7 +336,6 @@
   "admin_approvals.approve": "موافقة",
   "admin_approvals.reject_placeholder": "سبب الرفض (اختياري)",
   "admin_approvals.reject": "رفض",
-
   "admin_users.title": "المستخدمون",
   "admin_users.desc": "إنشاء حسابات، تحديد الأدوار، وإعادة تعيين كلمات المرور.",
   "admin_users.add_user": "إضافة مستخدم",
@@ -381,7 +363,6 @@
   "admin_users.reset_desc": "تعيين كلمة مرور جديدة لـ",
   "admin_users.new_password": "كلمة المرور الجديدة",
   "admin_users.login_as": "تسجيل الدخول كمستخدم",
-
   "plans.title": "خطط الاشتراك",
   "plans.desc": "اختر خطة للحصول على تذاكر لطلبات التصميم. مطلوب موافقة المدير.",
   "plans.current_plan": "الخطة الحالية",
@@ -396,7 +377,6 @@
   "plans.pending_approval": "بانتظار الموافقة",
   "plans.approved": "تمت الموافقة",
   "plans.rejected": "مرفوض",
-
   "designer_product.back": "العودة للمنتجات",
   "designer_product.title": "إنشاء منتج رقمي",
   "designer_product.product_name": "اسم المنتج",
@@ -430,7 +410,6 @@
   "designer_product.cancel": "إلغاء",
   "designer_product.sidebar_title": "المنتجات الرقمية",
   "designer_product.sidebar_desc": "المنتجات التي تنشئها تظهر في المتجر العام. ارفع صوراً لعرض عملك. يبقى ملف التصميم مخفياً ويتم تسليمه للعملاء بعد الشراء.",
-
   "profile.name": "الاسم",
   "profile.email": "البريد الإلكتروني",
   "profile.role": "الدور",
@@ -440,7 +419,6 @@
   "profile.currency_updated": "تم تحديث العملة المفضلة.",
   "profile.egyptian_pound": "الجنيه المصري",
   "profile.us_dollar": "الدولار الأمريكي",
-
   "settings.currency": "إعدادات العملة",
   "settings.auto_detect_label": "الكشف التلقائي عن العملة عبر GPS",
   "settings.auto_detect_help": "اكتشاف العملة تلقائياً بناءً على موقعك",
@@ -452,5 +430,7 @@
   "settings.currency_updated": "تم تحديث العملة بنجاح.",
   "settings.update_failed": "فشل تحديث العملة.",
   "settings.current": "الإعدادات الحالية",
-  "settings.display_currency": "عملة العرض"
+  "settings.display_currency": "عملة العرض",
+  "header.menu": "القائمة",
+  "header.more": "المزيد"
 }

@@ -20,6 +20,16 @@ const routes = [
         component: () => import('@/views/ecommerce/Products.vue'),
       },
       {
+        path: '/main-categories',
+        name: 'MainCategories',
+        component: () => import('@/views/ecommerce/MainCategories.vue'),
+      },
+      {
+        path: '/main-categories/:slug',
+        name: 'MainCategoryDetail',
+        component: () => import('@/views/ecommerce/MainCategoryDetail.vue'),
+      },
+      {
         path: '/products/:slug',
         name: 'ProductDetail',
         component: () => import('@/views/ecommerce/ProductDetail.vue'),
@@ -28,6 +38,12 @@ const routes = [
         path: '/admin/products',
         name: 'AdminProducts',
         component: () => import('@/views/ecommerce/AdminProducts.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/admin/main-categories',
+        name: 'AdminMainCategories',
+        component: () => import('@/views/ecommerce/AdminMainCategories.vue'),
         meta: { requiresAuth: true },
       },
       {

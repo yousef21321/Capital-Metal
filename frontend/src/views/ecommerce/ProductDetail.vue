@@ -104,6 +104,8 @@ const displayProduct = computed(() => {
       ...product.value,
       price_egp: selectedVariant.value.price_egp,
       price_usd: selectedVariant.value.price_usd,
+      fake_price_egp: selectedVariant.value.fake_price_egp,
+      fake_price_usd: selectedVariant.value.fake_price_usd,
       description: selectedVariant.value.description || product.value.description,
     }
   }
@@ -132,6 +134,20 @@ function renderDescription(text) {
 }
 
 const formatPrice = computed(() => formatProductPrice(displayProduct.value))
+
+const fakePriceLabel = computed(() => {
+  const p = displayProduct.value
+  if (!p) return null
+  const currency = auth.userCurrency || 'EGP'
+  const rate = auth.exchangeRate || 30
+  if (currency === 'USD') {
+    if (parseFloat(p.fake_price_usd) > 0) return `${parseFloat(p.fake_price_usd).toFixed(2)} USD`
+    if (parseFloat(p.fake_price_egp) > 0) return `${(parseFloat(p.fake_price_egp) / rate).toFixed(2)} USD`
+  }
+  if (parseFloat(p.fake_price_egp) > 0) return `${parseFloat(p.fake_price_egp).toFixed(2)} EGP`
+  if (parseFloat(p.fake_price_usd) > 0) return `${(parseFloat(p.fake_price_usd) * rate).toFixed(2)} EGP`
+  return null
+})
 
 const reviews = ref([])
 const relatedProducts = ref([])
@@ -355,7 +371,7 @@ watch(() => route.params.slug, (newSlug) => {
 
             <div class="price-section mb-4">
               <span class="price-current">{{ formatPrice }}</span>
-              <span v-if="displayProduct.compare_price" class="price-compare ms-2">{{ displayProduct.compare_price }}</span>
+              <span v-if="fakePriceLabel" class="fake-price text-decoration-line-through text-body-secondary ms-2">{{ fakePriceLabel }}</span>
             </div>
 
             <div class="product-description text-body-secondary mb-4" v-html="renderDescription(displayProduct.description)"></div>

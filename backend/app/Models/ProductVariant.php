@@ -8,6 +8,7 @@ class ProductVariant extends Model
 {
     protected $fillable = [
         'product_id', 'name', 'description', 'price_egp', 'price_usd',
+        'fake_price_egp', 'fake_price_usd',
         'cost', 'sku', 'stox_product_id', 'material', 'manufacturing_method', 'stock_quantity', 'is_active', 'sort_order',
     ];
 
@@ -16,6 +17,8 @@ class ProductVariant extends Model
         return [
             'price_egp' => 'decimal:2',
             'price_usd' => 'decimal:2',
+            'fake_price_egp' => 'decimal:2',
+            'fake_price_usd' => 'decimal:2',
             'cost' => 'decimal:2',
             'is_active' => 'boolean',
             'stock_quantity' => 'integer',

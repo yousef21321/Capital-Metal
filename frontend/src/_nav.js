@@ -27,10 +27,25 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Categories',
+    to: '/main-categories',
+    icon: 'cil-layers',
+    translationKey: 'nav.categories',
+  },
+  {
+    component: 'CNavItem',
     name: 'Manage Products',
     to: '/admin/products',
     icon: 'cil-list-rich',
     translationKey: 'nav.manage_products',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
+    name: 'Manage Categories',
+    to: '/admin/main-categories',
+    icon: 'cil-layers',
+    translationKey: 'nav.manage_categories',
     roles: ['admin'],
   },
   {

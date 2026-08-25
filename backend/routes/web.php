@@ -10,4 +10,6 @@ Route::get('/', function () {
 
 Route::get('/products/{slug}', [SeoController::class, 'productShow']);
 
+Route::get('/main-categories/{slug}', [SeoController::class, 'mainCategoryShow']);
+
 Route::get('/facebook/products.xml', [FacebookFeedController::class, 'products']);

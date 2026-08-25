@@ -304,6 +304,16 @@ function discounted(price) {
   return price - (price * pct / 100)
 }
 
+function priceParts(price) {
+  const pct = planDiscountPercent.value
+  const p = parseFloat(price)
+  if (!pct || !isFinite(p) || !p) return null
+  return {
+    original: Math.round((p / (1 - pct / 100)) * 100) / 100,
+    discounted: Math.round(p * 100) / 100,
+  }
+}
+
 const canIndustorCancel = computed(() => {
   if (role() !== 'industor' || ticket.value?.industor_id !== auth.user?.id) return false
   if (!ticket.value?.deadline || !ticket.value?.created_at) return true
@@ -393,11 +403,21 @@ onMounted(fetchTicket)
                   </h5>
                   <div v-if="ticket.status === 'waiting_tester_review'" class="small text-body-secondary mb-2">
                     Industor counter: <strong class="text-info">{{ formatDate(ticket.industor_counter_deadline) }}</strong>
-                    <CBadge color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
+                    <template v-if="priceParts(ticket.industor_counter_price)">
+                      <span class="text-decoration-line-through">{{ formatPrice(priceParts(ticket.industor_counter_price).original, 0) }}</span>
+                      <CBadge color="danger" class="ms-1 fw-bold">{{ formatPrice(priceParts(ticket.industor_counter_price).discounted, 0) }}</CBadge>
+                      <CBadge color="danger" class="ms-1">-{{ planDiscountPercent }}%</CBadge>
+                    </template>
+                    <CBadge v-else color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
                   </div>
                   <div v-if="ticket.status === 'pending_tester_review'" class="small text-body-secondary mb-2">
                     Industor expected: <strong>{{ formatDate(ticket.industor_expected_deadline) }}</strong>
-                    <CBadge color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
+                    <template v-if="priceParts(ticket.industor_expected_price)">
+                      <span class="text-decoration-line-through">{{ formatPrice(priceParts(ticket.industor_expected_price).original, 0) }}</span>
+                      <CBadge color="danger" class="ms-1 fw-bold">{{ formatPrice(priceParts(ticket.industor_expected_price).discounted, 0) }}</CBadge>
+                      <CBadge color="danger" class="ms-1">-{{ planDiscountPercent }}%</CBadge>
+                    </template>
+                    <CBadge v-else color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
                   </div>
                   <CButton
                     v-if="ticket.status === 'pending_tester_review'"
@@ -550,8 +570,9 @@ onMounted(fetchTicket)
                 <div v-if="ticket.status === 'pending_payment'" class="mb-3">
                   <h5 class="small fw-semibold text-uppercase text-body-secondary">Payment Required</h5>
                   <div class="alert alert-warning small mb-2">
-                    Your ticket was approved by the tester. Price: <strong>{{ formatPrice(ticket.price) }}</strong>
+                    Your ticket was approved by the tester. Amount due: <strong>{{ formatPrice(ticket.price) }}</strong>
                     <span v-if="ticket.is_single_purchase" class="d-block mt-1">Single-purchase ticket — pay to make it available to designers.</span>
+                    <span v-else class="d-block mt-1">Plan ticket — pay the discounted price to make it available to designers.</span>
                   </div>
                   <CButton color="success" class="w-100" :disabled="submitting" @click="payTicket">
                     <CSpinner v-if="submitting" size="sm" class="me-1" />
@@ -695,6 +716,25 @@ onMounted(fetchTicket)
             </CCardBody>
           </CCard>
 
+          <!-- Project Files (tester / designer / admin) -->
+          <CCard v-if="projectFiles.length && ['tester','designer','admin'].includes(role())" class="mb-4 shadow-sm">
+            <CCardHeader class="bg-body"><h4 class="mb-0 fs-5"><CIcon icon="cil-folder-open" class="me-1" /> Project Files</h4></CCardHeader>
+            <CCardBody>
+              <CListGroup flush>
+                <CListGroupItem v-for="att in projectFiles" :key="att.id" class="d-flex justify-content-between align-items-center">
+                  <span>
+                    <CIcon icon="cil-file" class="me-2 text-body-secondary" />
+                    {{ att.file_name }}
+                    <span class="text-body-secondary ms-2 small">{{ (att.file_size / 1024).toFixed(0) }} KB</span>
+                  </span>
+                  <CButton color="primary" variant="ghost" size="sm" @click="downloadAttachment(att)">
+                    <CIcon icon="cil-cloud-download" /> Download
+                  </CButton>
+                </CListGroupItem>
+              </CListGroup>
+            </CCardBody>
+          </CCard>
+
           <!-- Price & Deadline Negotiation -->
           <CCard
             v-if="ticket.industor_expected_deadline || ticket.deadline_negotiations?.length"
@@ -712,7 +752,12 @@ onMounted(fetchTicket)
                 <CCol :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Industor Expected</span>
                   <strong>{{ formatDate(ticket.industor_expected_deadline) }}</strong>
-                  <CBadge color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
+                  <div v-if="priceParts(ticket.industor_expected_price)">
+                    <span class="text-decoration-line-through text-body-secondary">{{ formatPrice(priceParts(ticket.industor_expected_price).original, 0) }}</span>
+                    <CBadge color="danger" class="ms-1 fw-bold">{{ formatPrice(priceParts(ticket.industor_expected_price).discounted, 0) }}</CBadge>
+                    <CBadge color="danger" class="ms-1">-{{ planDiscountPercent }}%</CBadge>
+                  </div>
+                  <CBadge v-else color="primary" class="ms-1">{{ formatPrice(ticket.industor_expected_price, 0) }}</CBadge>
                 </CCol>
                 <CCol v-if="ticket.tester_suggested_deadline" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Tester Suggested</span>
@@ -722,12 +767,22 @@ onMounted(fetchTicket)
                 <CCol v-if="ticket.industor_counter_deadline" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Industor Counter</span>
                   <strong class="text-info">{{ formatDate(ticket.industor_counter_deadline) }}</strong>
-                  <CBadge color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
+                  <div v-if="priceParts(ticket.industor_counter_price)">
+                    <span class="text-decoration-line-through text-body-secondary">{{ formatPrice(priceParts(ticket.industor_counter_price).original, 0) }}</span>
+                    <CBadge color="danger" class="ms-1 fw-bold">{{ formatPrice(priceParts(ticket.industor_counter_price).discounted, 0) }}</CBadge>
+                    <CBadge color="danger" class="ms-1">-{{ planDiscountPercent }}%</CBadge>
+                  </div>
+                  <CBadge v-else color="info" class="ms-1">{{ formatPrice(ticket.industor_counter_price, 0) }}</CBadge>
                 </CCol>
                 <CCol v-if="ticket.final_deadline" :sm="6" class="mb-2">
                   <span class="text-body-secondary d-block">Final Agreed</span>
                   <strong class="text-success">{{ formatDate(ticket.final_deadline) }}</strong>
-                  <CBadge color="success" class="ms-1">{{ formatPrice(ticket.final_price, 0) }}</CBadge>
+                  <div v-if="priceParts(ticket.final_price)">
+                    <span class="text-decoration-line-through text-body-secondary">{{ formatPrice(priceParts(ticket.final_price).original, 0) }}</span>
+                    <CBadge color="danger" class="ms-1 fw-bold">{{ formatPrice(priceParts(ticket.final_price).discounted, 0) }}</CBadge>
+                    <CBadge color="danger" class="ms-1">-{{ planDiscountPercent }}%</CBadge>
+                  </div>
+                  <CBadge v-else color="success" class="ms-1">{{ formatPrice(ticket.final_price, 0) }}</CBadge>
                 </CCol>
               </CRow>
 
