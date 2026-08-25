@@ -26,6 +26,8 @@ const form = ref({
   manufacturing_method: '',
   manufacturing_method_other: '',
   tags: [],
+  star_rating: 0,
+  sold_count: 0,
 })
 const tagInput = ref('')
 const images = ref([])
@@ -192,6 +194,8 @@ async function fetchProduct() {
     form.value.material = data.material || ''
     form.value.manufacturing_method = data.manufacturing_method || ''
     form.value.tags = data.tags || []
+    form.value.star_rating = parseFloat(data.star_rating) || 0
+    form.value.sold_count = data.sold_count || 0
     existingImages.value = data.images || []
     if (data.design_file_path) existingDesignFile.value = data.design_file_path
     if (data.material) await fetchManufacturingMethods(data.material)
@@ -223,6 +227,8 @@ async function submit() {
   if (method === 'other') method = form.value.manufacturing_method_other || 'other'
   if (material) fd.append('material', material)
   if (method) fd.append('manufacturing_method', method)
+  fd.append('star_rating', form.value.star_rating || 0)
+  fd.append('sold_count', form.value.sold_count || 0)
   form.value.tags.forEach(t => fd.append('tags[]', t))
 
   for (const img of images.value) fd.append('images[]', img)
@@ -370,6 +376,17 @@ onMounted(async () => {
                 </CFormSelect>
                 <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" placeholder="Enter custom method..." />
               </div>
+
+              <CRow>
+                <CCol :sm="6" class="mb-3">
+                  <CFormLabel class="fw-semibold">Star Rating (0-5)</CFormLabel>
+                  <CFormInput v-model.number="form.star_rating" type="number" min="0" max="5" step="0.1" placeholder="0" />
+                </CCol>
+                <CCol :sm="6" class="mb-3">
+                  <CFormLabel class="fw-semibold">Sold Count</CFormLabel>
+                  <CFormInput v-model.number="form.sold_count" type="number" min="0" placeholder="0" />
+                </CCol>
+              </CRow>
 
               <div class="mb-3">
                 <CFormLabel class="fw-semibold">Tags</CFormLabel>

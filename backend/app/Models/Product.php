@@ -18,6 +18,7 @@ class Product extends Model
         'material', 'manufacturing_method', 'tags', 'design_file_path', 'type_sample',
         'ticket_id', 'stox_product_id',
         'lemonsqueezy_product_id', 'lemonsqueezy_variant_id',
+        'star_rating', 'sold_count',
     ];
 
     protected function casts(): array
@@ -34,6 +35,7 @@ class Product extends Model
             'cost' => 'decimal:2',
             'publish_date' => 'datetime',
             'tags' => 'array',
+            'star_rating' => 'decimal:2',
         ];
     }
 

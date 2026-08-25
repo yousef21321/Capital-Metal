@@ -33,11 +33,9 @@ class ProductVariantController extends Controller
             'material' => 'nullable|string|max:100',
             'manufacturing_method' => 'nullable|string|max:100',
             'stock_quantity' => 'nullable|integer|min:0',
+            'star_rating' => 'nullable|numeric|min:0|max:5',
+            'sold_count' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
-            'sort_order' => 'nullable|integer|min:0',
-        ]);
-
-        $maxSort = $product->variants()->max('sort_order') ?? -1;
         if (! isset($validated['sort_order'])) {
             $validated['sort_order'] = $maxSort + 1;
         }
@@ -65,6 +63,8 @@ class ProductVariantController extends Controller
             'material' => 'nullable|string|max:100',
             'manufacturing_method' => 'nullable|string|max:100',
             'stock_quantity' => 'nullable|integer|min:0',
+            'star_rating' => 'nullable|numeric|min:0|max:5',
+            'sold_count' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
         ]);

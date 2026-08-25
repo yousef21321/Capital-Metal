@@ -124,6 +124,8 @@ function emptyVariantForm() {
     material: '',
     manufacturing_method: '',
     stock_quantity: null,
+    star_rating: 0,
+    sold_count: 0,
     is_active: true,
     sort_order: 0,
   }
@@ -150,6 +152,8 @@ function emptyForm() {
     manufacturing_method: '',
     manufacturing_method_other: '',
     sku: '',
+    star_rating: 0,
+    sold_count: 0,
   }
 }
 
@@ -278,6 +282,8 @@ async function save() {
       if (form.value.product_type === 'physical' && form.value.sku) {
         payload.sku = form.value.sku
       }
+      if (form.value.star_rating !== undefined && form.value.star_rating !== null) payload.star_rating = form.value.star_rating
+      if (form.value.sold_count !== undefined && form.value.sold_count !== null) payload.sold_count = form.value.sold_count
       await api.put(`/api/products/${form.value.id}`, payload)
       toast.success('Product updated.')
     } else {
@@ -305,6 +311,8 @@ async function save() {
       if (form.value.product_type === 'physical' && form.value.sku) {
         fd.append('sku', form.value.sku)
       }
+      fd.append('star_rating', form.value.star_rating || 0)
+      fd.append('sold_count', form.value.sold_count || 0)
       for (const file of newImages.value) {
         fd.append('images[]', file)
       }
@@ -432,6 +440,8 @@ async function saveVariant() {
     const payload = { ...variantForm.value }
     payload.description = pointsToDescription(variantPoints.value)
     if (payload.manufacturing_method === 'other') payload.manufacturing_method = variantMethodOther.value || 'other'
+    payload.star_rating = variantForm.value.star_rating || 0
+    payload.sold_count = variantForm.value.sold_count || 0
     const pid = variantTargetProductId.value
     if (variantEditing.value) {
       await api.put(`/api/products/${pid}/variants/${variantForm.value.id}`, variantForm.value)
@@ -848,6 +858,14 @@ onMounted(() => {
             </CFormSelect>
             <CFormInput v-if="form.manufacturing_method === 'other'" v-model="form.manufacturing_method_other" class="mt-2" :placeholder="$t('designer_product.method_other_placeholder')" />
           </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Star Rating (0-5)</CFormLabel>
+            <CFormInput v-model.number="form.star_rating" type="number" min="0" max="5" step="0.1" placeholder="0" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Sold Count</CFormLabel>
+            <CFormInput v-model.number="form.sold_count" type="number" min="0" placeholder="0" />
+          </CCol>
           <CCol :sm="12" class="mb-3">
             <CFormLabel class="fw-semibold">Product Images</CFormLabel>
             <div class="image-picker-area">
@@ -1089,6 +1107,14 @@ onMounted(() => {
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">Stock Quantity</CFormLabel>
             <CFormInput v-model.number="variantForm.stock_quantity" type="number" min="0" placeholder="Optional" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Star Rating (0-5)</CFormLabel>
+            <CFormInput v-model.number="variantForm.star_rating" type="number" min="0" max="5" step="0.1" placeholder="0" />
+          </CCol>
+          <CCol :sm="4" class="mb-3">
+            <CFormLabel class="fw-semibold">Sold Count</CFormLabel>
+            <CFormInput v-model.number="variantForm.sold_count" type="number" min="0" placeholder="0" />
           </CCol>
           <CCol :sm="4" class="mb-3">
             <CFormLabel class="fw-semibold">Active</CFormLabel>

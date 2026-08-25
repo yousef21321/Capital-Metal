@@ -87,6 +87,8 @@ class ProductController extends Controller
             'material' => 'nullable|string|max:100',
             'manufacturing_method' => 'nullable|string|max:100',
             'type_sample' => 'nullable|string|max:100',
+            'star_rating' => 'nullable|numeric|min:0|max:5',
+            'sold_count' => 'nullable|integer|min:0',
             'sku' => 'nullable|string|max:100',
             'images' => 'nullable|array|max:10',
             'images.*' => 'file|mimes:jpg,jpeg,png,webp,gif|max:5120',
@@ -146,6 +148,8 @@ class ProductController extends Controller
             'material' => 'nullable|string|max:100',
             'manufacturing_method' => 'nullable|string|max:100',
             'type_sample' => 'nullable|string|max:100',
+            'star_rating' => 'nullable|numeric|min:0|max:5',
+            'sold_count' => 'nullable|integer|min:0',
             'sku' => 'nullable|string|max:100',
         ]);
 

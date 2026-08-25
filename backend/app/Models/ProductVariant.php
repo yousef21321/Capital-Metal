@@ -10,6 +10,7 @@ class ProductVariant extends Model
         'product_id', 'name', 'description', 'price_egp', 'price_usd',
         'fake_price_egp', 'fake_price_usd',
         'cost', 'sku', 'stox_product_id', 'material', 'manufacturing_method', 'stock_quantity', 'is_active', 'sort_order',
+        'star_rating', 'sold_count',
     ];
 
     protected function casts(): array
@@ -22,6 +23,7 @@ class ProductVariant extends Model
             'cost' => 'decimal:2',
             'is_active' => 'boolean',
             'stock_quantity' => 'integer',
+            'star_rating' => 'decimal:2',
         ];
     }
 
