@@ -3,6 +3,8 @@
   "nav.notifications": "Notifications",
   "nav.products": "Products",
   "nav.manage_products": "Manage Products",
+  "nav.categories": "Categories",
+  "nav.manage_categories": "Manage Categories",
   "nav.cart": "Cart",
   "nav.my_orders": "My Orders",
   "nav.wishlist": "Wishlist",
