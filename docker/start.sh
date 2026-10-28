@@ -17,17 +17,31 @@ if ! composer show dompdf/dompdf 2>/dev/null; then
     composer require dompdf/dompdf --no-interaction --no-security-blocking
 fi
 
-echo "[4] Publishing Sanctum config..."
-php artisan vendor:publish --tag=sanctum-config --force 2>/dev/null || true
+if [ ! -f "config/sanctum.php" ]; then
+    echo "[4] Publishing Sanctum config..."
+    php artisan vendor:publish --tag=sanctum-config 2>/dev/null || true
+fi
 
-echo "[5] Generating app key..."
-php artisan key:generate --force 2>/dev/null || true
+if ! grep -q '^APP_KEY=base64:' .env 2>/dev/null; then
+    echo "[5] Generating app key..."
+    php artisan key:generate --force 2>/dev/null || true
+else
+    echo "[5] APP_KEY already set, skipping generation"
+fi
 
-echo "[6] Running migrations..."
-php artisan migrate --force
+if [ "${AUTO_MIGRATE:-false}" = "true" ]; then
+    echo "[6] Running migrations..."
+    php artisan migrate --force
+else
+    echo "[6] Skipping migrations (set AUTO_MIGRATE=true to enable)"
+fi
 
-echo "[7] Running seeders..."
-php artisan db:seed --force 2>/dev/null || true
+if [ "${AUTO_SEED:-false}" = "true" ]; then
+    echo "[7] Running seeders..."
+    php artisan db:seed --force 2>/dev/null || true
+else
+    echo "[7] Skipping seeders (set AUTO_SEED=true to enable)"
+fi
 
 echo "[8] Starting queue worker..."
 php artisan queue:work --sleep=3 --tries=3 --daemon &
