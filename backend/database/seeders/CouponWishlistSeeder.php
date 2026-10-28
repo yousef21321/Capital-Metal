@@ -84,7 +84,7 @@ class CouponWishlistSeeder extends Seeder
         }
 
         // ── Wishlist ──
-        $user = User::where('email', 'user@flfl.com')->first();
+        $user = User::where('email', 'user@capitalmetal.com')->first();
         $productIds = Product::pluck('id')->toArray();
 
         if ($user && $productIds) {
@@ -96,7 +96,7 @@ class CouponWishlistSeeder extends Seeder
                 ]);
             }
 
-            $industor = User::where('email', 'industor1@flfl.com')->first();
+            $industor = User::where('email', 'industor1@capitalmetal.com')->first();
             if ($industor) {
                 foreach (array_slice($productIds, 2, 3) as $pid) {
                     Wishlist::firstOrCreate([

@@ -114,7 +114,7 @@ class FacebookCatalogService
             'price' => "{$amount} {$currency}",
             'condition' => 'new',
             'availability' => $this->availability($productType, $stock),
-            'brand' => config('app.name', 'FLFL Design'),
+            'brand' => config('app.name', 'Capital-Metal'),
             'product_type' => $productType,
         ];
 
@@ -201,7 +201,7 @@ class FacebookCatalogService
             return $path;
         }
 
-        $baseUrl = rtrim(config('app.url', 'https://flfl-design.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://capital-metal.com'), '/');
 
         return $baseUrl.'/storage/'.ltrim($path, '/');
     }
@@ -209,12 +209,12 @@ class FacebookCatalogService
     private function cleanDescription(?string $description, string $fallback): string
     {
         if (! $description) {
-            return "Check out {$fallback} on FLFL Design.";
+            return "Check out {$fallback} on Capital-Metal.";
         }
 
         $clean = preg_replace('/^-\s*/m', '', $description);
         $clean = preg_replace('/\n+/', ' ', $clean);
 
-        return trim($clean) ?: "Check out {$fallback} on FLFL Design.";
+        return trim($clean) ?: "Check out {$fallback} on Capital-Metal.";
     }
 }

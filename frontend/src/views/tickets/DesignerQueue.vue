@@ -285,7 +285,7 @@ onMounted(fetchAvailable)
   transition: color 0.2s ease;
 }
 .policy-link:hover {
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
 }
 .policy-sep {
   color: var(--cui-border-color, rgba(0,0,0,0.1));
@@ -293,7 +293,7 @@ onMounted(fetchAvailable)
 }
 
 .queue-header-icon {
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
 }
 
 .btn-refresh {
@@ -329,8 +329,8 @@ onMounted(fetchAvailable)
   display: inline-flex;
   padding: 1.2rem;
   border-radius: 20px;
-  background: rgba(184, 19, 0, 0.06);
-  color: var(--cui-primary, #b81300);
+  background: rgba(14, 165, 233, 0.06);
+  color: var(--cui-primary, #0EA5E9);
 }
 
 .queue-col {
@@ -382,7 +382,7 @@ onMounted(fetchAvailable)
   transition: color 0.2s ease;
 }
 .queue-card:hover .queue-card-title {
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
 }
 .queue-card-urgent:hover .queue-card-title {
   color: var(--cui-danger, #e55353);
@@ -454,7 +454,7 @@ onMounted(fetchAvailable)
 .price-value {
   font-size: 1.15rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--cui-primary, #b81300), var(--cui-info, #39f));
+  background: linear-gradient(135deg, var(--cui-primary, #0EA5E9), var(--cui-info, #39f));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -598,11 +598,11 @@ onMounted(fetchAvailable)
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .btn-accept-normal {
-  box-shadow: 0 4px 16px rgba(184, 19, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.2);
 }
 .btn-accept-normal:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(184, 19, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3);
 }
 .btn-accept-urgent {
   box-shadow: 0 4px 16px rgba(229, 83, 83, 0.25);

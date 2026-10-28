@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "=== FLFL Design Setup ==="
+echo "=== Capital-Metal Setup ==="
 
 echo "[1] Installing Composer dependencies..."
 composer install --no-interaction --optimize-autoloader

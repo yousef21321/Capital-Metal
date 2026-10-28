@@ -1,13 +1,13 @@
 #!/bin/bash
-# Backup MySQL database for flfl_design
+# Backup MySQL database for capital_metal
 # Runs automatically via cron job
 # Usage: ./backup-db.sh [filename]
 
-CONTAINER="flfl_db"
-DATABASE="flfl_design"
+CONTAINER="capitalmetal_db"
+DATABASE="capital_metal"
 ROOT_USER="root"
 ROOT_PASS="root"
-BACKUP_DIR="/home/ubuntu/FLFL-Design/backups"
+BACKUP_DIR="/home/ubuntu/Capital-Metal/backups"
 RETENTION_DAYS=7
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 FILENAME="${1:-${DATABASE}_backup_${TIMESTAMP}.sql}"

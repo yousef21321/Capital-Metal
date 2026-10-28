@@ -9,7 +9,7 @@ class FacebookFeedController extends Controller
 {
     public function products(): Response
     {
-        $baseUrl = rtrim(config('app.url', 'https://flfl-design.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://capital-metal.com'), '/');
 
         $products = Product::with(['images', 'inventory', 'variants.images'])
             ->where('status', 'published')
@@ -59,9 +59,9 @@ class FacebookFeedController extends Controller
         $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         $xml .= '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">'."\n";
         $xml .= "  <channel>\n";
-        $xml .= '    <title>'.htmlspecialchars(config('app.name', 'FLFL Design'), ENT_XML1, 'UTF-8')."</title>\n";
+        $xml .= '    <title>'.htmlspecialchars(config('app.name', 'Capital-Metal'), ENT_XML1, 'UTF-8')."</title>\n";
         $xml .= "    <link>{$baseUrl}</link>\n";
-        $xml .= "    <description>FLFL Design product catalog</description>\n";
+        $xml .= "    <description>Capital-Metal product catalog</description>\n";
         $xml .= $items;
         $xml .= "  </channel>\n";
         $xml .= "</rss>\n";
@@ -107,7 +107,7 @@ class FacebookFeedController extends Controller
         $x .= "  <g:price>{$amount} {$currency}</g:price>\n";
         $x .= "  <g:condition>new</g:condition>\n";
         $x .= '  <g:availability>'.$this->availability($productType, $stock)."</g:availability>\n";
-        $x .= '  <g:brand>'.htmlspecialchars(config('app.name', 'FLFL Design'), ENT_XML1, 'UTF-8')."</g:brand>\n";
+        $x .= '  <g:brand>'.htmlspecialchars(config('app.name', 'Capital-Metal'), ENT_XML1, 'UTF-8')."</g:brand>\n";
         $x .= "  <g:product_type>{$productType}</g:product_type>\n";
 
         if (! empty($sku)) {
@@ -154,7 +154,7 @@ class FacebookFeedController extends Controller
             return $path;
         }
 
-        $baseUrl = rtrim(config('app.url', 'https://flfl-design.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://capital-metal.com'), '/');
 
         return $baseUrl.'/storage/'.ltrim($path, '/');
     }
@@ -162,12 +162,12 @@ class FacebookFeedController extends Controller
     private function cleanDescription(?string $description, string $fallback): string
     {
         if (! $description) {
-            return "Check out {$fallback} on FLFL Design.";
+            return "Check out {$fallback} on Capital-Metal.";
         }
 
         $clean = preg_replace('/^-\s*/m', '', $description);
         $clean = preg_replace('/\n+/', ' ', $clean);
 
-        return trim($clean) ?: "Check out {$fallback} on FLFL Design.";
+        return trim($clean) ?: "Check out {$fallback} on Capital-Metal.";
     }
 }

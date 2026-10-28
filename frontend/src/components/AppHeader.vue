@@ -137,7 +137,7 @@ onMounted(() => {
       </CHeaderToggler>
       <div class="header-brand d-flex align-items-center ms-2">
         <RouterLink to="/">
-          <img :src="logoSrc" alt="FLFL Design" class="header-logo" width="85" height="47" />
+          <img :src="logoSrc" alt="Capital-Metal" class="header-logo" width="85" height="47" />
         </RouterLink>
       </div>
       <div class="header-actions d-flex align-items-center gap-2 ms-4">
@@ -481,7 +481,7 @@ onMounted(() => {
 
 <style scoped>
 .impersonation-banner {
-  background: linear-gradient(90deg, #b81300, #8f0e00);
+  background: linear-gradient(90deg, #0EA5E9, #8f0e00);
   color: #fff;
 }
 
@@ -522,7 +522,7 @@ onMounted(() => {
 
 .notif-view-all {
   border-top: 1px solid var(--cui-border-color, rgba(0,0,0,.125));
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
 }
 
 .currency-group-header {

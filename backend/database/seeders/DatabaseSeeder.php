@@ -28,27 +28,27 @@ class DatabaseSeeder extends Seeder
         $industorRole = Role::where('name', 'industor')->first();
 
         $admin = User::firstOrCreate(
-            ['email' => 'admin@flfl.com'],
+            ['email' => 'admin@capitalmetal.com'],
             ['name' => 'Admin', 'password' => 'password', 'role_id' => $adminRole?->id, 'phone' => '01000000001', 'is_verified' => true]
         );
 
         $user = User::firstOrCreate(
-            ['email' => 'user@flfl.com'],
+            ['email' => 'user@capitalmetal.com'],
             ['name' => 'Regular User', 'password' => 'password', 'role_id' => $userRole?->id, 'phone' => '01000000002', 'is_verified' => true]
         );
 
         User::firstOrCreate(
-            ['email' => 'tester@flfl.com'],
+            ['email' => 'tester@capitalmetal.com'],
             ['name' => 'Tester', 'password' => 'password', 'role_id' => $testerRole?->id, 'phone' => '01000000003']
         );
 
         User::firstOrCreate(
-            ['email' => 'designer@flfl.com'],
+            ['email' => 'designer@capitalmetal.com'],
             ['name' => 'Designer', 'password' => 'password', 'role_id' => $designerRole?->id, 'phone' => '01000000004']
         );
 
         User::firstOrCreate(
-            ['email' => 'industor@flfl.com'],
+            ['email' => 'industor@capitalmetal.com'],
             ['name' => 'Industor', 'password' => 'password', 'role_id' => $industorRole?->id, 'phone' => '01000000005']
         );
 
@@ -86,28 +86,28 @@ class DatabaseSeeder extends Seeder
 
         // Products
         $product1 = Product::firstOrCreate(
-            ['slug' => 'flfl-t-shirt'],
-            ['name' => 'FLFL T-Shirt', 'description' => 'Premium cotton t-shirt with FLFL design', 'product_type' => 'physical', 'price_egp' => 299.00, 'price_usd' => 9.99, 'cost' => 100.00, 'status' => 'published', 'publish_date' => now()]
+            ['slug' => 'capital-metal-t-shirt'],
+            ['name' => 'Capital-Metal T-Shirt', 'description' => 'Premium cotton t-shirt with Capital-Metal design', 'product_type' => 'physical', 'price_egp' => 299.00, 'price_usd' => 9.99, 'cost' => 100.00, 'status' => 'published', 'publish_date' => now()]
         );
 
         Inventory::firstOrCreate(
             ['product_id' => $product1->id],
-            ['sku' => 'FLFL-TS-001', 'stock_quantity' => 100, 'low_stock_alert' => 10, 'warehouse_location' => 'Warehouse A']
+            ['sku' => 'CAPITAL-METAL-TS-001', 'stock_quantity' => 100, 'low_stock_alert' => 10, 'warehouse_location' => 'Warehouse A']
         );
 
         $product2 = Product::firstOrCreate(
-            ['slug' => 'flfl-mug'],
-            ['name' => 'FLFL Mug', 'description' => 'Ceramic mug with FLFL logo', 'product_type' => 'physical', 'price_egp' => 149.00, 'price_usd' => 4.99, 'cost' => 50.00, 'status' => 'published', 'publish_date' => now()]
+            ['slug' => 'capital-metal-mug'],
+            ['name' => 'Capital-Metal Mug', 'description' => 'Ceramic mug with Capital-Metal logo', 'product_type' => 'physical', 'price_egp' => 149.00, 'price_usd' => 4.99, 'cost' => 50.00, 'status' => 'published', 'publish_date' => now()]
         );
 
         Inventory::firstOrCreate(
             ['product_id' => $product2->id],
-            ['sku' => 'FLFL-MG-001', 'stock_quantity' => 200, 'low_stock_alert' => 20, 'warehouse_location' => 'Warehouse A']
+            ['sku' => 'CAPITAL-METAL-MG-001', 'stock_quantity' => 200, 'low_stock_alert' => 20, 'warehouse_location' => 'Warehouse A']
         );
 
         Product::firstOrCreate(
-            ['slug' => 'flfl-design-template'],
-            ['name' => 'FLFL Design Template', 'description' => 'Digital design template pack', 'product_type' => 'digital', 'price_egp' => 499.00, 'price_usd' => 14.99, 'cost' => 0, 'status' => 'published', 'publish_date' => now()]
+            ['slug' => 'capital-metal-template'],
+            ['name' => 'Capital-Metal Template', 'description' => 'Digital design template pack', 'product_type' => 'digital', 'price_egp' => 499.00, 'price_usd' => 14.99, 'cost' => 0, 'status' => 'published', 'publish_date' => now()]
         );
 
         // Cart for test user

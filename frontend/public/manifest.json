@@ -1,5 +1,10 @@
 {
- "name": "CoreUI Free Vue Admin Template",
+ "name": "Capital-Metal",
+ "short_name": "Capital-Metal",
+ "start_url": "/",
+ "display": "standalone",
+ "background_color": "#ffffff",
+ "theme_color": "#0EA5E9",
  "icons": [
   {
    "src": "\/android-icon-36x36.png",

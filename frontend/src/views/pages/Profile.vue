@@ -174,7 +174,7 @@ async function updateCurrency(currency) {
   align-items: center;
   gap: 1.5rem;
   padding: 2rem 2.5rem;
-  background: linear-gradient(135deg, #ff6b35 0%, #b81300 100%);
+  background: linear-gradient(135deg, #38BDF8 0%, #0EA5E9 100%);
   color: #fff;
 }
 
@@ -299,8 +299,8 @@ async function updateCurrency(currency) {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .profile-input:focus {
-  border-color: #ff6b35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
 }
 
 .profile-value {
@@ -327,12 +327,12 @@ async function updateCurrency(currency) {
   transition: all 0.25s ease;
 }
 .currency-btn:hover {
-  border-color: #ff6b35;
+  border-color: #38BDF8;
   transform: translateY(-1px);
 }
 .currency-btn.active {
-  border-color: #ff6b35;
-  background: rgba(255, 107, 53, 0.06);
+  border-color: #38BDF8;
+  background: rgba(56, 189, 248, 0.06);
 }
 
 .currency-flag {
@@ -354,11 +354,11 @@ async function updateCurrency(currency) {
   font-weight: 600;
   padding: 0.6rem 2rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(184, 19, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.2);
 }
 .save-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(184, 19, 0, 0.3);
+  box-shadow: 0 6px 24px rgba(14, 165, 233, 0.3);
 }
 
 .profile-alert {

@@ -1,16 +1,16 @@
 #!/bin/bash
-# Setup database user for flfl_design
+# Setup database user for capital_metal
 # Usage: ./setup-db-user.sh [username] [password]
 
-USERNAME="${1:-flfl_user}"
+USERNAME="${1:-capitalmetal_user}"
 PASSWORD="${2:-YourSecurePassword123!}"
 
 echo "Setting up database user: $USERNAME"
 
 # Run SQL to create user
-docker exec -i flfl_db mysql -u root -proot <<EOF
+docker exec -i capitalmetal_db mysql -u root -proot <<EOF
 CREATE USER IF NOT EXISTS '$USERNAME'@'%' IDENTIFIED BY '$PASSWORD';
-GRANT ALL PRIVILEGES ON flfl_design.* TO '$USERNAME'@'%';
+GRANT ALL PRIVILEGES ON capital_metal.* TO '$USERNAME'@'%';
 FLUSH PRIVILEGES;
 SELECT user, host FROM mysql.user WHERE user = '$USERNAME';
 EOF

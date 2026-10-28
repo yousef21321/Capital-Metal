@@ -556,7 +556,7 @@ watch(() => route.params.slug, (newSlug) => {
   height: 100%;
   border-radius: 12px;
   overflow: hidden;
-  border: 2px solid var(--cui-primary, #b81300);
+  border: 2px solid var(--cui-primary, #0EA5E9);
   box-shadow: 0 4px 20px rgba(0,0,0,0.25);
   z-index: 20;
   background: #fff;
@@ -594,8 +594,8 @@ watch(() => route.params.slug, (newSlug) => {
   font-size: 0.85rem;
 }
 .zoom-btn:hover:not(:disabled) {
-  border-color: var(--cui-primary, #b81300);
-  color: var(--cui-primary, #b81300);
+  border-color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #0EA5E9);
 }
 .zoom-btn:disabled {
   opacity: 0.4;
@@ -626,12 +626,12 @@ watch(() => route.params.slug, (newSlug) => {
   color: var(--cui-body-color, inherit);
 }
 .variant-btn:hover {
-  border-color: var(--cui-primary, #b81300);
-  color: var(--cui-primary, #b81300);
+  border-color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #0EA5E9);
 }
 .variant-btn.active {
-  border-color: var(--cui-primary, #b81300);
-  background: var(--cui-primary, #b81300);
+  border-color: var(--cui-primary, #0EA5E9);
+  background: var(--cui-primary, #0EA5E9);
   color: white;
 }
 .desc-list {

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "=== FLFL Design Starting ==="
+echo "=== Capital-Metal Starting ==="
 
 if [ ! -f "vendor/autoload.php" ]; then
     echo "[1] Installing dependencies..."

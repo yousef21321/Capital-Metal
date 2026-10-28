@@ -27,10 +27,10 @@ const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight
       <RouterLink custom to="/" v-slot="{ href, navigate }">
         <CSidebarBrand v-bind="$attrs" as="a" :href="href" @click="navigate" class="text-decoration-none">
           <span class="sidebar-brand-full d-flex align-items-center gap-2">
-            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo" width="85" height="47" />
+            <img :src="logoSrc" alt="Capital-Metal" class="sidebar-logo" width="85" height="47" />
           </span>
           <span class="sidebar-brand-narrow">
-            <img :src="logoSrc" alt="FLFL Design" class="sidebar-logo-narrow" width="46" height="24" />
+            <img :src="logoSrc" alt="Capital-Metal" class="sidebar-logo-narrow" width="46" height="24" />
           </span>
         </CSidebarBrand>
       </RouterLink>

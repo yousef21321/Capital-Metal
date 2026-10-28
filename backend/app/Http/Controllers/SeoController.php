@@ -30,8 +30,8 @@ class SeoController extends Controller
             abort(404);
         }
 
-        $appName = config('app.name', 'FLFL Design');
-        $baseUrl = rtrim(config('app.url', 'https://flfl-design.com'), '/');
+        $appName = config('app.name', 'Capital-Metal');
+        $baseUrl = rtrim(config('app.url', 'https://capital-metal.com'), '/');
         $productUrl = "{$baseUrl}/products/{$slug}";
 
         $ogTitle = $product->name . ' - ' . $appName;
@@ -61,8 +61,8 @@ class SeoController extends Controller
             abort(404);
         }
 
-        $appName = config('app.name', 'FLFL Design');
-        $baseUrl = rtrim(config('app.url', 'https://flfl-design.com'), '/');
+        $appName = config('app.name', 'Capital-Metal');
+        $baseUrl = rtrim(config('app.url', 'https://capital-metal.com'), '/');
         $categoryUrl = "{$baseUrl}/main-categories/{$slug}";
 
         $ogTitle = $category->name . ' - ' . $appName;
@@ -90,7 +90,7 @@ class SeoController extends Controller
     private function getCleanDescription(?string $description, string $fallback): string
     {
         if (! $description) {
-            return "Check out {$fallback} on FLFL Design.";
+            return "Check out {$fallback} on Capital-Metal.";
         }
 
         $clean = preg_replace('/^-\s*/m', '', $description);
@@ -101,7 +101,7 @@ class SeoController extends Controller
             $clean = mb_substr($clean, 0, 197) . '...';
         }
 
-        return $clean ?: "Check out {$fallback} on FLFL Design.";
+        return $clean ?: "Check out {$fallback} on Capital-Metal.";
     }
 
     private function getProductOgImageUrl(Product $product, string $baseUrl): string

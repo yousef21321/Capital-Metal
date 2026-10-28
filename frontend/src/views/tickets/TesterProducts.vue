@@ -337,7 +337,7 @@ onMounted(fetchProducts)
                   </div>
                   <div class="d-flex gap-2 flex-wrap">
                     <div
-                      v-for="(img, i) in (expandedImages === p.id ? p.images : p.images.slice(0, 2))"
+                      v-for="img in (expandedImages === p.id ? p.images : p.images.slice(0, 2))"
                       :key="img.id"
                       style="width: 100px; height: 100px; flex-shrink: 0; cursor: pointer;"
                       @click="window.open('/storage/' + img.image_url, '_blank')"

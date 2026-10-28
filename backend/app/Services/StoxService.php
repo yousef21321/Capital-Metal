@@ -184,7 +184,7 @@ class StoxService
             return $path;
         }
 
-        $baseUrl = config('app.url', 'https://flfl-design.com');
+        $baseUrl = config('app.url', 'https://capital-metal.com');
 
         return "{$baseUrl}/storage/{$path}";
     }

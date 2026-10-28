@@ -148,7 +148,7 @@ onMounted(fetchTickets)
           </div>
           <div class="ticket-right">
             <div v-if="role !== 'industor' && t.industor" class="ticket-person">
-              <span class="person-avatar" :style="{ background: '#b81300' }">{{ t.industor.name?.charAt(0) }}</span>
+              <span class="person-avatar" :style="{ background: '#0EA5E9' }">{{ t.industor.name?.charAt(0) }}</span>
               <span class="person-name small">{{ t.industor.name }}</span>
             </div>
             <div v-if="(role === 'admin' || role === 'industor') && t.designer" class="ticket-person">

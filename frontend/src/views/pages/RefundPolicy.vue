@@ -31,16 +31,16 @@ import AppFooter from '@/components/AppFooter.vue'
                 <p class="mb-4 text-body-secondary">Item must be in original packaging with receipt. Digital products are non-refundable after download.</p>
 
                 <h2 class="fs-5">كيفية تقديم طلب إرجاع</h2>
-                <p>تواصل معنا عبر صفحة <router-link to="/pages/contact">اتصل بنا</router-link> أو عبر البريد الإلكتروني support@flfldesign.com وسنقوم بإرشادك خلال الخطوات.</p>
-                <p class="mb-4 text-body-secondary">Contact us via our <router-link to="/pages/contact">Contact Us</router-link> page or email support@flfldesign.com for guidance.</p>
+                <p>تواصل معنا عبر صفحة <router-link to="/pages/contact">اتصل بنا</router-link> أو عبر البريد الإلكتروني support@capitalmetal.com وسنقوم بإرشادك خلال الخطوات.</p>
+                <p class="mb-4 text-body-secondary">Contact us via our <router-link to="/pages/contact">Contact Us</router-link> page or email support@capitalmetal.com for guidance.</p>
 
                 <h2 class="fs-5">المبالغ المستردة</h2>
                 <p>سيتم رد المبلغ خلال 5-10 أيام عمل بعد استلام المنتج وفحصه. يتم الرد عبر نفس وسيلة الدفع المستخدمة في الشراء.</p>
                 <p class="mb-4 text-body-secondary">Refunds are processed within 5-10 business days after receiving and inspecting the item. Refunds are issued to the original payment method.</p>
 
                 <h2 class="fs-5">الاستبدال</h2>
-                <p>في حالة وجود عيب في المنتج، يمكن استبداله خلال 7 أيام من الاستلام. يتحمل متجر FLFL Design تكاليف الشحن في هذه الحالة.</p>
-                <p class="text-body-secondary">If the product is defective, exchanges are accepted within 7 days. FLFL Design covers shipping costs for defective items.</p>
+                <p>في حالة وجود عيب في المنتج، يمكن استبداله خلال 7 أيام من الاستلام. يتحمل متجر Capital-Metal تكاليف الشحن في هذه الحالة.</p>
+                <p class="text-body-secondary">If the product is defective, exchanges are accepted within 7 days. Capital-Metal covers shipping costs for defective items.</p>
               </CCardBody>
             </CCard>
           </CCol>

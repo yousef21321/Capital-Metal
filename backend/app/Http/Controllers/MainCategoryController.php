@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MainCategory;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 
 class MainCategoryController extends Controller
@@ -39,9 +40,8 @@ class MainCategoryController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $path = $file->store('main-categories', 'public');
-            $imagePath = $path;
+            $optimizer = new ImageOptimizer();
+            $imagePath = $optimizer->optimizeUploadedFile($request->file('image'), 'main-categories');
         }
 
         unset($validated['image']);
@@ -68,8 +68,14 @@ class MainCategoryController extends Controller
         if ($request->hasFile('image')) {
             if ($category->image_url && \Storage::disk('public')->exists($category->image_url)) {
                 \Storage::disk('public')->delete($category->image_url);
+                $optimizer = new ImageOptimizer();
+                $thumbPath = $optimizer->thumbnailPath($category->image_url);
+                if (\Storage::disk('public')->exists($thumbPath)) {
+                    \Storage::disk('public')->delete($thumbPath);
+                }
             }
-            $validated['image_url'] = $request->file('image')->store('main-categories', 'public');
+            $optimizer = new ImageOptimizer();
+            $validated['image_url'] = $optimizer->optimizeUploadedFile($request->file('image'), 'main-categories');
         }
 
         unset($validated['image']);
@@ -84,6 +90,11 @@ class MainCategoryController extends Controller
 
         if ($category->image_url && \Storage::disk('public')->exists($category->image_url)) {
             \Storage::disk('public')->delete($category->image_url);
+            $optimizer = new ImageOptimizer();
+            $thumbPath = $optimizer->thumbnailPath($category->image_url);
+            if (\Storage::disk('public')->exists($thumbPath)) {
+                \Storage::disk('public')->delete($thumbPath);
+            }
         }
 
         $category->delete();

@@ -52,7 +52,7 @@ async function submitContact() {
                       <h3 class="fs-6 fw-semibold mb-1">
                         <CIcon icon="cil-envelope" class="me-1" /> البريد الإلكتروني / Email
                       </h3>
-                      <p class="mb-0 text-body-secondary">flfldesign.official@gmail.com</p>
+                      <p class="mb-0 text-body-secondary">capitalmetal.official@gmail.com</p>
                     </div>
 
                     <div class="mb-3">

@@ -52,7 +52,7 @@ onMounted(fetchCategories)
     </div>
 
     <CRow v-else class="g-4 categories-grid">
-      <CCol v-for="(cat, index) in categories" :key="cat.id" sm="6" lg="4" xl="3" class="category-col">
+      <CCol v-for="cat in categories" :key="cat.id" sm="6" lg="4" xl="3" class="category-col">
         <CCard class="category-card h-100" @click="viewCategory(cat.slug)">
           <div class="category-img-wrapper">
             <img
@@ -112,8 +112,8 @@ onMounted(fetchCategories)
   display: inline-flex;
   padding: 1.2rem;
   border-radius: 20px;
-  background: rgba(184, 19, 0, 0.06);
-  color: var(--cui-primary, #b81300);
+  background: rgba(14, 165, 233, 0.06);
+  color: var(--cui-primary, #0EA5E9);
 }
 
 .categories-grid {
@@ -178,11 +178,11 @@ onMounted(fetchCategories)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(184, 19, 0, 0.04), rgba(51, 153, 255, 0.04));
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.04), rgba(51, 153, 255, 0.04));
 }
 
 .fallback-icon {
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
   opacity: 0.3;
 }
 
@@ -228,7 +228,7 @@ onMounted(fetchCategories)
 }
 
 .category-card:hover .category-name {
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
 }
 
 .category-desc {
@@ -256,7 +256,7 @@ onMounted(fetchCategories)
 
 .category-card:hover .category-arrow {
   opacity: 1;
-  color: var(--cui-primary, #b81300);
+  color: var(--cui-primary, #0EA5E9);
   transform: translateX(3px);
 }
 

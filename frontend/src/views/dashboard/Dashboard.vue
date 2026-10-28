@@ -37,7 +37,7 @@ const roleConfig = {
   user: {
     color: 'primary',
     icon: 'cil-user',
-    gradient: 'linear-gradient(135deg, #b81300, #7a0d00)',
+    gradient: 'linear-gradient(135deg, #0EA5E9, #7a0d00)',
   },
   tester: {
     color: 'warning',

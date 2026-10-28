@@ -38,17 +38,17 @@ class TicketWorkflowSeeder extends Seeder
             ['price' => 999, 'currency' => 'EGP', 'duration_days' => 30, 'ticket_limit' => 100, 'can_publish_to_store' => true]
         );
 
-        $admin = $this->createUser('admin@flfl.com', 'Admin', $adminRole);
-        $tester1 = $this->createUser('tester1@flfl.com', 'Tester One', $testerRole);
-        $tester2 = $this->createUser('tester2@flfl.com', 'Tester Two', $testerRole);
+        $admin = $this->createUser('admin@capitalmetal.com', 'Admin', $adminRole);
+        $tester1 = $this->createUser('tester1@capitalmetal.com', 'Tester One', $testerRole);
+        $tester2 = $this->createUser('tester2@capitalmetal.com', 'Tester Two', $testerRole);
 
-        $designer1 = $this->createUser('designer1@flfl.com', 'Designer Ahmed', $designerRole);
-        $designer2 = $this->createUser('designer2@flfl.com', 'Designer Sara', $designerRole);
-        $designer3 = $this->createUser('designer3@flfl.com', 'Designer Omar', $designerRole);
+        $designer1 = $this->createUser('designer1@capitalmetal.com', 'Designer Ahmed', $designerRole);
+        $designer2 = $this->createUser('designer2@capitalmetal.com', 'Designer Sara', $designerRole);
+        $designer3 = $this->createUser('designer3@capitalmetal.com', 'Designer Omar', $designerRole);
 
-        $industor1 = $this->createUser('industor1@flfl.com', 'Industor Khaled', $industorRole);
-        $industor2 = $this->createUser('industor2@flfl.com', 'Industor Mona', $industorRole);
-        $industor3 = $this->createUser('industor3@flfl.com', 'Industor Ali', $industorRole);
+        $industor1 = $this->createUser('industor1@capitalmetal.com', 'Industor Khaled', $industorRole);
+        $industor2 = $this->createUser('industor2@capitalmetal.com', 'Industor Mona', $industorRole);
+        $industor3 = $this->createUser('industor3@capitalmetal.com', 'Industor Ali', $industorRole);
 
         // Subscriptions with approval workflow
         $sub1 = $this->createSubscription($industor1, $premium, approvalStatus: 'approved', ticketsRemaining: 17, ticketsUsed: 3);

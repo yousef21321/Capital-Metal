@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `flfl_design`
+-- Database: `capital_metal`
 --
 
 -- --------------------------------------------------------
@@ -115,7 +115,7 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('flfl_design_cache_live_egp_to_usd_rate', 's:8:\"49.11596\";', 1783198212);
+('capital_metal_cache_live_egp_to_usd_rate', 's:8:\"49.11596\";', 1783198212);
 
 -- --------------------------------------------------------
 
@@ -397,8 +397,8 @@ CREATE TABLE `inventory` (
 --
 
 INSERT INTO `inventory` (`id`, `product_id`, `sku`, `stock_quantity`, `low_stock_alert`, `warehouse_location`) VALUES
-(1, 1, 'FLFL-TS-001', 100, 10, 'Warehouse A'),
-(2, 2, 'FLFL-MG-001', 200, 20, 'Warehouse A');
+(1, 1, 'CAPITAL-METAL-TS-001', 100, 10, 'Warehouse A'),
+(2, 2, 'CAPITAL-METAL-MG-001', 200, 20, 'Warehouse A');
 
 -- --------------------------------------------------------
 
@@ -597,10 +597,10 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `body`, `data`, `
 (40, 11, 'ticket.qa_claimed', 'Your design is under QA review', NULL, '{\"ticket_id\": 13}', NULL, '2026-06-25 23:13:08'),
 (41, 11, 'ticket.completed', 'Your design was approved and delivered', NULL, '{\"ticket_id\": 13}', NULL, '2026-06-25 23:13:21'),
 (42, 8, 'ticket.completed', 'Your design was approved by QA', NULL, '{\"ticket_id\": 13}', '2026-07-04 20:08:22', '2026-06-25 23:13:21'),
-(43, 4, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"flfl-design\", \"ticket_id\": 14}', NULL, '2026-06-26 11:10:03'),
-(44, 8, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"flfl-design\", \"ticket_id\": 14}', '2026-07-04 20:08:22', '2026-06-26 11:10:03'),
-(45, 9, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"flfl-design\", \"ticket_id\": 14}', NULL, '2026-06-26 11:10:03'),
-(46, 10, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"flfl-design\", \"ticket_id\": 14}', NULL, '2026-06-26 11:10:03'),
+(43, 4, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"capital-metal\", \"ticket_id\": 14}', NULL, '2026-06-26 11:10:03'),
+(44, 8, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"capital-metal\", \"ticket_id\": 14}', '2026-07-04 20:08:22', '2026-06-26 11:10:03'),
+(45, 9, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"capital-metal\", \"ticket_id\": 14}', NULL, '2026-06-26 11:10:03'),
+(46, 10, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"capital-metal\", \"ticket_id\": 14}', NULL, '2026-06-26 11:10:03'),
 (47, 11, 'ticket.accepted', 'A designer accepted your ticket', NULL, '{\"designer\": \"Designer Ahmed\", \"ticket_id\": 14, \"designer_id\": 8}', NULL, '2026-06-26 11:13:07'),
 (48, 11, 'ticket.modification_requested', 'Designer requested modifications', NULL, '{\"ticket_id\": 14, \"modification_id\": 4}', NULL, '2026-06-26 11:15:44'),
 (49, 8, 'ticket.modification.approved', 'Your modification request was approved', NULL, '{\"ticket_id\": 14}', '2026-07-04 20:08:22', '2026-06-26 11:16:36'),
@@ -710,18 +710,18 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `body`, `data`, `
 (153, 8, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"00000000000\", \"ticket_id\": 25}', '2026-07-04 20:08:22', '2026-06-29 15:32:32'),
 (154, 9, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"00000000000\", \"ticket_id\": 25}', NULL, '2026-06-29 15:32:32'),
 (155, 10, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"00000000000\", \"ticket_id\": 25}', NULL, '2026-06-29 15:32:32'),
-(156, 3, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:01'),
-(157, 6, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:01'),
-(158, 7, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:01'),
+(156, 3, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:01'),
+(157, 6, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:01'),
+(158, 7, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:01'),
 (159, 5, 'ticket.suggestion_received', 'Tester sent a price & deadline proposal', NULL, '{\"price\": \"6666.00\", \"reason\": null, \"deadline\": \"2026-07-08T17:44:00.000000Z\", \"ticket_id\": 26}', NULL, '2026-06-29 15:41:52'),
 (160, 3, 'ticket.counter_received', 'Industor sent a counter-proposal', NULL, '{\"price\": \"7000.00\", \"reason\": null, \"deadline\": \"2026-07-04T15:42:00.000000Z\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:25'),
 (161, 6, 'ticket.counter_received', 'Industor sent a counter-proposal', NULL, '{\"price\": \"7000.00\", \"reason\": null, \"deadline\": \"2026-07-04T15:42:00.000000Z\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:25'),
 (162, 7, 'ticket.counter_received', 'Industor sent a counter-proposal', NULL, '{\"price\": \"7000.00\", \"reason\": null, \"deadline\": \"2026-07-04T15:42:00.000000Z\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:25'),
 (163, 5, 'ticket.negotiation_agreed', 'Price & deadline agreed - ticket is now available', NULL, '{\"price\": \"7000.00\", \"deadline\": \"2026-07-04T15:42:00.000000Z\", \"ticket_id\": 26}', '2026-07-04 20:05:08', '2026-06-29 15:42:48'),
-(164, 4, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:48'),
-(165, 8, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', '2026-07-04 20:08:22', '2026-06-29 15:42:48'),
-(166, 9, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:48'),
-(167, 10, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:48'),
+(164, 4, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:48'),
+(165, 8, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', '2026-07-04 20:08:22', '2026-06-29 15:42:48'),
+(166, 9, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:48'),
+(167, 10, 'ticket.opened', 'New ticket available', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-06-29 15:42:48'),
 (168, 3, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"سسسسسسسسسسسس\", \"ticket_id\": 27}', NULL, '2026-06-29 15:49:41'),
 (169, 6, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"سسسسسسسسسسسس\", \"ticket_id\": 27}', NULL, '2026-06-29 15:49:41'),
 (170, 7, 'ticket.pending_review', 'New ticket awaiting review', NULL, '{\"title\": \"سسسسسسسسسسسس\", \"ticket_id\": 27}', NULL, '2026-06-29 15:49:41'),
@@ -785,13 +785,13 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `body`, `data`, `
 (228, 3, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"00000000000\", \"ticket_id\": 25}', NULL, '2026-07-03 22:34:52'),
 (229, 6, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"00000000000\", \"ticket_id\": 25}', NULL, '2026-07-03 22:34:52'),
 (230, 7, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"00000000000\", \"ticket_id\": 25}', NULL, '2026-07-03 22:34:52'),
-(231, 4, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"FlFl Design\", \"new_price\": 5390, \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
-(232, 8, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"FlFl Design\", \"new_price\": 5390, \"ticket_id\": 26}', '2026-07-04 20:08:22', '2026-07-03 22:34:52'),
-(233, 9, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"FlFl Design\", \"new_price\": 5390, \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
-(234, 10, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"FlFl Design\", \"new_price\": 5390, \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
-(235, 3, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
-(236, 6, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
-(237, 7, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"FlFl Design\", \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
+(231, 4, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"Capital-Metal\", \"new_price\": 5390, \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
+(232, 8, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"Capital-Metal\", \"new_price\": 5390, \"ticket_id\": 26}', '2026-07-04 20:08:22', '2026-07-03 22:34:52'),
+(233, 9, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"Capital-Metal\", \"new_price\": 5390, \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
+(234, 10, 'ticket.price_increased', 'Ticket price increased 10% (urgent)', NULL, '{\"title\": \"Capital-Metal\", \"new_price\": 5390, \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
+(235, 3, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
+(236, 6, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
+(237, 7, 'ticket.urgent', 'Ticket became urgent & price adjusted', NULL, '{\"title\": \"Capital-Metal\", \"ticket_id\": 26}', NULL, '2026-07-03 22:34:52'),
 (238, 1, 'system', 'System Maintenance Tonight', 'The system will be down for maintenance at 2 AM. Please save your work.', '{\"system\": true}', '2026-07-04 19:57:13', '2026-07-04 19:57:08'),
 (239, 2, 'system', 'System Maintenance Tonight', 'The system will be down for maintenance at 2 AM. Please save your work.', '{\"system\": true}', NULL, '2026-07-04 19:57:08'),
 (240, 3, 'system', 'System Maintenance Tonight', 'The system will be down for maintenance at 2 AM. Please save your work.', '{\"system\": true}', NULL, '2026-07-04 19:57:08'),
@@ -1025,9 +1025,9 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `designer_id`, `name`, `slug`, `description`, `product_type`, `price_egp`, `price_usd`, `cost`, `status`, `publish_date`, `country_availability`, `material`, `manufacturing_method`, `tags`, `design_file_path`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'FLFL T-Shirt', 'flfl-t-shirt', 'Premium cotton t-shirt with FLFL design', 'physical', 299.00, 9.99, 100.00, 'published', '2026-06-25 20:43:19', NULL, NULL, NULL, NULL, NULL, '2026-06-25 20:43:19', '2026-06-25 20:43:19'),
-(2, NULL, 'FLFL Mug', 'flfl-mug', 'Ceramic mug with FLFL logo', 'physical', 149.00, 4.99, 50.00, 'published', '2026-06-25 20:43:32', NULL, NULL, NULL, NULL, NULL, '2026-06-25 20:43:32', '2026-06-25 20:43:32'),
-(3, NULL, 'FLFL Design Template', 'flfl-design-template', 'Digital design template pack', 'digital', 499.00, 14.99, 0.00, 'published', '2026-06-25 20:43:32', NULL, NULL, NULL, NULL, NULL, '2026-06-25 20:43:32', '2026-06-25 20:43:32'),
+(1, NULL, 'Capital-Metal T-Shirt', 'capital-metal-t-shirt', 'Premium cotton t-shirt with Capital-Metal design', 'physical', 299.00, 9.99, 100.00, 'published', '2026-06-25 20:43:19', NULL, NULL, NULL, NULL, NULL, '2026-06-25 20:43:19', '2026-06-25 20:43:19'),
+(2, NULL, 'Capital-Metal Mug', 'capital-metal-mug', 'Ceramic mug with Capital-Metal logo', 'physical', 149.00, 4.99, 50.00, 'published', '2026-06-25 20:43:32', NULL, NULL, NULL, NULL, NULL, '2026-06-25 20:43:32', '2026-06-25 20:43:32'),
+(3, NULL, 'Capital-Metal Template', 'capital-metal-template', 'Digital design template pack', 'digital', 499.00, 14.99, 0.00, 'published', '2026-06-25 20:43:32', NULL, NULL, NULL, NULL, NULL, '2026-06-25 20:43:32', '2026-06-25 20:43:32'),
 (4, 8, 'Modern Logo Pack', 'premium-logo-pack', 'A collection of 20 modern logo templates...', 'digital', 499.00, 14.99, 0.00, 'published', '2026-06-25 22:56:59', NULL, NULL, NULL, NULL, NULL, '2026-06-25 22:56:59', '2026-06-25 22:56:59'),
 (5, 9, 'Icon Bundle Pro', 'icon-bundle-pro', '500 vector icons in multiple styles...', 'digital', 299.00, 8.99, 0.00, 'published', '2026-06-25 22:56:59', NULL, NULL, NULL, NULL, NULL, '2026-06-25 22:56:59', '2026-06-25 22:56:59'),
 (6, 10, 'Brochure Templates', 'brochure-templates-vol1', '15 editable brochure templates...', 'digital', 199.00, 5.99, 0.00, 'published', '2026-06-25 22:56:59', NULL, NULL, NULL, NULL, NULL, '2026-06-25 22:56:59', '2026-06-25 22:56:59'),
@@ -1402,7 +1402,7 @@ INSERT INTO `tickets` (`id`, `industor_id`, `subscription_id`, `title`, `descrip
 (11, 11, 1, 'Rejected sample design', 'Test design that got rejected by QA...', NULL, NULL, NULL, NULL, NULL, 0, 'rejected_qa', 7, NULL, 9, '2026-06-28 22:56:59', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, NULL, NULL, NULL, '2026-06-25 15:56:59', '2026-06-25 16:56:59', '2026-06-25 18:56:59', '2026-06-25 19:56:59', NULL, 'Colors do not match brand guidelines. Please use the official palette.', NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-25 22:56:59', '2026-06-25 22:56:59'),
 (12, 12, 2, 'Poster design for event', 'Event poster for a tech conference...', NULL, NULL, NULL, NULL, NULL, 0, 'modification_requested', NULL, NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, NULL, NULL, NULL, '2026-06-25 15:56:59', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-25 22:56:59', '2026-06-25 22:56:59'),
 (13, 11, 1, 'ssssssssssssssssssssss', 'sssssssssssssssssssssssssssssss', NULL, NULL, NULL, NULL, NULL, 0, 'completed', 6, NULL, 8, '2026-06-25 23:11:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, NULL, NULL, NULL, '2026-06-25 23:04:30', '2026-06-25 23:10:38', '2026-06-25 23:11:36', '2026-06-25 23:13:08', '2026-06-25 23:13:20', NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-25 23:01:59', '2026-06-25 23:13:20'),
-(14, 11, 1, 'flfl-design', 'asdfl;fkasdklfjas;lfdkdsjfkvjdsvjkds\ndsoflsdlk.fsdJF', NULL, NULL, NULL, NULL, NULL, 0, 'completed', 6, NULL, 8, '2026-06-26 11:18:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, NULL, NULL, NULL, '2026-06-26 11:16:36', '2026-06-26 11:17:27', '2026-06-26 11:18:22', '2026-06-26 11:19:43', '2026-06-26 11:20:14', NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-26 11:10:03', '2026-06-26 11:20:14'),
+(14, 11, 1, 'capital-metal', 'asdfl;fkasdklfjas;lfdkdsjfkvjdsvjkds\ndsoflsdlk.fsdJF', NULL, NULL, NULL, NULL, NULL, 0, 'completed', 6, NULL, 8, '2026-06-26 11:18:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, NULL, NULL, NULL, '2026-06-26 11:16:36', '2026-06-26 11:17:27', '2026-06-26 11:18:22', '2026-06-26 11:19:43', '2026-06-26 11:20:14', NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-26 11:10:03', '2026-06-26 11:20:14'),
 (15, 5, 9, 'vgkvlbhbh000000000', 'ukjgjkbjnl;kk0000000000000000000', 2000.00, NULL, NULL, NULL, NULL, 0, 'accepted', NULL, 6, 8, '2026-07-01 14:06:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, '2026-06-26 14:07:00', NULL, NULL, '2026-06-26 14:09:00', NULL, NULL, NULL, NULL, NULL, '2222222222222222222', 0, 0, NULL, NULL, NULL, 0, '2026-06-26 14:04:59', '2026-06-26 14:09:00'),
 (16, 5, NULL, 'شسينسشزؤةسشنىؤشسنم', 'ةسسشنبمةىريسنىريسنمىيسنروىسينرىيسنمرىيسم', 5000.00, NULL, NULL, NULL, NULL, 0, 'accepted', NULL, 6, NULL, '2026-07-01 15:12:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, '2026-06-26 15:13:10', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ASASCS2', 0, 0, NULL, NULL, NULL, 1, '2026-06-26 15:11:54', '2026-06-26 15:13:10'),
 (17, 5, 9, 'alsd,pw222222222222222222222222222221', '21LF,SLD;FLDFMSDSSSSSSFDSF', 50000.00, NULL, NULL, NULL, NULL, 0, 'accepted', NULL, 6, 8, '2026-06-28 15:32:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'waiting_tester_review', NULL, '2026-06-28 15:20:18', NULL, NULL, '2026-06-28 15:26:45', NULL, NULL, NULL, NULL, NULL, 'SDASCCAS', 0, 0, NULL, NULL, NULL, 0, '2026-06-26 15:19:43', '2026-06-28 15:26:45'),
@@ -1412,7 +1412,7 @@ INSERT INTO `tickets` (`id`, `industor_id`, `subscription_id`, `title`, `descrip
 (21, 5, 9, ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,', '00000000000000000000000000000000000000000000000', NULL, NULL, NULL, NULL, NULL, 0, 'pending_tester_review', NULL, NULL, NULL, NULL, '2026-07-01 13:48:00', NULL, NULL, NULL, NULL, NULL, '2026-07-01 13:48:00', NULL, 1, 0, 'waiting_tester_review', '[{\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T13:49:09+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"proposed_deadline\": \"2026-07-01T13:48:00+00:00\"}]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 13:49:09', '2026-06-29 13:49:50'),
 (24, 5, 9, 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', 'mmmmmmmmmmmmmssssssssssssssssssssssssssssmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', 2000.00, 2000.00, 2000.00, 1540.00, '2026-07-03 22:34:52', 1, 'approved_by_tester', NULL, 6, NULL, '2026-07-02 15:14:00', '2026-06-30 22:00:00', 2000.00, NULL, NULL, '2026-07-02 15:14:00', 2000.00, '2026-07-02 15:14:00', 2000.00, 0, 2, 'approved', '[{\"reason\": null, \"status\": \"pending\", \"created_at\": \"2026-06-29T15:11:42+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 0, \"proposed_price\": 2000, \"proposed_deadline\": \"2026-06-30T22:00:00+00:00\"}, {\"reason\": \"done\", \"status\": \"rejected\", \"created_at\": \"2026-06-29T15:13:19+00:00\", \"created_by\": 6, \"proposed_by\": \"tester\", \"round_number\": 1, \"proposed_price\": 2500, \"proposed_deadline\": \"2026-07-01T15:13:00+00:00\"}, {\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T15:14:47+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 2, \"proposed_price\": 2000, \"proposed_deadline\": \"2026-07-02T15:14:00+00:00\"}]', '2026-06-29 15:21:52', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 15:11:42', '2026-07-03 22:34:52'),
 (25, 5, 9, '00000000000', '555555555', 5000.00, 5000.00, 5000.00, 3850.00, '2026-07-03 22:34:52', 1, 'approved_by_tester', NULL, 6, NULL, '2026-07-03 10:00:00', '2026-07-03 10:00:00', 5000.00, NULL, NULL, NULL, NULL, '2026-07-03 10:00:00', 5000.00, 0, 0, 'approved', '[{\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T15:27:29+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 0, \"proposed_price\": 5000, \"proposed_deadline\": \"2026-07-03T10:00:00+00:00\"}]', '2026-06-29 15:32:31', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 15:27:29', '2026-07-03 22:34:52'),
-(26, 5, 9, 'FlFl Design', 'asdlk[adsfkdjkdsjf', 7000.00, 7000.00, 7000.00, 5390.00, '2026-07-03 22:34:52', 1, 'approved_by_tester', NULL, 6, NULL, '2026-07-04 15:42:00', '2026-07-03 22:00:00', 5555.00, NULL, NULL, '2026-07-04 15:42:00', 7000.00, '2026-07-04 15:42:00', 7000.00, 0, 2, 'approved', '[{\"reason\": null, \"status\": \"pending\", \"created_at\": \"2026-06-29T15:41:01+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 0, \"proposed_price\": 5555, \"proposed_deadline\": \"2026-07-03T22:00:00+00:00\"}, {\"reason\": null, \"status\": \"rejected\", \"created_at\": \"2026-06-29T15:41:52+00:00\", \"created_by\": 6, \"proposed_by\": \"tester\", \"round_number\": 1, \"proposed_price\": 6666, \"proposed_deadline\": \"2026-07-08T17:44:00+00:00\"}, {\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T15:42:24+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 2, \"proposed_price\": 7000, \"proposed_deadline\": \"2026-07-04T15:42:00+00:00\"}]', '2026-06-29 15:42:48', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 15:41:01', '2026-07-03 22:34:52'),
+(26, 5, 9, 'Capital-Metal', 'asdlk[adsfkdjkdsjf', 7000.00, 7000.00, 7000.00, 5390.00, '2026-07-03 22:34:52', 1, 'approved_by_tester', NULL, 6, NULL, '2026-07-04 15:42:00', '2026-07-03 22:00:00', 5555.00, NULL, NULL, '2026-07-04 15:42:00', 7000.00, '2026-07-04 15:42:00', 7000.00, 0, 2, 'approved', '[{\"reason\": null, \"status\": \"pending\", \"created_at\": \"2026-06-29T15:41:01+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 0, \"proposed_price\": 5555, \"proposed_deadline\": \"2026-07-03T22:00:00+00:00\"}, {\"reason\": null, \"status\": \"rejected\", \"created_at\": \"2026-06-29T15:41:52+00:00\", \"created_by\": 6, \"proposed_by\": \"tester\", \"round_number\": 1, \"proposed_price\": 6666, \"proposed_deadline\": \"2026-07-08T17:44:00+00:00\"}, {\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T15:42:24+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 2, \"proposed_price\": 7000, \"proposed_deadline\": \"2026-07-04T15:42:00+00:00\"}]', '2026-06-29 15:42:48', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 15:41:01', '2026-07-03 22:34:52'),
 (27, 5, 9, 'سسسسسسسسسسسس', 'يييييييييييييييييييييييي', 6000.00, 6000.00, 6000.00, 4200.00, '2026-06-29 15:49:54', 0, 'accepted', NULL, 6, 4, '2026-07-03 23:00:00', '2026-07-03 23:00:00', 6000.00, NULL, NULL, NULL, NULL, '2026-07-03 23:00:00', 6000.00, 0, 0, 'approved', '[{\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T15:49:41+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 0, \"proposed_price\": 6000, \"proposed_deadline\": \"2026-07-03T23:00:00+00:00\"}]', '2026-06-29 15:49:54', NULL, NULL, '2026-06-29 16:30:44', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 15:49:41', '2026-06-29 16:30:44'),
 (28, 5, 9, 'فارس ديزاااااين', 'مشروع العمر', 11000.00, 11000.00, 11000.00, 7700.00, '2026-06-29 16:25:16', 0, 'completed', 6, 6, 4, '2026-07-04 16:24:00', '2026-07-03 22:00:00', 10000.00, NULL, NULL, '2026-07-04 16:24:00', 11000.00, '2026-07-04 16:24:00', 11000.00, 0, 2, 'approved', '[{\"reason\": null, \"status\": \"pending\", \"created_at\": \"2026-06-29T16:22:53+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 0, \"proposed_price\": 10000, \"proposed_deadline\": \"2026-07-03T22:00:00+00:00\"}, {\"reason\": \"الدايرز مشغول\", \"status\": \"rejected\", \"created_at\": \"2026-06-29T16:24:03+00:00\", \"created_by\": 6, \"proposed_by\": \"tester\", \"round_number\": 1, \"proposed_price\": 8000, \"proposed_deadline\": \"2026-07-05T16:23:00+00:00\"}, {\"reason\": null, \"status\": \"accepted\", \"created_at\": \"2026-06-29T16:24:46+00:00\", \"created_by\": 5, \"proposed_by\": \"industor\", \"round_number\": 2, \"proposed_price\": 11000, \"proposed_deadline\": \"2026-07-04T16:24:00+00:00\"}]', '2026-06-29 16:25:16', NULL, NULL, '2026-06-29 16:26:11', NULL, '2026-06-29 16:26:29', '2026-06-29 16:26:51', '2026-06-29 16:27:41', NULL, NULL, 0, 0, NULL, NULL, NULL, 0, '2026-06-29 16:22:53', '2026-06-29 16:27:41');
 
@@ -1762,19 +1762,19 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `phone`, `is_verified`, `two_factor_enabled`, `two_factor_secret`, `reset_token`, `reset_token_expiry`, `is_active`, `remember_token`, `created_at`, `updated_at`, `role_id`, `currency_preference`) VALUES
-(1, 'Admin', 'admin@flfl.com', NULL, '$2y$12$TrEP2FV4sOwfGDIXdF7eHuYpHc5WCSlLy0oH/LPgQckeWXpHiYN3W', '01000000001', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:47', '2026-07-04 12:19:41', 1, 'EGP'),
-(2, 'Regular User', 'user@flfl.com', NULL, '$2y$12$11FpdzEN1lLDmXAPSRjUzuBdAPY2R4dkycOp0iV7R0MALYFnhTd8u', '01000000002', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:47', '2026-06-25 20:31:47', 2, 'EGP'),
-(3, 'Tester', 'tester@flfl.com', NULL, '$2y$12$8vdzoNV9wBS.S5Ho0jY0i.4OYAoBvYv399ht6FL8u/2hVdymjViDO', '01000000003', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:47', '2026-06-25 20:31:47', 3, 'EGP'),
-(4, 'Designer', 'designer@flfl.com', NULL, '$2y$12$Hm.e.W4PQvYjFoyqnvXC/O6BVM2nk8MteGTUepTvzukUTHQw0oH7y', '01000000004', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:48', '2026-06-25 20:31:48', 4, 'EGP'),
-(5, 'Industor', 'industor@flfl.com', NULL, '$2y$12$bT0Hsq2eNE9pLOm2Ah358eBHMPWQsDFg1Y4KGdaQbFb43N.sCuOei', '01000000005', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:48', '2026-06-25 20:31:48', 5, 'EGP'),
-(6, 'Tester One', 'tester1@flfl.com', NULL, '$2y$12$J2ONNaaNCPz3npyJ4jdiheaIuaceWyc25iuT64vCJzh76qDkI.fku', '01095731382', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:30', '2026-06-25 22:26:30', 3, 'EGP'),
-(7, 'Tester Two', 'tester2@flfl.com', NULL, '$2y$12$7v08poTYP2vXriJQ3X0tX.Wl/86uoDL0xo6bU.89zUFBnJGalJOpK', '01038509330', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:30', '2026-06-25 22:26:30', 3, 'EGP'),
-(8, 'Designer Ahmed', 'designer1@flfl.com', NULL, '$2y$12$BVK4mbTMHa7haVeqktawueirQNUBpbU2yNh6pWETWKAxK5rbbJ71O', '01037489826', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 4, 'EGP'),
-(9, 'Designer Sara', 'designer2@flfl.com', NULL, '$2y$12$p.c9rRNy6X7JyO3Y3y5mq.E2SEROHEG8vIjAq7f56ffr6ViP21KQG', '01027285132', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 4, 'EGP'),
-(10, 'Designer Omar', 'designer3@flfl.com', NULL, '$2y$12$y.DWgpYIi/ilSaJfp0qI.ucJLFOUqdmmJ7CH16IcSg/aYXX4Sw8MK', '01045678773', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 4, 'EGP'),
-(11, 'Industor Khaled', 'industor1@flfl.com', NULL, '$2y$12$1f9cJN0reeL1/uMO3z.oWOVC2I1LrlS5JWTxNYlIBaHeGD67bpRca', '01099519212', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 5, 'EGP'),
-(12, 'Industor Mona', 'industor2@flfl.com', NULL, '$2y$12$HsSCfLXAHSW1W9CZnJZNsOPvFUoahz6U4kFG5AcTDmjXXrq2mwnzm', '01022838284', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 5, 'EGP'),
-(13, 'Industor Ali', 'industor3@flfl.com', NULL, '$2y$12$XSSaePz1A7M8zP.Y26o.kOh3Bp4H6lqwUv.2hcJmtIpZHS1BoWkoe', '01035146673', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:56:42', '2026-06-25 22:56:42', 5, 'EGP'),
+(1, 'Admin', 'admin@capitalmetal.com', NULL, '$2y$12$TrEP2FV4sOwfGDIXdF7eHuYpHc5WCSlLy0oH/LPgQckeWXpHiYN3W', '01000000001', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:47', '2026-07-04 12:19:41', 1, 'EGP'),
+(2, 'Regular User', 'user@capitalmetal.com', NULL, '$2y$12$11FpdzEN1lLDmXAPSRjUzuBdAPY2R4dkycOp0iV7R0MALYFnhTd8u', '01000000002', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:47', '2026-06-25 20:31:47', 2, 'EGP'),
+(3, 'Tester', 'tester@capitalmetal.com', NULL, '$2y$12$8vdzoNV9wBS.S5Ho0jY0i.4OYAoBvYv399ht6FL8u/2hVdymjViDO', '01000000003', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:47', '2026-06-25 20:31:47', 3, 'EGP'),
+(4, 'Designer', 'designer@capitalmetal.com', NULL, '$2y$12$Hm.e.W4PQvYjFoyqnvXC/O6BVM2nk8MteGTUepTvzukUTHQw0oH7y', '01000000004', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:48', '2026-06-25 20:31:48', 4, 'EGP'),
+(5, 'Industor', 'industor@capitalmetal.com', NULL, '$2y$12$bT0Hsq2eNE9pLOm2Ah358eBHMPWQsDFg1Y4KGdaQbFb43N.sCuOei', '01000000005', 0, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 20:31:48', '2026-06-25 20:31:48', 5, 'EGP'),
+(6, 'Tester One', 'tester1@capitalmetal.com', NULL, '$2y$12$J2ONNaaNCPz3npyJ4jdiheaIuaceWyc25iuT64vCJzh76qDkI.fku', '01095731382', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:30', '2026-06-25 22:26:30', 3, 'EGP'),
+(7, 'Tester Two', 'tester2@capitalmetal.com', NULL, '$2y$12$7v08poTYP2vXriJQ3X0tX.Wl/86uoDL0xo6bU.89zUFBnJGalJOpK', '01038509330', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:30', '2026-06-25 22:26:30', 3, 'EGP'),
+(8, 'Designer Ahmed', 'designer1@capitalmetal.com', NULL, '$2y$12$BVK4mbTMHa7haVeqktawueirQNUBpbU2yNh6pWETWKAxK5rbbJ71O', '01037489826', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 4, 'EGP'),
+(9, 'Designer Sara', 'designer2@capitalmetal.com', NULL, '$2y$12$p.c9rRNy6X7JyO3Y3y5mq.E2SEROHEG8vIjAq7f56ffr6ViP21KQG', '01027285132', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 4, 'EGP'),
+(10, 'Designer Omar', 'designer3@capitalmetal.com', NULL, '$2y$12$y.DWgpYIi/ilSaJfp0qI.ucJLFOUqdmmJ7CH16IcSg/aYXX4Sw8MK', '01045678773', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 4, 'EGP'),
+(11, 'Industor Khaled', 'industor1@capitalmetal.com', NULL, '$2y$12$1f9cJN0reeL1/uMO3z.oWOVC2I1LrlS5JWTxNYlIBaHeGD67bpRca', '01099519212', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 5, 'EGP'),
+(12, 'Industor Mona', 'industor2@capitalmetal.com', NULL, '$2y$12$HsSCfLXAHSW1W9CZnJZNsOPvFUoahz6U4kFG5AcTDmjXXrq2mwnzm', '01022838284', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:26:31', '2026-06-25 22:26:31', 5, 'EGP'),
+(13, 'Industor Ali', 'industor3@capitalmetal.com', NULL, '$2y$12$XSSaePz1A7M8zP.Y26o.kOh3Bp4H6lqwUv.2hcJmtIpZHS1BoWkoe', '01035146673', 1, 0, NULL, NULL, NULL, 1, NULL, '2026-06-25 22:56:42', '2026-06-25 22:56:42', 5, 'EGP'),
 (14, 'yousef', 'yousef@gmail.com', NULL, '$2y$12$cMFhJPoPWbwKUBfA./Gfn.Fl1u50eh0bbzsPGOKL3KQyiFdfsxX3u', NULL, 0, 0, NULL, NULL, NULL, 1, NULL, '2026-07-04 11:26:27', '2026-07-04 12:07:04', 5, 'USD');
 
 -- --------------------------------------------------------
