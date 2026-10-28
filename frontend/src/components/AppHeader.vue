@@ -146,7 +146,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <CHeader position="sticky" :class="['modern-header', headerClassNames]">
+  <CHeader position="sticky" :class="['modern-header', headerClassNames, 'header-dark-mode']">
     <div v-if="auth.impersonating" class="impersonation-banner w-100 d-flex align-items-center justify-content-between px-4 py-1">
       <span class="impersonation-text">
         <CIcon icon="cil-account-login" class="me-1" />
@@ -156,7 +156,7 @@ onMounted(() => {
         <CIcon icon="cil-arrow-left" class="me-1" /> {{ $t('header.back_to_admin') }}
       </CButton>
     </div>
-    <CContainer class="border-bottom px-4" fluid>
+    <CContainer class="px-4 header-dark-container" fluid>
       <CHeaderToggler @click="sidebar.toggleVisible()" style="margin-inline-start: -14px">
       </CHeaderToggler>
       <div class="header-brand d-flex align-items-center ms-2">
@@ -512,6 +512,74 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.header-dark-mode {
+  background: rgba(15, 20, 30, 0.82) !important;
+  backdrop-filter: blur(28px) saturate(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(1.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
+  color: #fff !important;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.header-dark-mode.shadow-sm {
+  background: rgba(15, 20, 30, 0.92) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.header-dark-container {
+  border: none !important;
+  background: transparent !important;
+}
+
+.header-dark-mode .header-nav-horizontal .nav-link,
+.header-dark-mode .modern-header .nav-link {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.header-dark-mode .nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.header-dark-mode .nav-link.active {
+  color: #8b7cf7 !important;
+  background: linear-gradient(135deg, rgba(139, 124, 247, 0.18), rgba(139, 124, 247, 0.05)) !important;
+}
+
+.header-dark-mode .brand-icon {
+  color: #8b7cf7 !important;
+  filter: drop-shadow(0 0 10px rgba(139, 124, 247, 0.6));
+}
+
+.header-dark-mode .btn-create-header {
+  background: linear-gradient(135deg, #8b7cf7, #66b0ff) !important;
+  box-shadow: 0 4px 18px rgba(139, 124, 247, 0.35);
+}
+
+.header-dark-mode .lang-switcher-btn {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.header-dark-mode .impersonation-banner {
+  background: linear-gradient(90deg, #1a1a2e, #16213e) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-dark-mode .theme-toggle-btn {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.header-dark-mode .theme-toggle-btn:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.header-dark-mode .vr {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
 .impersonation-banner {
   background: linear-gradient(90deg, #0EA5E9, #8f0e00);
   color: #fff;
