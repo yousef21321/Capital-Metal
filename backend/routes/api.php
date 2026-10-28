@@ -319,6 +319,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/products/template', [ProductController::class, 'template']);
         Route::post('/admin/products/import', [ProductController::class, 'import']);
         Route::post('/admin/products/bulk-update', [ProductController::class, 'bulkUpdate']);
+        Route::post('/admin/products/bulk-delete', [ProductController::class, 'bulkDestroy']);
         Route::get('/admin/products/export', [ProductController::class, 'export']);
         Route::post('/admin/users', [UserController::class, 'adminStore']);
         Route::put('/admin/users/{id}', [UserController::class, 'adminUpdate']);

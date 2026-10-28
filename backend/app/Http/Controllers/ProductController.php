@@ -357,8 +357,8 @@ class ProductController extends Controller
                 'product_type' => in_array($data['product_type'] ?? '', ['physical','digital']) ? ($data['product_type'] ?? 'physical') : 'physical',
                 'description' => $data['description'] ?? null,
                 'main_category_id' => $mainCategoryId,
-                'price_egp' => ($data['price_egp'] ?? '') !== '' ? ($data['price_egp'] ?? null) : null,
-                'price_usd' => ($data['price_usd'] ?? '') !== '' ? ($data['price_usd'] ?? null) : null,
+                'price_egp' => ($data['price_egp'] ?? '') !== '' ? ($data['price_egp'] ?? null) : 0,
+                'price_usd' => ($data['price_usd'] ?? '') !== '' ? ($data['price_usd'] ?? null) : 0,
                 'fake_price_egp' => ($data['fake_price_egp'] ?? '') !== '' ? ($data['fake_price_egp'] ?? null) : null,
                 'fake_price_usd' => ($data['fake_price_usd'] ?? '') !== '' ? ($data['fake_price_usd'] ?? null) : null,
                 'cost' => ($data['cost'] ?? '') !== '' ? ($data['cost'] ?? null) : 0,
@@ -482,6 +482,22 @@ class ProductController extends Controller
         $value = strtolower(trim($value));
         $value = preg_replace('/[^a-z0-9]+/', '-', $value);
         return trim($value, '-');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:products,id',
+        ]);
+
+        $count = 0;
+        foreach ($data['ids'] as $id) {
+            Product::findOrFail($id)->delete();
+            $count++;
+        }
+
+        return response()->json(['deleted' => $count]);
     }
 
     private function syncImagesToStox(Product $product): void
