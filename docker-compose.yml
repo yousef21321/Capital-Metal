@@ -43,7 +43,7 @@ services:
       PMA_HOST: db
       PMA_ABSOLUTE_URI: https://capital-metal.com/phpmyadmin/
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - db
 
@@ -54,7 +54,7 @@ services:
     volumes:
       - ./frontend:/app
     ports:
-      - "5173:5173"
+      - "5174:5173"
     command: sh -c "npm install && npm run dev -- --host"
     depends_on:
       - app
