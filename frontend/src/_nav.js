@@ -194,6 +194,14 @@ export default [
   },
   {
     component: 'CNavItem',
+    name: 'Permissions',
+    to: '/admin/permissions',
+    icon: 'cil-lock-locked',
+    translationKey: 'nav.permissions',
+    roles: ['admin'],
+  },
+  {
+    component: 'CNavItem',
     name: 'Plans',
     to: '/plans',
     icon: 'cil-layers',

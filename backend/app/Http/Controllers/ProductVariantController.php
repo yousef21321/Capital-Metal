@@ -36,7 +36,11 @@ class ProductVariantController extends Controller
             'star_rating' => 'nullable|numeric|min:0|max:5',
             'sold_count' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
         if (! isset($validated['sort_order'])) {
+            $maxSort = $product->variants()->max('sort_order') ?? -1;
             $validated['sort_order'] = $maxSort + 1;
         }
 

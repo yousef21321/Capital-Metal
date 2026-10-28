@@ -20,6 +20,7 @@ use App\Http\Controllers\PayMobController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SavedCardController;
 use App\Http\Controllers\ShippingRateController;
 use App\Http\Controllers\StoreController;
@@ -286,6 +287,12 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::get('/designer/products/{id}', [TicketController::class, 'showDesignerProduct']);
         Route::post('/designer/products/{id}', [TicketController::class, 'updateDesignerProduct']);
+    });
+
+    // Roles & permissions (admin)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/roles', [RoleController::class, 'adminIndex']);
+        Route::put('/admin/roles/{id}/permissions', [RoleController::class, 'updatePermissions']);
     });
 
     // Notifications

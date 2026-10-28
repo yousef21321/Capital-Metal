@@ -158,6 +158,12 @@ const routes = [
         meta: { requiresAuth: true, roles: ['admin'] },
       },
       {
+        path: '/admin/permissions',
+        name: 'RolePermissions',
+        component: () => import('@/views/pages/RolePermissions.vue'),
+        meta: { requiresAuth: true, roles: ['admin'] },
+      },
+      {
         path: '/designer/products',
         name: 'DesignerProducts',
         component: () => import('@/views/tickets/DesignerProducts.vue'),

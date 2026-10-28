@@ -66,10 +66,34 @@ async function exitImpersonation() {
 
 const canSee = (item) => {
   const role = auth.userRole
+  const perms = auth.user?.role?.permissions
+  if (Array.isArray(perms)) {
+    if (perms.length === 0) {
+      if (!role) return !item.roles || item.roles.length === 0
+      if (role === 'admin') return true
+      if (!item.roles || item.roles.length === 0) return true
+      return item.roles.includes(role)
+    }
+    return perms.includes(item.name)
+  }
   if (!role) return !item.roles || item.roles.length === 0
   if (role === 'admin') return true
   if (!item.roles || item.roles.length === 0) return true
   return item.roles.includes(role)
+}
+
+const canPerm = (name, fallbackRoles = []) => {
+  const role = auth.userRole
+  const perms = auth.user?.role?.permissions
+  if (Array.isArray(perms)) {
+    if (perms.length === 0) {
+      if (role === 'admin') return true
+      return fallbackRoles.includes(role)
+    }
+    return perms.includes(name)
+  }
+  if (role === 'admin') return true
+  return fallbackRoles.includes(role)
 }
 
 function setCurrency(currency) {
@@ -186,21 +210,21 @@ onMounted(() => {
             </CDropdownItem>
           </CDropdownMenu>
         </CDropdown>
-        <CNavItem v-if="['industor','admin'].includes(auth.userRole)" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Plans', ['industor','admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/plans" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.plans')">
               <CIcon icon="cil-layers" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="['industor','designer','tester','admin'].includes(auth.userRole)" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Tickets', ['industor','designer','tester','admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/tickets" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.tickets')">
               <CIcon icon="cil-description" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="['tester','admin'].includes(auth.userRole)" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Product Review', ['tester','admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/tester/products" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative" :aria-label="$t('header.testerProducts')">
               <CIcon icon="cil-cart" size="lg" />
@@ -216,7 +240,7 @@ onMounted(() => {
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="['designer','admin'].includes(auth.userRole)" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Add Digital Product', ['designer','admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/designer/products/create" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" class="position-relative" :aria-label="$t('header.designerProducts')">
               <CIcon icon="cil-grid" size="lg" />
@@ -232,45 +256,53 @@ onMounted(() => {
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="['industor','admin'].includes(auth.userRole)" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('New Ticket', ['industor','admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/tickets/create" v-slot="{ href, navigate }">
             <CNavLink :href="href" class="btn-create-header" @click="navigate" :aria-label="$t('header.createTicket')">
               <CIcon icon="cil-plus" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="auth.userRole === 'admin'" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Orders', ['admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/admin/orders" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.orders')">
               <CIcon icon="cil-layers" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="auth.userRole === 'admin'" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Coupons', ['admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/admin/coupons" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.coupons')">
               <CIcon icon="cil-tag" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="auth.userRole === 'admin'" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Manage Materials', ['admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/admin/materials" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.materials')">
               <CIcon icon="cil-layers" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="auth.userRole === 'admin'" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Shipping Rates', ['admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/admin/shipping-rates" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.shippingRates')">
               <CIcon icon="cil-truck" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
-        <CNavItem v-if="auth.userRole === 'admin'" class="d-none d-lg-flex">
+        <CNavItem v-if="canPerm('Users', ['admin'])" class="d-none d-lg-flex">
           <RouterLink custom to="/admin/users" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="$t('header.users')">
               <CIcon icon="cil-user" size="lg" />
+            </CNavLink>
+          </RouterLink>
+        </CNavItem>
+
+        <CNavItem v-if="canPerm('Permissions', ['admin'])" class="d-none d-lg-flex">
+          <RouterLink custom to="/admin/permissions" v-slot="{ href, navigate, isActive }">
+            <CNavLink :href="href" @click="navigate" :active="isActive" :aria-label="'Permissions'">
+              <CIcon icon="cil-lock-locked" size="lg" />
             </CNavLink>
           </RouterLink>
         </CNavItem>
