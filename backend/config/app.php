@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://capital-metal.com'),
+    'url' => env('APP_URL', 'https://capital-metal.first-link-logistics.com'),
 
     /*
     |--------------------------------------------------------------------------

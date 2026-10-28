@@ -201,7 +201,7 @@ class FacebookCatalogService
             return $path;
         }
 
-        $baseUrl = rtrim(config('app.url', 'https://capital-metal.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://capital-metal.first-link-logistics.com'), '/');
 
         return $baseUrl.'/storage/'.ltrim($path, '/');
     }

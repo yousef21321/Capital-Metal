@@ -184,7 +184,7 @@ class StoxService
             return $path;
         }
 
-        $baseUrl = config('app.url', 'https://capital-metal.com');
+        $baseUrl = config('app.url', 'https://capital-metal.first-link-logistics.com');
 
         return "{$baseUrl}/storage/{$path}";
     }

@@ -61,7 +61,7 @@ class LemonSqueezyController extends Controller
         try {
             $customerEmail = $user->email
                 ?? $order->guest_email
-                ?? sprintf('guest-%s@capital-metal.com', strtolower($order->order_number));
+                ?? sprintf('guest-%s@capital-metal.first-link-logistics.com', strtolower($order->order_number));
 
             $result = $this->lemonsqueezy->createCheckout(
                 variantId: $variantId,

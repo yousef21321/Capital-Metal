@@ -6,7 +6,7 @@ import AppFooter from '@/components/AppFooter.vue'
 const steps = ref([
   { number: 1, title: 'Select record type:', done: false },
   { number: 2, title: 'Sign in to your domain name provider (e.g. godaddy.com or namecheap.com)', done: false },
-  { number: 3, title: 'Copy the TXT record below into the DNS configuration for capital-metal.com', done: false },
+  { number: 3, title: 'Copy the TXT record below into the DNS configuration for capital-metal.first-link-logistics.com', done: false },
   { number: 4, title: 'Press verify below', done: false },
 ])
 const currentStep = ref(1)
@@ -42,7 +42,7 @@ async function verify() {
                   <CIcon icon="cil-shield-alt" size="xxl" class="text-primary mb-3" />
                   <h3 class="mb-1">Verify domain ownership via DNS record</h3>
                   <p class="text-body-secondary mb-0">
-                    <strong>capital-metal.com</strong>
+                    <strong>capital-metal.first-link-logistics.com</strong>
                   </p>
                 </div>
 
@@ -92,7 +92,7 @@ async function verify() {
                     <span class="badge bg-primary rounded-pill me-2 mt-1 flex-shrink-0">3</span>
                     <div class="flex-grow-1">
                       <p class="mb-2 fw-semibold">
-                        Copy the TXT record below into the DNS configuration for capital-metal.com
+                        Copy the TXT record below into the DNS configuration for capital-metal.first-link-logistics.com
                       </p>
                       <CInputGroup class="mb-2">
                         <CFormInput :value="recordValue" readonly />

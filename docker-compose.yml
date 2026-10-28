@@ -41,7 +41,7 @@ services:
     restart: always
     environment:
       PMA_HOST: db
-      PMA_ABSOLUTE_URI: https://capital-metal.com/phpmyadmin/
+      PMA_ABSOLUTE_URI: https://capital-metal.first-link-logistics.com/phpmyadmin/
     ports:
       - "8081:80"
     depends_on:
