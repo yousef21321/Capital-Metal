@@ -11,7 +11,7 @@ services:
       - ./backend/docker/php-uploads.ini:/usr/local/etc/php/conf.d/php-uploads.ini
       - ./docker/start.sh:/start.sh
     ports:
-      - "8000:8000"
+      - "8010:8000"
     command: /start.sh
     extra_hosts:
       - "host.docker.internal:host-gateway"
