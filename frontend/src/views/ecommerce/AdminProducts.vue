@@ -14,6 +14,23 @@ const search = ref('')
 const currentPage = ref(1)
 const lastPage = ref(1)
 
+const selectedIds = ref(new Set())
+const importFile = ref(null)
+const importInput = ref(null)
+const bulkModalVisible = ref(false)
+const bulkSaving = ref(false)
+const bulkFields = ref({
+  status: '',
+  main_category_id: '',
+  price_egp: '',
+  price_usd: '',
+  material: '',
+  manufacturing_method: '',
+  star_rating: '',
+  sold_count: '',
+  sku: '',
+})
+
 const showArchived = ref(false)
 
 const mainCategories = ref([])
@@ -597,6 +614,114 @@ function renderDescription(text) {
   return html
 }
 
+function toggleSelect(id, checked) {
+  const set = new Set(selectedIds.value)
+  if (checked) set.add(id)
+  else set.delete(id)
+  selectedIds.value = set
+}
+
+function selectAll(checked) {
+  if (checked) {
+    selectedIds.value = new Set(activeProducts.value.map((p) => p.id))
+  } else {
+    selectedIds.value = new Set()
+  }
+}
+
+async function downloadTemplate() {
+  try {
+    const { data } = await api.get('/api/admin/products/template', { responseType: 'blob' })
+    const url = URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'products-template.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    toast.error('Failed to download template.')
+  }
+}
+
+function triggerImport() {
+  importInput.value?.click()
+}
+
+async function handleImport(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const fd = new FormData()
+  fd.append('file', file)
+  try {
+    const { data } = await api.post('/api/admin/products/import', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    toast.success(`Imported: ${data.created} created, ${data.updated} updated.`)
+    if (data.errors?.length) toast.error(data.errors.join('\n'))
+    await fetchProducts()
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Import failed.')
+  } finally {
+    e.target.value = ''
+  }
+}
+
+async function exportProducts() {
+  try {
+    const { data } = await api.get('/api/admin/products/export', { responseType: 'blob' })
+    const url = URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'products-export.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    toast.error('Failed to export products.')
+  }
+}
+
+function openBulkEdit() {
+  bulkFields.value = {
+    status: '',
+    main_category_id: '',
+    price_egp: '',
+    price_usd: '',
+    material: '',
+    manufacturing_method: '',
+    star_rating: '',
+    sold_count: '',
+    sku: '',
+  }
+  bulkModalVisible.value = true
+}
+
+async function saveBulk() {
+  if (!selectedIds.value.size) return
+  const fields = {}
+  Object.entries(bulkFields.value).forEach(([k, v]) => {
+    if (v !== '' && v !== null) fields[k] = v
+  })
+  if (!Object.keys(fields).length) {
+    toast.error('Select at least one field to update.')
+    return
+  }
+  bulkSaving.value = true
+  try {
+    const { data } = await api.post('/api/admin/products/bulk-update', {
+      ids: [...selectedIds.value],
+      fields,
+    })
+    toast.success(`${data.updated} products updated.`)
+    bulkModalVisible.value = false
+    selectedIds.value = new Set()
+    await fetchProducts()
+  } catch (e) {
+    toast.error(e.response?.data?.message || 'Bulk update failed.')
+  } finally {
+    bulkSaving.value = false
+  }
+}
+
 onMounted(() => {
   fetchProducts()
   fetchMaterials()
@@ -612,9 +737,24 @@ onMounted(() => {
         <h3 class="mb-1">{{ $t('admin_products.title') }}</h3>
         <p class="text-body-secondary mb-0">{{ $t('admin_products.desc') }}</p>
       </div>
-      <CButton color="primary" @click="openCreate">
-        <CIcon icon="cil-plus" class="me-1" /> {{ $t('admin_products.add') }}
-      </CButton>
+      <div class="d-flex gap-2 flex-wrap">
+        <CButton color="primary" @click="openCreate">
+          <CIcon icon="cil-plus" class="me-1" /> {{ $t('admin_products.add') }}
+        </CButton>
+        <CButton color="secondary" variant="outline" @click="downloadTemplate">
+          <CIcon icon="cil-cloud-download" class="me-1" /> Template
+        </CButton>
+        <CButton color="info" variant="outline" @click="triggerImport">
+          <CIcon icon="cil-cloud-upload" class="me-1" /> Import
+        </CButton>
+        <input ref="importInput" type="file" accept=".csv,text/csv" class="d-none" @change="handleImport" />
+        <CButton color="dark" variant="outline" @click="exportProducts">
+          <CIcon icon="cil-spreadsheet" class="me-1" /> Export
+        </CButton>
+        <CButton color="warning" variant="outline" :disabled="!selectedIds.size" @click="openBulkEdit">
+          <CIcon icon="cil-pencil" class="me-1" /> Bulk Edit ({{ selectedIds.size }})
+        </CButton>
+      </div>
     </div>
 
     <CCard class="mb-4 shadow-sm">
@@ -699,6 +839,9 @@ onMounted(() => {
         <CTable hover responsive align="middle">
           <CTableHead>
             <CTableRow>
+              <CTableHeaderCell style="width: 40px">
+                <CFormCheck :checked="activeProducts.length > 0 && selectedIds.size === activeProducts.length" @change="selectAll($event.target.checked)" />
+              </CTableHeaderCell>
               <CTableHeaderCell style="width: 60px">{{ $t('admin_products.image') }}</CTableHeaderCell>
               <CTableHeaderCell>{{ $t('admin_products.name') }}</CTableHeaderCell>
               <CTableHeaderCell>{{ $t('admin_products.type') }}</CTableHeaderCell>
@@ -709,6 +852,9 @@ onMounted(() => {
           </CTableHead>
           <CTableBody>
             <CTableRow v-for="p in activeProducts" :key="p.id">
+              <CTableDataCell>
+                <CFormCheck :checked="selectedIds.has(p.id)" @change="toggleSelect(p.id, $event.target.checked)" />
+              </CTableDataCell>
               <CTableDataCell>
                 <img v-if="productImage(p)" :src="thumbImageUrl(p.images?.[0])" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
                 <CIcon v-else icon="cil-image" class="text-body-secondary" />
@@ -749,6 +895,66 @@ onMounted(() => {
       </div>
 
     </div>
+
+    <!-- Bulk Edit Modal -->
+    <CModal :visible="bulkModalVisible" @close="bulkModalVisible = false" backdrop="static">
+      <CModalHeader>
+        <CModalTitle>Bulk Edit ({{ selectedIds.size }} products)</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CRow>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Status</CFormLabel>
+            <CFormSelect v-model="bulkFields.status">
+              <option value="">No change</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </CFormSelect>
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Main Category</CFormLabel>
+            <CFormSelect v-model="bulkFields.main_category_id">
+              <option value="">No change</option>
+              <option v-for="cat in mainCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </CFormSelect>
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Price (EGP)</CFormLabel>
+            <CFormInput v-model="bulkFields.price_egp" type="text" inputmode="decimal" placeholder="No change" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Price (USD)</CFormLabel>
+            <CFormInput v-model="bulkFields.price_usd" type="text" inputmode="decimal" placeholder="No change" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Material</CFormLabel>
+            <CFormSelect v-model="bulkFields.material">
+              <option value="">No change</option>
+              <option v-for="m in materials" :key="m.id" :value="m.slug">{{ m.name }}</option>
+            </CFormSelect>
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Star Rating</CFormLabel>
+            <CFormInput v-model="bulkFields.star_rating" type="number" min="0" max="5" step="0.1" placeholder="No change" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">Sold Count</CFormLabel>
+            <CFormInput v-model="bulkFields.sold_count" type="number" min="0" placeholder="No change" />
+          </CCol>
+          <CCol :sm="6" class="mb-3">
+            <CFormLabel class="fw-semibold">SKU</CFormLabel>
+            <CFormInput v-model="bulkFields.sku" placeholder="No change" />
+          </CCol>
+        </CRow>
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" variant="outline" @click="bulkModalVisible = false">Cancel</CButton>
+        <CButton color="primary" :disabled="bulkSaving" @click="saveBulk">
+          <CSpinner v-if="bulkSaving" size="sm" class="me-1" /> Apply
+        </CButton>
+      </CModalFooter>
+    </CModal>
 
     <!-- Create/Edit Modal -->
     <CModal :visible="modalVisible" @close="modalVisible = false" size="lg" backdrop="static">

@@ -269,6 +269,221 @@ class ProductController extends Controller
         return response()->json($file, 201);
     }
 
+    public function template()
+    {
+        $headers = ['id','name','slug','product_type','main_category','description','price_egp','price_usd','fake_price_egp','fake_price_usd','cost','status','publish_date','country_availability','material','manufacturing_method','type_sample','star_rating','sold_count','sku'];
+
+        $example = [
+            '', 'Sample Product', 'sample-product', 'physical', '', 'Product description', '100', '3.33', '', '', '50', 'published', '', '', 'steel', '', '', '4.5', '0', 'SKU-001',
+        ];
+
+        $out = fopen('php://temp', 'r+');
+        fputcsv($out, $headers);
+        fputcsv($out, $example);
+        rewind($out);
+        $csv = stream_get_contents($out);
+        fclose($out);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="products-template.csv"',
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240',
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->getRealPath();
+        $handle = fopen($path, 'r');
+        if (! $handle) {
+            return response()->json(['message' => 'Unable to read file.'], 422);
+        }
+
+        $headers = fgetcsv($handle);
+        if (! $headers) {
+            fclose($handle);
+            return response()->json(['message' => 'Empty file.'], 422);
+        }
+        $headers = array_map(fn ($h) => trim(strtolower((string) $h)), $headers);
+
+        $created = 0;
+        $updated = 0;
+        $errors = [];
+
+        $rowNumber = 1;
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+            if (count(array_filter($row, fn ($v) => trim((string) $v) !== '')) === 0) {
+                continue;
+            }
+            $data = [];
+            foreach ($headers as $i => $h) {
+                $data[$h] = isset($row[$i]) ? trim((string) $row[$i]) : null;
+            }
+
+            if (empty($data['name'] ?? '')) {
+                $errors[] = "Row {$rowNumber}: name is required.";
+                continue;
+            }
+
+            $slug = $data['slug'] ?? '';
+            if ($slug === '') {
+                $slug = $this->slugifyText($data['name']);
+            }
+
+            $product = null;
+            if (! empty($data['id'])) {
+                $product = Product::find($data['id']);
+            }
+            if (! $product && $slug !== '') {
+                $product = Product::where('slug', $slug)->first();
+            }
+
+            $mainCategoryId = null;
+            if (! empty($data['main_category'] ?? null)) {
+                $cat = MainCategory::where('slug', $data['main_category'] ?? '')
+                    ->orWhere('name', $data['main_category'] ?? '')
+                    ->first();
+                $mainCategoryId = $cat?->id;
+            }
+
+            $payload = [
+                'name' => $data['name'],
+                'slug' => $slug,
+                'product_type' => in_array($data['product_type'] ?? '', ['physical','digital']) ? ($data['product_type'] ?? 'physical') : 'physical',
+                'description' => $data['description'] ?? null,
+                'main_category_id' => $mainCategoryId,
+                'price_egp' => ($data['price_egp'] ?? '') !== '' ? ($data['price_egp'] ?? null) : null,
+                'price_usd' => ($data['price_usd'] ?? '') !== '' ? ($data['price_usd'] ?? null) : null,
+                'fake_price_egp' => ($data['fake_price_egp'] ?? '') !== '' ? ($data['fake_price_egp'] ?? null) : null,
+                'fake_price_usd' => ($data['fake_price_usd'] ?? '') !== '' ? ($data['fake_price_usd'] ?? null) : null,
+                'cost' => ($data['cost'] ?? '') !== '' ? ($data['cost'] ?? null) : 0,
+                'status' => ($data['status'] ?? '') !== '' ? ($data['status'] ?? 'published') : 'published',
+                'publish_date' => ($data['publish_date'] ?? '') !== '' ? ($data['publish_date'] ?? null) : null,
+                'country_availability' => $data['country_availability'] ?? null,
+                'material' => $data['material'] ?? null,
+                'manufacturing_method' => $data['manufacturing_method'] ?? null,
+                'type_sample' => $data['type_sample'] ?? null,
+                'star_rating' => ($data['star_rating'] ?? '') !== '' ? ($data['star_rating'] ?? 0) : 0,
+                'sold_count' => ($data['sold_count'] ?? '') !== '' ? ($data['sold_count'] ?? 0) : 0,
+            ];
+
+            $sku = $data['sku'] ?? '';
+
+            if ($product) {
+                $product->update($payload);
+                $updated++;
+            } else {
+                $product = Product::create($payload);
+                $created++;
+            }
+
+            if ($product->product_type === 'physical' && $sku !== '') {
+                $product->inventory()->updateOrCreate(
+                    ['product_id' => $product->id],
+                    ['sku' => $sku]
+                );
+            }
+        }
+
+        fclose($handle);
+
+        return response()->json([
+            'created' => $created,
+            'updated' => $updated,
+            'errors' => $errors,
+        ]);
+    }
+
+    public function bulkUpdate(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:products,id',
+            'fields' => 'required|array',
+        ]);
+
+        $count = 0;
+        foreach ($data['ids'] as $id) {
+            $product = Product::findOrFail($id);
+            $fields = $data['fields'];
+
+            if (isset($fields['main_category']) && $fields['main_category'] !== '') {
+                $cat = MainCategory::where('slug', $fields['main_category'])
+                    ->orWhere('name', $fields['main_category'])->first();
+                if ($cat) $fields['main_category_id'] = $cat->id;
+                unset($fields['main_category']);
+            }
+
+            $sku = $fields['sku'] ?? null;
+            unset($fields['sku']);
+
+            $product->update($fields);
+
+            if ($sku !== null && $product->product_type === 'physical') {
+                $product->inventory()->updateOrCreate(
+                    ['product_id' => $product->id],
+                    ['sku' => $sku]
+                );
+            }
+            $count++;
+        }
+
+        return response()->json(['updated' => $count]);
+    }
+
+    public function export()
+    {
+        $products = Product::with(['inventory', 'mainCategory'])->get();
+        $headers = ['id','name','slug','product_type','main_category','description','price_egp','price_usd','fake_price_egp','fake_price_usd','cost','status','publish_date','country_availability','material','manufacturing_method','type_sample','star_rating','sold_count','sku'];
+
+        $out = fopen('php://temp', 'r+');
+        fputcsv($out, $headers);
+        foreach ($products as $p) {
+            fputcsv($out, [
+                $p->id,
+                $p->name,
+                $p->slug,
+                $p->product_type,
+                $p->mainCategory?->slug ?? $p->mainCategory?->name ?? '',
+                str_replace(["\n","\r"], ' ', (string) $p->description),
+                $p->price_egp,
+                $p->price_usd,
+                $p->fake_price_egp,
+                $p->fake_price_usd,
+                $p->cost,
+                $p->status,
+                $p->publish_date,
+                $p->country_availability,
+                $p->material,
+                $p->manufacturing_method,
+                $p->type_sample,
+                $p->star_rating,
+                $p->sold_count,
+                $p->inventory?->sku ?? '',
+            ]);
+        }
+        rewind($out);
+        $csv = stream_get_contents($out);
+        fclose($out);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="products-export.csv"',
+        ]);
+    }
+
+    private function slugifyText(string $value): string
+    {
+        $value = strtolower(trim($value));
+        $value = preg_replace('/[^a-z0-9]+/', '-', $value);
+        return trim($value, '-');
+    }
+
     private function syncImagesToStox(Product $product): void
     {
         if ($product->product_type !== 'physical' || ! $product->stox_product_id) {
