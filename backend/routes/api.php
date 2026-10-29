@@ -298,6 +298,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::get('/notifications/push-key', [NotificationController::class, 'pushKey']);
+    Route::post('/notifications/push-subscriptions', [NotificationController::class, 'savePushSubscription']);
+    Route::delete('/notifications/push-subscriptions', [NotificationController::class, 'deletePushSubscription']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::post('/notifications/broadcast', [NotificationController::class, 'broadcast'])->middleware('role:admin');

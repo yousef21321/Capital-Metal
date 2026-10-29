@@ -103,4 +103,10 @@ return [
         'feed_currency' => env('FACEBOOK_FEED_CURRENCY', 'EGP'),
     ],
 
+    'webpush' => [
+        'subject' => env('WEBPUSH_SUBJECT', env('APP_URL', 'https://localhost')),
+        'public_key' => env('WEBPUSH_PUBLIC_KEY'),
+        'private_key' => env('WEBPUSH_PRIVATE_KEY'),
+    ],
+
 ];

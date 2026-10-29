@@ -3,10 +3,23 @@
 namespace App\Observers;
 
 use App\Jobs\SyncFacebookCatalogJob;
+use App\Jobs\BroadcastNewProductNotification;
 use App\Models\Product;
 
 class ProductObserver
 {
+    public function created(Product $product): void
+    {
+        $this->queueNewProductNotification($product);
+    }
+
+    public function updated(Product $product): void
+    {
+        if ($product->wasChanged('status') && $product->status === 'published') {
+            $this->queueNewProductNotification($product);
+        }
+    }
+
     public function saved(Product $product): void
     {
         if (! config('services.facebook.catalog_id')) {
@@ -28,5 +41,17 @@ class ProductObserver
         }
 
         SyncFacebookCatalogJob::dispatch($product->id, 'delete', $product->fb_variant_ids ?? []);
+    }
+
+    private function queueNewProductNotification(Product $product): void
+    {
+        if ($product->status !== 'published' || $product->new_product_notification_queued_at) {
+            return;
+        }
+
+        $product->updateQuietly(['new_product_notification_queued_at' => now()]);
+        BroadcastNewProductNotification::dispatch($product->id)
+            ->afterCommit()
+            ->delay(now()->addSeconds(5));
     }
 }

@@ -111,6 +111,7 @@ async function updateCurrency(currency) {
             <p class="profile-value">{{ authStore.userEmail || '—' }}</p>
           </div>
 
+
           <div class="mb-4">
             <label class="form-label fw-semibold">{{ $t('profile.role') }}</label>
             <p class="profile-value">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\PushSubscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,47 @@ class NotificationController extends Controller
             ->count();
 
         return response()->json(['unread_count' => $count]);
+    }
+
+    public function pushKey()
+    {
+        return response()->json(['public_key' => config('services.webpush.public_key')]);
+    }
+
+    public function savePushSubscription(Request $request)
+    {
+        $validated = $request->validate([
+            'endpoint' => 'required|url|max:4096',
+            'keys.p256dh' => 'required|string|max:255',
+            'keys.auth' => 'required|string|max:255',
+            'contentEncoding' => 'nullable|string|in:aes128gcm,aesgcm',
+        ]);
+        $endpoint = $validated['endpoint'];
+
+        PushSubscription::query()->updateOrCreate(
+            ['endpoint_hash' => hash('sha256', $endpoint)],
+            [
+                'user_id' => $request->user()->id,
+                'endpoint' => $endpoint,
+                'public_key' => $validated['keys']['p256dh'],
+                'auth_token' => $validated['keys']['auth'],
+                'content_encoding' => $validated['contentEncoding'] ?? 'aes128gcm',
+            ]
+        );
+
+        return response()->json(['message' => 'Device notifications enabled.']);
+    }
+
+    public function deletePushSubscription(Request $request)
+    {
+        $validated = $request->validate(['endpoint' => 'required|url|max:4096']);
+
+        PushSubscription::query()
+            ->where('user_id', $request->user()->id)
+            ->where('endpoint_hash', hash('sha256', $validated['endpoint']))
+            ->delete();
+
+        return response()->json(['message' => 'Device notifications disabled.']);
     }
 
     public function markAsRead(Request $request, $id)

@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import logoLight from '@/assets/images/logo-small.webp'
 import logoDark from '@/assets/images/logodark-small.webp'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
 import AppHeaderDropdownAccnt from '@/components/AppHeaderDropdownAccnt.vue'
@@ -30,7 +30,9 @@ const headerClassNames = ref('mb-4 p-0')
 const navMenuOpen = ref(false)
 const themeStore = useThemeStore()
 const colorMode = computed(() => themeStore.theme)
-const logoSrc = computed(() => colorMode.value === 'dark' ? logoDark : logoLight)
+const isDarkTheme = computed(() => colorMode.value === 'dark'
+  || (colorMode.value === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches))
+const logoSrc = computed(() => isDarkTheme.value ? logoDark : logoLight)
 const { locale } = useI18n()
 const toggleLocale = () => {
   locale.value = locale.value === 'ar' ? 'en' : 'ar'
@@ -40,6 +42,7 @@ const cart = useCartStore()
 const auth = useAuthStore()
 const notif = useNotificationStore()
 const route = useRoute()
+const router = useRouter()
 const testerPendingCount = ref(0)
 const designerModificationCount = ref(0)
 
@@ -62,6 +65,12 @@ async function exitImpersonation() {
   if (ok) {
     window.location.href = '/admin/users'
   }
+}
+
+function openNotification(notification) {
+  notif.markAsRead(notification.id)
+  const target = notification.data?.url
+  if (target) router.push(target)
 }
 
 const canSee = (item) => {
@@ -146,7 +155,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <CHeader position="sticky" :class="['modern-header', headerClassNames, 'header-dark-mode']">
+  <CHeader position="sticky" :class="['modern-header', headerClassNames, 'header-dark-mode', { 'theme-dark': isDarkTheme }]">
     <div v-if="auth.impersonating" class="impersonation-banner w-100 d-flex align-items-center justify-content-between px-4 py-1">
       <span class="impersonation-text">
         <CIcon icon="cil-account-login" class="me-1" />
@@ -166,8 +175,7 @@ onMounted(() => {
       </div>
       <div class="header-actions d-flex align-items-center gap-2 ms-4">
         <button class="btn-animated-glow" @click="sidebar.toggleVisible()" aria-label="Toggle sidebar">
-          <CIcon icon="cil-view-quilt" class="me-1" />
-  <CIcon icon="cil-menu" size="lg" />
+          <CIcon icon="cil-menu" size="lg" />
         </button>
       </div>
       <CHeaderNav class="ms-auto">
@@ -341,7 +349,7 @@ onMounted(() => {
                   :class="!n.read_at ? 'notif-item-unread' : 'notif-item-read'"
                   class="d-flex flex-column align-items-start py-2 px-3 border-bottom"
                   style="cursor: pointer"
-                  @click="notif.markAsRead(n.id)"
+                  @click="openNotification(n)"
                 >
                   <div class="d-flex justify-content-between w-100">
                     <small class="fw-semibold">{{ n.title }}</small>
@@ -513,18 +521,88 @@ onMounted(() => {
 
 <style scoped>
 .header-dark-mode {
-  background: rgba(15, 20, 30, 0.82) !important;
-  backdrop-filter: blur(28px) saturate(1.15);
-  -webkit-backdrop-filter: blur(28px) saturate(1.15);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
-  color: #fff !important;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --header-ink: #263a3f;
+  --header-muted: #5b6d72;
+  --header-line: #e3ece9;
+  --header-hover: rgba(8, 127, 140, .08);
+  --header-surface: rgba(255, 255, 255, .96);
+  background: var(--header-surface) !important;
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  border-bottom: 1px solid var(--header-line) !important;
+  box-shadow: 0 5px 24px rgba(28, 58, 59, .07);
+  color: var(--header-ink) !important;
+  transition: background .22s ease, border-color .22s ease, box-shadow .22s ease;
 }
 
 .header-dark-mode.shadow-sm {
-  background: rgba(15, 20, 30, 0.92) !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+  background: var(--header-surface) !important;
+  box-shadow: 0 7px 26px rgba(28, 58, 59, .1) !important;
+}
+
+.modern-header.header-dark-mode.theme-dark {
+  --header-ink: #e7efed;
+  --header-muted: #b9c9c6;
+  --header-line: #3b4d50;
+  --header-hover: rgba(31, 169, 163, .14);
+  --header-surface: rgba(27, 39, 43, .97);
+  color: var(--header-ink) !important;
+  background: var(--header-surface) !important;
+  border-bottom-color: var(--header-line) !important;
+  box-shadow: 0 7px 26px rgba(0, 0, 0, .24) !important;
+}
+
+.header-dark-mode.theme-dark .header-nav-horizontal .nav-link,
+.header-dark-mode.theme-dark .nav-link,
+.header-dark-mode.theme-dark .dropdown-toggle,
+.header-dark-mode.theme-dark .lang-switcher-btn,
+.header-dark-mode.theme-dark .theme-toggle-btn {
+  color: var(--header-muted) !important;
+}
+
+.header-dark-mode.theme-dark .nav-link:hover,
+.header-dark-mode.theme-dark .nav-link.active,
+.header-dark-mode.theme-dark .theme-toggle-btn:hover {
+  color: #74d4c9 !important;
+  background: var(--header-hover) !important;
+}
+
+.header-dark-mode.theme-dark .header-toggler,
+.header-dark-mode.theme-dark .header-nav-mobile-toggle {
+  color: #dce8e5 !important;
+  background: #243337 !important;
+  border-color: #415457 !important;
+  box-shadow: none;
+}
+
+.header-dark-mode.theme-dark .currency-group-header {
+  background: #202f33;
+  border-color: #3b4d50;
+}
+
+.header-dark-mode.theme-dark .currency-group-header .btn:not(.btn-primary):not(.active) {
+  color: #b9c9c6;
+}
+
+.header-dark-mode.theme-dark .header-more-menu > .nav-link,
+.header-dark-mode.theme-dark .cart-fly-link {
+  color: #c2d0cd !important;
+  border-color: #3b4d50;
+  background: #243337;
+}
+
+.header-dark-mode.theme-dark .dropdown-menu {
+  color: #dce8e5;
+  border-color: #3b4d50;
+  background: #202f33;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, .35);
+}
+
+.header-dark-mode.theme-dark .dropdown-item { color: #dce8e5; }
+.header-dark-mode.theme-dark .dropdown-item:hover,
+.header-dark-mode.theme-dark .dropdown-item.active {
+  color: #74d4c9;
+  background: #2a4144;
 }
 
 .header-dark-container {
@@ -534,31 +612,33 @@ onMounted(() => {
 
 .header-dark-mode .header-nav-horizontal .nav-link,
 .header-dark-mode .modern-header .nav-link {
-  color: rgba(255, 255, 255, 0.72) !important;
+  color: var(--header-muted) !important;
 }
 
 .header-dark-mode .nav-link:hover {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  color: #087f8c !important;
+  background: var(--header-hover) !important;
 }
 
 .header-dark-mode .nav-link.active {
-  color: #8b7cf7 !important;
-  background: linear-gradient(135deg, rgba(139, 124, 247, 0.18), rgba(139, 124, 247, 0.05)) !important;
+  color: #087f8c !important;
+  background: rgba(8, 127, 140, .09) !important;
 }
 
 .header-dark-mode .brand-icon {
-  color: #8b7cf7 !important;
-  filter: drop-shadow(0 0 10px rgba(139, 124, 247, 0.6));
+  color: #087f8c !important;
+  filter: none;
 }
 
 .header-dark-mode .btn-create-header {
-  background: linear-gradient(135deg, #8b7cf7, #66b0ff) !important;
-  box-shadow: 0 4px 18px rgba(139, 124, 247, 0.35);
+  background: linear-gradient(135deg, #087f8c, #0c9b99) !important;
+  box-shadow: 0 4px 12px rgba(8, 127, 140, .2);
 }
 
 .header-dark-mode .lang-switcher-btn {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: var(--header-muted) !important;
+  border-radius: 10px;
+  font-weight: 700;
 }
 
 .header-dark-mode .impersonation-banner {
@@ -567,17 +647,158 @@ onMounted(() => {
 }
 
 .header-dark-mode .theme-toggle-btn {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: var(--header-ink) !important;
+  border-radius: 8px;
+  padding: .45rem .25rem !important;
 }
 
 .header-dark-mode .theme-toggle-btn:hover {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  color: #087f8c !important;
+  background: var(--header-hover);
 }
 
 .header-dark-mode .vr {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: var(--header-line) !important;
+  opacity: 1;
+}
+
+.header-dark-mode .header-toggler,
+.header-dark-mode .header-nav-mobile-toggle,
+.header-dark-mode .header-actions .btn-animated-glow {
+  min-height: 40px;
+  border: 1px solid var(--header-line) !important;
+  border-radius: 11px;
+  color: var(--header-ink) !important;
+  background: #fff !important;
+  box-shadow: 0 2px 8px rgba(25, 52, 54, .06);
+  transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.header-dark-mode .header-toggler { width: 40px; padding: 0; }
+.header-dark-mode .header-toggler:hover,
+.header-dark-mode .header-nav-mobile-toggle:hover {
+  color: #087f8c !important;
+  border-color: rgba(8,127,140,.3) !important;
+  background: #f0f8f6 !important;
+}
+.header-dark-mode .header-actions .btn-animated-glow {
+  min-width: 42px;
+  padding: .45rem .7rem;
+  color: #fff !important;
+  border-color: transparent !important;
+  background: linear-gradient(135deg, #087f8c, #0c9b99) !important;
+  box-shadow: 0 5px 14px rgba(8,127,140,.2);
+}
+.header-dark-mode .header-actions .btn-animated-glow:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(8,127,140,.24); }
+.header-dark-mode .header-nav-horizontal .nav-link {
+  border-radius: 9px;
+  font-weight: 600;
+  transition: color .18s ease, background .18s ease;
+}
+.header-dark-mode .currency-group-header {
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--header-line);
+  border-radius: 11px;
+  background: #f4f7f6;
+}
+.header-dark-mode .currency-group-header .btn {
+  min-width: 43px;
+  border: 0 !important;
+  border-radius: 8px !important;
+  color: var(--header-muted);
+  background: transparent;
+  font-weight: 700;
+}
+.header-dark-mode .currency-group-header .btn-primary,
+.header-dark-mode .currency-group-header .btn.active {
+  color: #fff !important;
+  background: #087f8c !important;
+  box-shadow: 0 2px 7px rgba(8,127,140,.2);
+}
+.header-dark-mode .header-more-menu > .nav-link,
+.header-dark-mode .cart-fly-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--header-line);
+  border-radius: 11px;
+  color: var(--header-muted) !important;
+}
+.header-dark-mode .header-more-menu > .nav-link:hover,
+.header-dark-mode .cart-fly-link:hover { color: #087f8c !important; border-color: rgba(8,127,140,.3); }
+.header-dark-mode .dropdown-menu {
+  padding: .45rem;
+  border: 1px solid var(--header-line);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 14px 35px rgba(20,43,44,.14);
+}
+.header-dark-mode .dropdown-item {
+  border-radius: 8px;
+  color: var(--header-ink);
+  transition: color .16s ease, background .16s ease;
+}
+.header-dark-mode .dropdown-item:hover,
+.header-dark-mode .dropdown-item.active { color: #087f8c; background: #edf7f5; }
+.header-dark-mode .header-nav .btn-primary {
+  border-radius: 10px;
+  padding-inline: .9rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(8,127,140,.16);
+}
+
+:global([data-coreui-theme="dark"]) .header-dark-mode {
+  --header-ink: #e7efed;
+  --header-muted: #b4c2c0;
+  --header-line: #35474a;
+  --header-hover: rgba(31, 169, 163, .12);
+  --header-surface: rgba(27, 39, 43, .97);
+  border-bottom-color: #35474a !important;
+  box-shadow: 0 7px 26px rgba(0,0,0,.24);
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .header-toggler,
+:global([data-coreui-theme="dark"]) .header-dark-mode .header-nav-mobile-toggle {
+  color: #dce8e5 !important;
+  background: #243337 !important;
+  border-color: #415457 !important;
+  box-shadow: none;
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .header-toggler:hover,
+:global([data-coreui-theme="dark"]) .header-dark-mode .header-nav-mobile-toggle:hover {
+  color: #74d4c9 !important;
+  background: #2a4144 !important;
+  border-color: #4c7777 !important;
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .currency-group-header {
+  background: #202f33;
+  border-color: #3b4d50;
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .currency-group-header .btn:not(.btn-primary):not(.active) {
+  color: #b9c9c6;
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .currency-group-header .btn-primary,
+:global([data-coreui-theme="dark"]) .header-dark-mode .currency-group-header .btn.active {
+  color: #fff !important;
+  background: #087f8c !important;
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .header-more-menu > .nav-link,
+:global([data-coreui-theme="dark"]) .header-dark-mode .cart-fly-link {
+  color: #c2d0cd !important;
+  border-color: #3b4d50;
+  background: #243337;
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .dropdown-menu {
+  border-color: #3b4d50;
+  background: #202f33;
+  box-shadow: 0 14px 35px rgba(0,0,0,.35);
+}
+:global([data-coreui-theme="dark"]) .header-dark-mode .dropdown-item { color: #dce8e5; }
+:global([data-coreui-theme="dark"]) .header-dark-mode .dropdown-item:hover,
+:global([data-coreui-theme="dark"]) .header-dark-mode .dropdown-item.active {
+  color: #74d4c9;
+  background: #2a4144;
 }
 
 .impersonation-banner {

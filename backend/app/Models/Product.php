@@ -19,6 +19,7 @@ class Product extends Model
         'ticket_id', 'stox_product_id',
         'lemonsqueezy_product_id', 'lemonsqueezy_variant_id',
         'star_rating', 'sold_count',
+        'new_product_notification_queued_at',
     ];
 
     protected function casts(): array
@@ -36,6 +37,7 @@ class Product extends Model
             'publish_date' => 'datetime',
             'tags' => 'array',
             'star_rating' => 'decimal:2',
+            'new_product_notification_queued_at' => 'datetime',
         ];
     }
 
