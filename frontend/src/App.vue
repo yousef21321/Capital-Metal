@@ -5,9 +5,11 @@ import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
 import { loadLocale } from '@/i18n'
 import FloatingCart from '@/components/FloatingCart.vue'
+import { useSidebarStore } from '@/stores/sidebar.js'
 
 const currentTheme = useThemeStore()
 const authStore = useAuthStore()
+const sidebar = useSidebarStore()
 const { locale } = useI18n()
 
 watch(locale, async (val) => {
@@ -55,6 +57,14 @@ onBeforeMount(async () => {
 <template>
   <router-view />
   <FloatingCart />
+  <button
+    class="floating-sidebar-toggle"
+    type="button"
+    aria-label="Toggle navigation"
+    @click="sidebar.toggleVisible()"
+  >
+    <CIcon icon="cil-menu" />
+  </button>
   <a
     href="https://wa.me/201109055371"
     target="_blank"

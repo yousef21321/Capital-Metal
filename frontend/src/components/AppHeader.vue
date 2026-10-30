@@ -7,7 +7,6 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
 import AppHeaderDropdownAccnt from '@/components/AppHeaderDropdownAccnt.vue'
-import { useSidebarStore } from '@/stores/sidebar.js'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
@@ -37,7 +36,6 @@ const { locale } = useI18n()
 const toggleLocale = () => {
   locale.value = locale.value === 'ar' ? 'en' : 'ar'
 }
-const sidebar = useSidebarStore()
 const cart = useCartStore()
 const auth = useAuthStore()
 const notif = useNotificationStore()
@@ -166,19 +164,12 @@ onMounted(() => {
       </CButton>
     </div>
     <CContainer class="px-4 header-dark-container" fluid>
-      <CHeaderToggler @click="sidebar.toggleVisible()" style="margin-inline-start: -14px">
-      </CHeaderToggler>
       <div class="header-brand d-flex align-items-center ms-2">
         <RouterLink to="/">
           <img :src="logoSrc" alt="Capital-Metal" class="header-logo" width="85" height="47" />
         </RouterLink>
       </div>
-      <div class="header-actions d-flex align-items-center gap-2 ms-4">
-        <button class="btn-animated-glow" @click="sidebar.toggleVisible()" aria-label="Toggle sidebar">
-          <CIcon icon="cil-menu" size="lg" />
-        </button>
-      </div>
-      <CHeaderNav class="ms-auto">
+      <CHeaderNav class="header-primary-nav ms-auto">
         <CNavItem class="cart-fly-zone">
           <RouterLink custom to="/cart" v-slot="{ href, navigate, isActive }">
             <CNavLink :href="href" @click="navigate" :active="isActive" class="cart-fly-link position-relative" :aria-label="$t('header.cart')">
@@ -371,7 +362,7 @@ onMounted(() => {
           </CDropdown>
         </CNavItem>
       </CHeaderNav>
-      <CHeaderNav>
+      <CHeaderNav class="header-utility-nav">
         <CNavItem class="py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-25"></div>
         </CNavItem>
@@ -454,8 +445,7 @@ onMounted(() => {
         aria-label="Menu"
         @click="navMenuOpen = !navMenuOpen"
       >
-        <CIcon :icon="navMenuOpen ? 'cil-x' : 'cil-menu'" size="lg" />
-        <span>{{ $t('header.menu') }}</span>
+        <CIcon icon="cil-plus" size="lg" />
       </button>
       <CNav variant="underline-border" class="header-nav-horizontal">
           <template v-for="item in visibleNav" :key="item.name">
