@@ -7,12 +7,12 @@ self.addEventListener('push', (event) => {
     payload = { body: event.data?.text() || '' }
   }
 
-  const title = payload.title || 'Capital Metal'
+  const title = payload.title || 'Cairo-Metal'
   const options = {
-    body: payload.body || 'لديك إشعار جديد من Capital Metal',
+    body: payload.body || 'لديك إشعار جديد من Cairo-Metal',
     icon: '/apple-icon-144x144.png',
     badge: '/apple-icon-144x144.png',
-    tag: payload.tag || 'capital-metal-update',
+    tag: payload.tag || 'cairo-metal-update',
     renotify: true,
     data: { url: payload.url || '/' },
   }

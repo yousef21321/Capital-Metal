@@ -31,7 +31,7 @@ class SeoController extends Controller
         }
 
         $appName = config('app.name', 'Capital-Metal');
-        $baseUrl = rtrim(config('app.url', 'https://capital-metal.first-link-logistics.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://cairo-metal.first-link-logistics.com'), '/');
         $productUrl = "{$baseUrl}/products/{$slug}";
 
         $ogTitle = $product->name . ' - ' . $appName;
@@ -62,7 +62,7 @@ class SeoController extends Controller
         }
 
         $appName = config('app.name', 'Capital-Metal');
-        $baseUrl = rtrim(config('app.url', 'https://capital-metal.first-link-logistics.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://cairo-metal.first-link-logistics.com'), '/');
         $categoryUrl = "{$baseUrl}/main-categories/{$slug}";
 
         $ogTitle = $category->name . ' - ' . $appName;

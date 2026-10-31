@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="favicon-title">
+  <title id="favicon-title">Cairo Metal CMT</title>
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#77777a"/>
+      <stop offset=".3" stop-color="#171719"/>
+      <stop offset=".65" stop-color="#343437"/>
+      <stop offset="1" stop-color="#09090a"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ed1c2a"/>
+      <stop offset="1" stop-color="#a80716"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="13" fill="#101012"/>
+  <path d="M43 11h17l-8 13H35z" fill="url(#red)"/>
+  <text x="3" y="49" fill="url(#metal)" stroke="#858589" stroke-width=".7" paint-order="stroke fill"
+        font-family="Arial Black,Impact,sans-serif" font-size="35" font-style="italic" font-weight="900" letter-spacing="-3">CMT</text>
+</svg>

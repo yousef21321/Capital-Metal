@@ -1,11 +1,11 @@
 {
-  "name": "Capital Metal",
-  "short_name": "Capital Metal",
+  "name": "Cairo Metal CMT",
+  "short_name": "Cairo Metal CMT",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#172226",
-  "theme_color": "#087f8c",
+  "background_color": "#101012",
+  "theme_color": "#B5121B",
   "icons": [
     {
       "src": "/apple-icon-144x144.png",

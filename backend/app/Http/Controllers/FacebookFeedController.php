@@ -9,7 +9,7 @@ class FacebookFeedController extends Controller
 {
     public function products(): Response
     {
-        $baseUrl = rtrim(config('app.url', 'https://capital-metal.first-link-logistics.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://cairo-metal.first-link-logistics.com'), '/');
 
         $products = Product::with(['images', 'inventory', 'variants.images'])
             ->where('status', 'published')
@@ -154,7 +154,7 @@ class FacebookFeedController extends Controller
             return $path;
         }
 
-        $baseUrl = rtrim(config('app.url', 'https://capital-metal.first-link-logistics.com'), '/');
+        $baseUrl = rtrim(config('app.url', 'https://cairo-metal.first-link-logistics.com'), '/');
 
         return $baseUrl.'/storage/'.ltrim($path, '/');
     }

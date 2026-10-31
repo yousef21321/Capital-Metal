@@ -267,7 +267,7 @@ onMounted(() => {
 
 <style scoped>
 .notifications-page {
-  --notification-accent: #087f8c;
+  --notification-accent: #B5121B;
   --notification-surface: #fff;
   --notification-border: #e2ebe8;
   --notification-muted: #718187;
@@ -275,10 +275,10 @@ onMounted(() => {
 }
 .device-push-card {
   overflow: hidden;
-  border: 1px solid rgba(8, 127, 140, .22) !important;
+  border: 1px solid rgba(181, 18, 27, .22) !important;
   border-radius: 17px !important;
   background: linear-gradient(115deg, #effaf8, #fff 72%) !important;
-  box-shadow: 0 8px 25px rgba(8, 127, 140, .08);
+  box-shadow: 0 8px 25px rgba(181, 18, 27, .08);
 }
 .device-push-content { display: flex; align-items: center; gap: 1rem; padding: 1.15rem 1.35rem; }
 .device-push-icon {
@@ -288,8 +288,8 @@ onMounted(() => {
   height: 48px;
   place-items: center;
   border-radius: 14px;
-  color: #087f8c;
-  background: rgba(8, 127, 140, .11);
+  color: #B5121B;
+  background: rgba(181, 18, 27, .11);
 }
 .device-push-copy { flex: 1; min-width: 0; }
 .device-push-copy h4 { color: #203a3e; font-size: 1rem; font-weight: 800; }
@@ -323,7 +323,7 @@ onMounted(() => {
 }
 .notification-sound-toggle { border-color: #cbdcd7; }
 .notification-sound-toggle.btn-success { color: #16725f; border-color: #b9ded1; background: #eaf7f1; }
-.notification-mark-all { box-shadow: 0 4px 12px rgba(8,127,140,.16); }
+.notification-mark-all { box-shadow: 0 4px 12px rgba(181,18,27,.16); }
 .notification-filters-card { border-radius: 14px !important; }
 .notification-filters-body { padding: .7rem .85rem; }
 .notification-filter {
@@ -333,8 +333,8 @@ onMounted(() => {
   color: var(--notification-muted);
   background: transparent;
 }
-.notification-filter:hover { color: var(--notification-accent); background: rgba(8,127,140,.07); }
-.notification-filter.active { color: #fff; background: var(--notification-accent); box-shadow: 0 4px 10px rgba(8,127,140,.16); }
+.notification-filter:hover { color: var(--notification-accent); background: rgba(181,18,27,.07); }
+.notification-filter.active { color: #fff; background: var(--notification-accent); box-shadow: 0 4px 10px rgba(181,18,27,.16); }
 .notification-list { display: grid; gap: .75rem; }
 .notification-card {
   margin: 0 !important;
@@ -345,7 +345,7 @@ onMounted(() => {
   cursor: pointer;
   transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
-.notification-card:hover { transform: translateY(-2px); border-color: rgba(8,127,140,.32) !important; box-shadow: 0 10px 24px rgba(24,57,58,.08); }
+.notification-card:hover { transform: translateY(-2px); border-color: rgba(181,18,27,.32) !important; box-shadow: 0 10px 24px rgba(24,57,58,.08); }
 .notification-card.is-unread { border-inline-start: 4px solid var(--notification-accent) !important; }
 .notification-card-body { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.2rem; }
 .notification-card-icon {
@@ -358,7 +358,7 @@ onMounted(() => {
   color: #66787c;
   background: #f0f4f3;
 }
-.notification-card-icon.unread { color: var(--notification-accent); background: rgba(8,127,140,.1); }
+.notification-card-icon.unread { color: var(--notification-accent); background: rgba(181,18,27,.1); }
 .notification-card-content { flex: 1; min-width: 0; }
 .notification-card-content .fw-semibold { color: #2a3c41; }
 .notification-card-content p { line-height: 1.55; }
@@ -385,7 +385,7 @@ onMounted(() => {
 :global([data-coreui-theme="dark"]) .notification-card-content .fw-semibold { color: #e7efed; }
 :global([data-coreui-theme="dark"]) .notification-sound-toggle.btn-success { color: #80d4bd; border-color: #315c53; background: #233d38; }
 :global([data-coreui-theme="dark"]) .notification-filter { color: #afbfbc; }
-:global([data-coreui-theme="dark"]) .notification-filter.active { color: #fff; background: #087f8c; }
+:global([data-coreui-theme="dark"]) .notification-filter.active { color: #fff; background: #B5121B; }
 :global([data-coreui-theme="dark"]) .notification-card-icon { color: #b3c2bf; background: #29393d; }
 :global([data-coreui-theme="dark"]) .notification-card-icon.unread { color: #73d0c4; background: rgba(31,169,163,.14); }
 

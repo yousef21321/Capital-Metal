@@ -294,8 +294,8 @@ watch(() => route.params.slug, (newSlug) => {
   display: inline-flex;
   padding: 1.2rem;
   border-radius: 20px;
-  background: rgba(14, 165, 233, 0.06);
-  color: var(--cui-primary, #0EA5E9);
+  background: rgba(181, 18, 27, 0.06);
+  color: var(--cui-primary, #B5121B);
 }
 
 .breadcrumb-nav {
@@ -303,7 +303,7 @@ watch(() => route.params.slug, (newSlug) => {
 }
 
 .breadcrumb-nav a {
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
   transition: opacity 0.2s ease;
 }
 
@@ -411,16 +411,16 @@ watch(() => route.params.slug, (newSlug) => {
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
-      border-color: var(--cui-primary, #0EA5E9);
-      color: var(--cui-primary, #0EA5E9);
-      background: rgba(14, 165, 233, 0.04);
+      border-color: var(--cui-primary, #B5121B);
+      color: var(--cui-primary, #B5121B);
+      background: rgba(181, 18, 27, 0.04);
     }
 
     &.active {
       background: var(--gradient-primary);
       color: #fff;
       border-color: transparent;
-      box-shadow: 0 2px 12px rgba(14, 165, 233, 0.25);
+      box-shadow: 0 2px 12px rgba(181, 18, 27, 0.25);
     }
   }
 }
@@ -510,7 +510,7 @@ watch(() => route.params.slug, (newSlug) => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
     &.badge-digital {
-      background: linear-gradient(135deg, #0EA5E9, #0284C7);
+      background: linear-gradient(135deg, #B5121B, #8A1018);
       color: #fff;
     }
 
@@ -568,7 +568,7 @@ watch(() => route.params.slug, (newSlug) => {
     border-radius: 50%;
     display: inline-block;
 
-    &.digital { background: #0EA5E9; }
+    &.digital { background: #B5121B; }
     &.physical { background: #2eb85c; }
   }
 }
@@ -584,7 +584,7 @@ watch(() => route.params.slug, (newSlug) => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 
-  &:hover { color: var(--cui-primary, #0EA5E9); }
+  &:hover { color: var(--cui-primary, #B5121B); }
 }
 
 .product-rating {
@@ -616,7 +616,7 @@ watch(() => route.params.slug, (newSlug) => {
   .product-price {
     font-size: 1.05rem;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--cui-primary, #0EA5E9), var(--cui-info, #39f));
+    background: linear-gradient(135deg, var(--cui-primary, #B5121B), var(--cui-info, #73777f));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

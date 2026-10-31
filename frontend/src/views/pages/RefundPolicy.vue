@@ -39,8 +39,8 @@ import AppFooter from '@/components/AppFooter.vue'
                 <p class="mb-4 text-body-secondary">Refunds are processed within 5-10 business days after receiving and inspecting the item. Refunds are issued to the original payment method.</p>
 
                 <h2 class="fs-5">الاستبدال</h2>
-                <p>في حالة وجود عيب في المنتج، يمكن استبداله خلال 7 أيام من الاستلام. يتحمل متجر Capital-Metal تكاليف الشحن في هذه الحالة.</p>
-                <p class="text-body-secondary">If the product is defective, exchanges are accepted within 7 days. Capital-Metal covers shipping costs for defective items.</p>
+                <p>في حالة وجود عيب في المنتج، يمكن استبداله خلال 7 أيام من الاستلام. يتحمل متجر Cairo-Metal تكاليف الشحن في هذه الحالة.</p>
+                <p class="text-body-secondary">If the product is defective, exchanges are accepted within 7 days. Cairo-Metal covers shipping costs for defective items.</p>
               </CCardBody>
             </CCard>
           </CCol>

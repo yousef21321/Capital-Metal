@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import logoLight from '@/assets/images/logo-small.webp'
-import logoDark from '@/assets/images/logodark-small.webp'
+import logoLight from '@/assets/images/cairo-metal-logo-light.svg'
+import logoDark from '@/assets/images/cairo-metal-logo-dark.svg'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppBreadcrumb from '@/components/AppBreadcrumb.vue'
@@ -166,7 +166,7 @@ onMounted(() => {
     <CContainer class="px-4 header-dark-container" fluid>
       <div class="header-brand d-flex align-items-center ms-2">
         <RouterLink to="/">
-          <img :src="logoSrc" alt="Capital-Metal" class="header-logo" width="85" height="47" />
+          <img :src="logoSrc" alt="Cairo-Metal" class="header-logo" width="85" height="47" />
         </RouterLink>
       </div>
       <CHeaderNav class="header-primary-nav ms-auto">
@@ -422,15 +422,20 @@ onMounted(() => {
         <template v-else>
           <CNavItem>
             <RouterLink to="/pages/login" custom v-slot="{ href, navigate }">
-              <CNavLink :href="href" @click="navigate" class="fw-semibold">
-                <CIcon icon="cil-account-login" class="me-1" />{{ $t('header.login') }}
+              <CNavLink :href="href" @click="navigate" class="fw-semibold auth-login-link" :aria-label="$t('header.login')" :title="$t('header.login')">
+                <CIcon icon="cil-user" class="auth-action-icon" />
+                <span class="auth-action-label">{{ $t('header.login') }}</span>
               </CNavLink>
             </RouterLink>
           </CNavItem>
           <CNavItem>
             <RouterLink to="/pages/register" custom v-slot="{ href, navigate }">
-              <CButton color="primary" size="sm" :href="href" @click="navigate" class="my-1">
-                {{ $t('header.sign_up') }}
+              <CButton color="primary" size="sm" :href="href" @click="navigate" class="my-1 auth-register-link" :aria-label="$t('header.sign_up')" :title="$t('header.sign_up')">
+                <svg class="auth-action-icon auth-register-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="9" cy="7" r="3.25" />
+                  <path d="M2.75 20c.3-3.55 2.65-5.75 6.25-5.75 3.45 0 5.65 2.05 6.15 5.25M19 7v6m-3-3h6" />
+                </svg>
+                <span class="auth-action-label">{{ $t('header.sign_up') }}</span>
               </CButton>
             </RouterLink>
           </CNavItem>
@@ -514,7 +519,7 @@ onMounted(() => {
   --header-ink: #263a3f;
   --header-muted: #5b6d72;
   --header-line: #e3ece9;
-  --header-hover: rgba(8, 127, 140, .08);
+  --header-hover: rgba(181, 18, 27, .08);
   --header-surface: rgba(255, 255, 255, .96);
   background: var(--header-surface) !important;
   backdrop-filter: blur(18px) saturate(1.15);
@@ -606,23 +611,23 @@ onMounted(() => {
 }
 
 .header-dark-mode .nav-link:hover {
-  color: #087f8c !important;
+  color: #B5121B !important;
   background: var(--header-hover) !important;
 }
 
 .header-dark-mode .nav-link.active {
-  color: #087f8c !important;
-  background: rgba(8, 127, 140, .09) !important;
+  color: #B5121B !important;
+  background: rgba(181, 18, 27, .09) !important;
 }
 
 .header-dark-mode .brand-icon {
-  color: #087f8c !important;
+  color: #B5121B !important;
   filter: none;
 }
 
 .header-dark-mode .btn-create-header {
-  background: linear-gradient(135deg, #087f8c, #0c9b99) !important;
-  box-shadow: 0 4px 12px rgba(8, 127, 140, .2);
+  background: linear-gradient(135deg, #B5121B, #D61F2C) !important;
+  box-shadow: 0 4px 12px rgba(181, 18, 27, .2);
 }
 
 .header-dark-mode .lang-switcher-btn {
@@ -643,7 +648,7 @@ onMounted(() => {
 }
 
 .header-dark-mode .theme-toggle-btn:hover {
-  color: #087f8c !important;
+  color: #B5121B !important;
   background: var(--header-hover);
 }
 
@@ -666,8 +671,8 @@ onMounted(() => {
 .header-dark-mode .header-toggler { width: 40px; padding: 0; }
 .header-dark-mode .header-toggler:hover,
 .header-dark-mode .header-nav-mobile-toggle:hover {
-  color: #087f8c !important;
-  border-color: rgba(8,127,140,.3) !important;
+  color: #B5121B !important;
+  border-color: rgba(181,18,27,.3) !important;
   background: #f0f8f6 !important;
 }
 .header-dark-mode .header-actions .btn-animated-glow {
@@ -675,10 +680,10 @@ onMounted(() => {
   padding: .45rem .7rem;
   color: #fff !important;
   border-color: transparent !important;
-  background: linear-gradient(135deg, #087f8c, #0c9b99) !important;
-  box-shadow: 0 5px 14px rgba(8,127,140,.2);
+  background: linear-gradient(135deg, #B5121B, #D61F2C) !important;
+  box-shadow: 0 5px 14px rgba(181,18,27,.2);
 }
-.header-dark-mode .header-actions .btn-animated-glow:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(8,127,140,.24); }
+.header-dark-mode .header-actions .btn-animated-glow:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(181,18,27,.24); }
 .header-dark-mode .header-nav-horizontal .nav-link {
   border-radius: 9px;
   font-weight: 600;
@@ -702,8 +707,8 @@ onMounted(() => {
 .header-dark-mode .currency-group-header .btn-primary,
 .header-dark-mode .currency-group-header .btn.active {
   color: #fff !important;
-  background: #087f8c !important;
-  box-shadow: 0 2px 7px rgba(8,127,140,.2);
+  background: #B5121B !important;
+  box-shadow: 0 2px 7px rgba(181,18,27,.2);
 }
 .header-dark-mode .header-more-menu > .nav-link,
 .header-dark-mode .cart-fly-link {
@@ -717,7 +722,7 @@ onMounted(() => {
   color: var(--header-muted) !important;
 }
 .header-dark-mode .header-more-menu > .nav-link:hover,
-.header-dark-mode .cart-fly-link:hover { color: #087f8c !important; border-color: rgba(8,127,140,.3); }
+.header-dark-mode .cart-fly-link:hover { color: #B5121B !important; border-color: rgba(181,18,27,.3); }
 .header-dark-mode .dropdown-menu {
   padding: .45rem;
   border: 1px solid var(--header-line);
@@ -731,12 +736,12 @@ onMounted(() => {
   transition: color .16s ease, background .16s ease;
 }
 .header-dark-mode .dropdown-item:hover,
-.header-dark-mode .dropdown-item.active { color: #087f8c; background: #edf7f5; }
+.header-dark-mode .dropdown-item.active { color: #B5121B; background: #edf7f5; }
 .header-dark-mode .header-nav .btn-primary {
   border-radius: 10px;
   padding-inline: .9rem;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(8,127,140,.16);
+  box-shadow: 0 4px 10px rgba(181,18,27,.16);
 }
 
 :global([data-coreui-theme="dark"]) .header-dark-mode {
@@ -771,7 +776,7 @@ onMounted(() => {
 :global([data-coreui-theme="dark"]) .header-dark-mode .currency-group-header .btn-primary,
 :global([data-coreui-theme="dark"]) .header-dark-mode .currency-group-header .btn.active {
   color: #fff !important;
-  background: #087f8c !important;
+  background: #B5121B !important;
 }
 :global([data-coreui-theme="dark"]) .header-dark-mode .header-more-menu > .nav-link,
 :global([data-coreui-theme="dark"]) .header-dark-mode .cart-fly-link {
@@ -792,7 +797,7 @@ onMounted(() => {
 }
 
 .impersonation-banner {
-  background: linear-gradient(90deg, #0EA5E9, #8f0e00);
+  background: linear-gradient(90deg, #B5121B, #8f0e00);
   color: #fff;
 }
 
@@ -833,7 +838,7 @@ onMounted(() => {
 
 .notif-view-all {
   border-top: 1px solid var(--cui-border-color, rgba(0,0,0,.125));
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
 }
 
 .currency-group-header {

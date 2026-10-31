@@ -330,3 +330,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/users/{id}/impersonate', [UserController::class, 'adminImpersonate']);
     });
 });
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});

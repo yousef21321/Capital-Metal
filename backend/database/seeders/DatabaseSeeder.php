@@ -86,8 +86,8 @@ class DatabaseSeeder extends Seeder
 
         // Products
         $product1 = Product::firstOrCreate(
-            ['slug' => 'capital-metal-t-shirt'],
-            ['name' => 'Capital-Metal T-Shirt', 'description' => 'Premium cotton t-shirt with Capital-Metal design', 'product_type' => 'physical', 'price_egp' => 299.00, 'price_usd' => 9.99, 'cost' => 100.00, 'status' => 'published', 'publish_date' => now()]
+            ['slug' => 'cairo-metal-t-shirt'],
+            ['name' => 'Cairo-Metal T-Shirt', 'description' => 'Premium cotton t-shirt with Capital-Metal design', 'product_type' => 'physical', 'price_egp' => 299.00, 'price_usd' => 9.99, 'cost' => 100.00, 'status' => 'published', 'publish_date' => now()]
         );
 
         Inventory::firstOrCreate(
@@ -96,8 +96,8 @@ class DatabaseSeeder extends Seeder
         );
 
         $product2 = Product::firstOrCreate(
-            ['slug' => 'capital-metal-mug'],
-            ['name' => 'Capital-Metal Mug', 'description' => 'Ceramic mug with Capital-Metal logo', 'product_type' => 'physical', 'price_egp' => 149.00, 'price_usd' => 4.99, 'cost' => 50.00, 'status' => 'published', 'publish_date' => now()]
+            ['slug' => 'cairo-metal-mug'],
+            ['name' => 'Cairo-Metal Mug', 'description' => 'Ceramic mug with Capital-Metal logo', 'product_type' => 'physical', 'price_egp' => 149.00, 'price_usd' => 4.99, 'cost' => 50.00, 'status' => 'published', 'publish_date' => now()]
         );
 
         Inventory::firstOrCreate(
@@ -106,8 +106,8 @@ class DatabaseSeeder extends Seeder
         );
 
         Product::firstOrCreate(
-            ['slug' => 'capital-metal-template'],
-            ['name' => 'Capital-Metal Template', 'description' => 'Digital design template pack', 'product_type' => 'digital', 'price_egp' => 499.00, 'price_usd' => 14.99, 'cost' => 0, 'status' => 'published', 'publish_date' => now()]
+            ['slug' => 'cairo-metal-template'],
+            ['name' => 'Cairo-Metal Template', 'description' => 'Digital design template pack', 'product_type' => 'digital', 'price_egp' => 499.00, 'price_usd' => 14.99, 'cost' => 0, 'status' => 'published', 'publish_date' => now()]
         );
 
         // Cart for test user

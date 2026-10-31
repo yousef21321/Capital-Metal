@@ -567,7 +567,7 @@ class PayMobController extends Controller
         return $this->paymob->buildBillingData([
             'first_name' => $order?->guest_name ?? 'Guest',
             'last_name' => 'Guest',
-            'email' => $order?->guest_email ?? 'guest@capital-metal.first-link-logistics.com',
+            'email' => $order?->guest_email ?? 'guest@cairo-metal.first-link-logistics.com',
             'phone_number' => $order?->guest_phone ?? '0000000000',
             'city' => $order?->guest_city ?? 'Cairo',
             'country' => 'EG',

@@ -2,7 +2,7 @@
   <CFooter class="px-3 px-md-4 flex-column text-center text-md-start">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start w-100 gap-2">
       <div class="footer-brand">
-        <span class="fw-semibold">Capital_Metal</span>
+        <span class="fw-semibold">Cairo-Metal</span>
         <span class="ms-1">&copy; {{ new Date().getFullYear() }} {{ $t('footer.all_rights') }}</span>
       </div>
       <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 gap-md-3 small footer-links">
@@ -40,7 +40,7 @@
   transition: all 0.2s ease;
 }
 .social-link:hover {
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
   transform: translateY(-2px);
 }
 </style>

@@ -3,8 +3,8 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useThemeStore } from '@/stores/theme.js'
 import { useAuthStore } from '@/stores/auth'
-import logoLight from '@/assets/images/logo-small.webp'
-import logoDark from '@/assets/images/logodark-small.webp'
+import logoLight from '@/assets/images/cairo-metal-logo-light.svg'
+import logoDark from '@/assets/images/cairo-metal-logo-dark.svg'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
@@ -96,9 +96,9 @@ async function handleRegister() {
               <CCol md="5" class="auth-brand-panel d-none d-md-flex flex-column align-items-center justify-content-center">
                 <div class="auth-brand-content">
                   <RouterLink to="/">
-                    <img :src="logoSrc" alt="Capital-Metal" class="auth-logo mb-3" width="97" height="48" />
+                    <img :src="logoSrc" alt="Cairo-Metal" class="auth-logo mb-3" width="97" height="48" />
                   </RouterLink>
-                  <h3 class="auth-brand-title">Capital-Metal</h3>
+                  <h3 class="auth-brand-title">Cairo-Metal</h3>
                   <p class="auth-brand-desc">منصة التصميم والتصنيع</p>
                   <div class="auth-brand-divider"></div>
                   <p class="auth-brand-question">Already have an account?</p>
@@ -111,12 +111,12 @@ async function handleRegister() {
                 <CCardBody class="auth-form-body p-4 p-lg-5">
                   <div class="text-center d-md-none mb-4">
                     <RouterLink to="/">
-                      <img :src="logoSrc" alt="Capital-Metal" class="auth-logo-sm mb-2" width="73" height="36" />
+                      <img :src="logoSrc" alt="Cairo-Metal" class="auth-logo-sm mb-2" width="73" height="36" />
                     </RouterLink>
                   </div>
                   <div class="auth-form-header">
                     <h3 class="fw-bold mb-1 auth-form-title">إنشاء حساب / Register</h3>
-                    <p class="mb-0" style="color: rgba(255,255,255,0.5);">أنشئ حسابك في Capital-Metal لبدء التسوق</p>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.5);">أنشئ حسابك في Cairo-Metal لبدء التسوق</p>
                   </div>
 
                   <CAlert v-show="error" color="danger" class="py-2 auth-alert">{{ error }}</CAlert>
@@ -221,13 +221,13 @@ async function handleRegister() {
 }
 .auth-bg-shapes .shape-1 {
   width: 400px; height: 400px;
-  background: var(--cui-primary, #0EA5E9);
+  background: var(--cui-primary, #B5121B);
   top: -120px; left: -80px;
   animation-delay: 0s;
 }
 .auth-bg-shapes .shape-2 {
   width: 320px; height: 320px;
-  background: var(--cui-info, #39f);
+  background: var(--cui-info, #73777f);
   bottom: -100px; right: -60px;
   animation-delay: -3s;
 }
@@ -263,19 +263,19 @@ async function handleRegister() {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 30% 20%, rgba(14, 165, 233, 0.04) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 30% 20%, rgba(181, 18, 27, 0.04) 0%, transparent 60%);
 }
 .auth-brand-panel::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(181, 18, 27, 0.1), transparent);
 }
 
 .auth-brand-content {
   text-align: center;
-  color: #0EA5E9;
+  color: #B5121B;
   position: relative;
   z-index: 1;
   animation: fade-up 0.6s ease-out 0.15s both;
@@ -284,14 +284,14 @@ async function handleRegister() {
 .auth-logo {
   height: 48px;
   width: auto;
-  filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.15));
+  filter: drop-shadow(0 2px 8px rgba(181, 18, 27, 0.15));
 }
 
 .auth-brand-title {
   font-weight: 800;
   font-size: 1.5rem;
   margin-bottom: 0.4rem;
-  color: #0EA5E9;
+  color: #B5121B;
 }
 
 .auth-brand-desc {
@@ -305,7 +305,7 @@ async function handleRegister() {
 .auth-brand-divider {
   width: 60px;
   height: 2px;
-  background: rgba(14, 165, 233, 0.2);
+  background: rgba(181, 18, 27, 0.2);
   border-radius: 2px;
   margin: 0 auto 1rem;
 }
@@ -322,16 +322,16 @@ async function handleRegister() {
   font-weight: 600;
   font-size: 0.85rem;
   padding: 0.4rem 1.6rem;
-  border: 2px solid #0EA5E9;
-  color: #0EA5E9;
+  border: 2px solid #B5121B;
+  color: #B5121B;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   background: transparent;
 }
 .auth-brand-btn:hover {
-  background: #0EA5E9;
+  background: #B5121B;
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 4px 16px rgba(181, 18, 27, 0.25);
 }
 
 .auth-form-body {
@@ -346,11 +346,11 @@ async function handleRegister() {
 }
 
 .auth-form-title {
-  background: linear-gradient(135deg, #7DD3FC, #38BDF8);
+  background: linear-gradient(135deg, #9CA3AF, #EF4444);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  color: #7DD3FC;
+  color: #9CA3AF;
 }
 
 .auth-alert {
@@ -369,7 +369,7 @@ async function handleRegister() {
   background: rgba(255,255,255,0.04);
 }
 .auth-input-group:focus-within {
-  border-color: #7DD3FC;
+  border-color: #9CA3AF;
   box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.12);
 }
 .auth-input-group .input-group-text {
@@ -403,7 +403,7 @@ async function handleRegister() {
 }
 .currency-option .btn:hover {
   transform: translateY(-1px);
-  border-color: #7DD3FC;
+  border-color: #9CA3AF;
 }
 
 .auth-submit-btn {
@@ -411,12 +411,12 @@ async function handleRegister() {
   font-weight: 600;
   padding: 0.65rem 1rem;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 4px 20px rgba(181, 18, 27, 0.25);
   border: none;
 }
 .auth-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 8px 30px rgba(181, 18, 27, 0.4);
 }
 .auth-submit-btn:active {
   transform: translateY(0);
@@ -425,11 +425,11 @@ async function handleRegister() {
 .auth-link {
   text-decoration: none;
   font-weight: 500;
-  color: #7DD3FC;
+  color: #9CA3AF;
   transition: all 0.2s ease;
 }
 .auth-link:hover {
-  color: #38BDF8;
+  color: #EF4444;
   text-decoration: underline;
 }
 

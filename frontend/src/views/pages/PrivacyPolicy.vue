@@ -18,8 +18,8 @@ import AppFooter from '@/components/AppFooter.vue'
                 <hr />
 
                 <h2 class="fs-5">المقدمة</h2>
-                <p>نحن في Capital-Metal نلتزم بحماية خصوصيتك. تصف هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p>
-                <p class="mb-4 text-body-secondary">At Capital-Metal, we are committed to protecting your privacy. This policy describes how we collect, use, and protect your personal information.</p>
+                <p>نحن في Cairo-Metal نلتزم بحماية خصوصيتك. تصف هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p>
+                <p class="mb-4 text-body-secondary">At Cairo-Metal, we are committed to protecting your privacy. This policy describes how we collect, use, and protect your personal information.</p>
 
                 <h2 class="fs-5">المعلومات التي نجمعها</h2>
                 <ul>

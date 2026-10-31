@@ -37,7 +37,7 @@ const roleConfig = {
   user: {
     color: 'primary',
     icon: 'cil-user',
-    gradient: 'linear-gradient(135deg, #0EA5E9, #7a0d00)',
+    gradient: 'linear-gradient(135deg, #B5121B, #7a0d00)',
   },
   tester: {
     color: 'warning',
@@ -47,7 +47,7 @@ const roleConfig = {
   designer: {
     color: 'info',
     icon: 'cil-color-border',
-    gradient: 'linear-gradient(135deg, #39f, #1a6bcc)',
+    gradient: 'linear-gradient(135deg, #73777f, #52525B)',
   },
   industor: {
     color: 'success',

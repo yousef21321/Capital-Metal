@@ -148,11 +148,11 @@ onMounted(fetchTickets)
           </div>
           <div class="ticket-right">
             <div v-if="role !== 'industor' && t.industor" class="ticket-person">
-              <span class="person-avatar" :style="{ background: '#0EA5E9' }">{{ t.industor.name?.charAt(0) }}</span>
+              <span class="person-avatar" :style="{ background: '#B5121B' }">{{ t.industor.name?.charAt(0) }}</span>
               <span class="person-name small">{{ t.industor.name }}</span>
             </div>
             <div v-if="(role === 'admin' || role === 'industor') && t.designer" class="ticket-person">
-              <span class="person-avatar" :style="{ background: '#39f' }">{{ t.designer.name?.charAt(0) }}</span>
+              <span class="person-avatar" :style="{ background: '#73777f' }">{{ t.designer.name?.charAt(0) }}</span>
               <span class="person-name small">{{ t.designer.name }}</span>
             </div>
             <CButton color="primary" variant="outline" size="sm" class="btn-open" @click.stop="openTicket(t.id)">

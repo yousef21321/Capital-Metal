@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90" role="img" aria-label="Cairo Metal CMT logo">
+  <defs>
+    <linearGradient id="cmt-ink" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#505054"/>
+      <stop offset="0.2" stop-color="#111113"/>
+      <stop offset="0.52" stop-color="#29292c"/>
+      <stop offset="0.8" stop-color="#070708"/>
+      <stop offset="1" stop-color="#363639"/>
+    </linearGradient>
+    <linearGradient id="cmt-accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f43f46"/>
+      <stop offset="1" stop-color="#a80716"/>
+    </linearGradient>
+  </defs>
+  <text x="10" y="78" fill="url(#cmt-ink)" stroke="#69696d" stroke-width="0.7" paint-order="stroke fill" font-family="Arial Black,Impact,sans-serif" font-size="85" font-style="italic" font-weight="900" letter-spacing="-6">CMT</text>
+  <path d="M221 15h84l-13 23h-84z" fill="url(#cmt-accent)" stroke="#6f0c15" stroke-width="0.8"/>
+</svg>

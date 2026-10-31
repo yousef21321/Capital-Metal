@@ -154,4 +154,4 @@ onMounted(async () => {
 }
 </style>
 " filePath">
-/home/ubuntu/Capital-Metal/frontend/src/views/pages/RolePermissions.vue
+/home/ubuntu/Cairo-Metal/frontend/src/views/pages/RolePermissions.vue

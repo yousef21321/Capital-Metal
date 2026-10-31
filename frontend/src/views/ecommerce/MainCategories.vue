@@ -112,8 +112,8 @@ onMounted(fetchCategories)
   display: inline-flex;
   padding: 1.2rem;
   border-radius: 20px;
-  background: rgba(14, 165, 233, 0.06);
-  color: var(--cui-primary, #0EA5E9);
+  background: rgba(181, 18, 27, 0.06);
+  color: var(--cui-primary, #B5121B);
 }
 
 .categories-grid {
@@ -178,11 +178,11 @@ onMounted(fetchCategories)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.04), rgba(51, 153, 255, 0.04));
+  background: linear-gradient(135deg, rgba(181, 18, 27, 0.04), rgba(115, 119, 127, 0.04));
 }
 
 .fallback-icon {
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
   opacity: 0.3;
 }
 
@@ -228,7 +228,7 @@ onMounted(fetchCategories)
 }
 
 .category-card:hover .category-name {
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
 }
 
 .category-desc {
@@ -256,7 +256,7 @@ onMounted(fetchCategories)
 
 .category-card:hover .category-arrow {
   opacity: 1;
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
   transform: translateX(3px);
 }
 

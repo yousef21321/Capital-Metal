@@ -991,7 +991,7 @@ onMounted(() => {
           </CCol>
           <CCol :sm="6" class="mb-3" v-if="form.product_type === 'physical'">
             <CFormLabel class="fw-semibold">SKU *</CFormLabel>
-            <CFormInput v-model="form.sku" placeholder="e.g. CAPITAL-METAL-TSHIRT-001" />
+            <CFormInput v-model="form.sku" placeholder="e.g. CAIRO-METAL-TSHIRT-001" />
             <small class="text-body-secondary">Required for shipping integration (Stox)</small>
           </CCol>
           <CCol :sm="12" class="mb-3">
@@ -1367,7 +1367,7 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 .variant-card:hover {
-  border-color: var(--cui-primary, #0EA5E9);
+  border-color: var(--cui-primary, #B5121B);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .variant-thumb {
@@ -1443,7 +1443,7 @@ onMounted(() => {
 }
 .point-bullet {
   font-size: 1.2rem;
-  color: var(--cui-primary, #0EA5E9);
+  color: var(--cui-primary, #B5121B);
   flex-shrink: 0;
   width: 14px;
   text-align: center;
@@ -1490,7 +1490,7 @@ onMounted(() => {
 }
 .archived-toggle:hover {
   background: rgba(128, 128, 128, 0.06);
-  border-color: var(--cui-primary, #0EA5E9);
+  border-color: var(--cui-primary, #B5121B);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -1505,7 +1505,7 @@ onMounted(() => {
   transition: border-color 0.2s;
 }
 .image-picker-area:hover {
-  border-color: var(--cui-primary, #0EA5E9);
+  border-color: var(--cui-primary, #B5121B);
 }
 .new-image-thumb {
   position: relative;
